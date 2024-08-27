@@ -1,5 +1,7 @@
 package com.cs203.smucode.services;
 
+import com.cs203.smucode.models.Tournament;
+
 interface ITournamentService {
-    createTournament(Tournament tournament);
+    void createTournament(Tournament tournament);
 }
