@@ -4,6 +4,11 @@ import lombok.Data;
 import lombok.AllArgsConstructor; // Subject to change
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+
 /**
  * @author gav
  * @version 1.0
@@ -11,7 +16,10 @@ import java.time.LocalDateTime;
  */
 @Data
 @AllArgsConstructor
+@Entity
 public class Tournament {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name; 
     private String description; // e.g "Trees", "LinkedList", "Recursion"

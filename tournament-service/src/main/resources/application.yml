@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: tournament-service
+  datasource:
+    url=j

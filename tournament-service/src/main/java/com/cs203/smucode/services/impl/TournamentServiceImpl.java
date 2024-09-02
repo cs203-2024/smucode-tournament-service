@@ -2,11 +2,12 @@ package com.cs203.smucode.services.impl;
 
 import com.cs203.smucode.factories.TournamentServiceFactory;
 import com.cs203.smucode.models.Tournament;
+import com.cs203.smucode.services.ITournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TournamentServiceImpl {
+public class TournamentServiceImpl implements ITournamentService {
     private final TournamentServiceFactory tournamentServiceFactory;
 
     @Autowired
@@ -14,7 +15,9 @@ public class TournamentServiceImpl {
         this.tournamentServiceFactory = tournamentServiceFactory;
     }
 
-    void createTournament(Tournament tournament) {
-        return;
+    @Override
+    public void createTournament(Tournament tournament) {
+        ITournamentService tournamentService = tournamentServiceFactory.getTournamentService(tournament.getFormat());
+        tournamentService.createTournament(tournament);
     }
 }
