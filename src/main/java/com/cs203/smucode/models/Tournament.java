@@ -4,6 +4,9 @@ import lombok.Data;
 import lombok.AllArgsConstructor; // Subject to change
 import java.time.LocalDateTime;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 /**
  * @author gav
  * @version 1.0
@@ -11,7 +14,9 @@ import java.time.LocalDateTime;
  */
 @Data
 @AllArgsConstructor
+@Document(collection = "tournaments")
 public class Tournament {
+    @Id
     private Long id;
     private String name; 
     private String description; // e.g "Trees", "LinkedList", "Recursion"
