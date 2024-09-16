@@ -3,5 +3,17 @@ spring:
     name: smucode
   data:
     mongodb:
-      uri: mongodb://localhost:27017/smucode
-        
+      host: localhost
+      port: 27017
+      database: tournament
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: DEBUG
+
+
