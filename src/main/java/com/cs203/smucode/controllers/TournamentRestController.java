@@ -10,7 +10,7 @@ import java.util.List;
 @RestController
 public class TournamentRestController {
 
-    private TournamentService tournamentService;
+    private final TournamentService tournamentService;
 
     @Autowired
     public TournamentRestController(TournamentService tournamentService) { this.tournamentService = tournamentService; }
