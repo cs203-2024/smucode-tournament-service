@@ -1,6 +1,8 @@
 package com.cs203.smucode.models;
 
 import com.cs203.smucode.dto.UserDTO;
+import com.cs203.smucode.validation.WeightSum;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -19,6 +21,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @AllArgsConstructor
 @Document(collection = "tournaments")
+@WeightSum
 public class Tournament {
     @Id
     private String id;
@@ -37,12 +40,5 @@ public class Tournament {
     private BigDecimal memWeight;
     private BigDecimal testCaseWeight;
 
-//    public Tournament(String name, String description, String status, LocalDateTime startDate, LocalDateTime endDate, String format) {
-//        this.name = name;
-//        this.description = description;
-//        this.status = status;
-//        this.startDate = startDate;
-//        this.endDate = endDate;
-//        this.format = format;
-//    }
+
 }

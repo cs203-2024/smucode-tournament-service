@@ -4,7 +4,13 @@ spring:
   data:
     mongodb:
       uri: GYyat!!!
+#      host: localhost
+#      port: 27017
       database: tournament
+
+server:
+  servlet:
+    context-path: /tournaments
 
 logging:
   level:
