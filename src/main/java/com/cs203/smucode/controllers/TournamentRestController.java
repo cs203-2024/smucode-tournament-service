@@ -2,12 +2,15 @@ package com.cs203.smucode.controllers;
 
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.TournamentService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/tournaments")
 public class TournamentRestController {
 
     private TournamentService tournamentService;
@@ -32,12 +35,17 @@ public class TournamentRestController {
         return tournamentService.findTournamentById(id);
     }
 
-//    POST mapping "/{id}" to create new tournament
+//    POST mapping "/" to create new tournament
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/")
-    public Tournament createTournament(Tournament tournament) { return tournamentService.saveTournament(tournament); }
+    public Tournament createTournament(@Valid @RequestBody Tournament tournament) { return tournamentService.createTournament(tournament); }
 
 //    PUT mapping "/{id}" to update tournament
-//    @PutMapping("/")
-//    public Tournament updateTournament()
+    @PutMapping("/{id}")
+    public Tournament updateTournament(@PathVariable String id, @Valid @RequestBody Tournament tournament) { return tournamentService.updateTournament(id, tournament); }
+
+//    DELETE mapping "/{id}" to delete tournament
+    @DeleteMapping("/{id}")
+    public void deleteTournamentById(@PathVariable String id) { tournamentService.deleteTournamentById(id); }
 
 }
