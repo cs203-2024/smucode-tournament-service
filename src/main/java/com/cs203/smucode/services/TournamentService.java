@@ -10,7 +10,9 @@ public interface TournamentService {
 
     Tournament findTournamentById(String id);
 
-    Tournament saveTournament(Tournament tournament);
+    Tournament createTournament(Tournament tournament);
+
+    Tournament updateTournament(String id, Tournament tournament);
 
     void deleteTournamentById(String id);
 
