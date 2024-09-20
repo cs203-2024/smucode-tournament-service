@@ -3,9 +3,14 @@ spring:
     name: smucode
   data:
     mongodb:
-      host: localhost
-      port: 27017
+      uri: GYyat!!!
+#      host: localhost
+#      port: 27017
       database: tournament
+
+server:
+  servlet:
+    context-path: /api
 
 logging:
   level:
@@ -15,5 +20,4 @@ logging:
           mongodb:
             core:
               MongoTemplate: DEBUG
-
 
