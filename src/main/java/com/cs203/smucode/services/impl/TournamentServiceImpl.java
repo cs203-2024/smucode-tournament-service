@@ -22,8 +22,7 @@ public class TournamentServiceImpl implements TournamentService {
     public List<Tournament> findAllTournaments() { return tournamentServiceRepository.findAll(); }
 
     public Tournament findTournamentById(String id) {
-        Optional<Tournament> tournament = tournamentServiceRepository.findById(id);
-        return tournament.orElse(null);
+        return tournamentServiceRepository.findById(id).orElse(null);
     }
 
     public Tournament createTournament(Tournament tournament) {

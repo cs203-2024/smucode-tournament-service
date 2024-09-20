@@ -21,8 +21,6 @@ public class WeightSumValidator implements ConstraintValidator<WeightSum, Tourna
                                    .add(tournament.getMemWeight())
                                    .add(tournament.getTestCaseWeight());
 
-
-        System.out.println("hello from inside of weightSumValidator");
         return sum.compareTo(BigDecimal.ONE) == 0;
     }
 

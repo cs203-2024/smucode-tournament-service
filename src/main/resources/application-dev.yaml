@@ -10,7 +10,7 @@ spring:
 
 server:
   servlet:
-    context-path: /tournaments
+    context-path: /api
 
 logging:
   level:
