@@ -2,6 +2,7 @@ package com.cs203.smucode.services;
 
 import com.cs203.smucode.models.Tournament;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TournamentService {
@@ -16,4 +17,5 @@ public interface TournamentService {
 
     void deleteTournamentById(String id);
 
+    List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime, String status);
 }
