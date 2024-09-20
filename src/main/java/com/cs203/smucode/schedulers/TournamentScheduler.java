@@ -1,32 +1,34 @@
 package com.cs203.smucode.schedulers;
 
 import com.cs203.smucode.models.Tournament;
+import com.cs203.smucode.services.MatchmakingService;
 import com.cs203.smucode.services.TournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Configuration
+@Component
 public class TournamentScheduler {
 
-    @Autowired
-    private TournamentService tournamentService;
+    private final TournamentService tournamentService;
+    private final MatchmakingService matchmakingService;
 
-    @Scheduled(fixedRate = 30000) // Check every 30secs
-    public void runScheduledMatchmaking() {
+    @Autowired
+    public TournamentScheduler(TournamentService tournamentService, MatchmakingService matchmakingService) {
+        this.tournamentService = tournamentService;
+        this.matchmakingService = matchmakingService;
+    }
+
+    @Scheduled(fixedRate = 30000) //every 30secs
+    public void scheduleMatchmaking() {
         LocalDateTime now = LocalDateTime.now();
-        List<Tournament> tournaments = tournamentService.findAllTournaments();
+        List<Tournament> tournaments = tournamentService.findTournamentsBySignUpDeadline(now, "pending");
 
         for (Tournament tournament : tournaments) {
-            if (tournament.getStatus().equals("pending") && tournament.getStartDate().isBefore(now)) {
-                // Start the tournament
-                tournamentService.runMatchmaking(tournament.getId());
-                tournament.setStatus("in_progress");
-                tournamentService.saveTournament(tournament);
-            }
+            matchmakingService.runMatchmaking(tournament);
         }
     }
 }
