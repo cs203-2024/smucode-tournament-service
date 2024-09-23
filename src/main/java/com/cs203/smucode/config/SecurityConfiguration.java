@@ -9,6 +9,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.Customizer;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.lang.NonNull;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
 /**
  * @author : gav
@@ -18,6 +21,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * This class is used to configure the security of the tournament microservice. 
  */
 @Configuration
+@EnableWebSecurity
 public class SecurityConfiguration {
 
     @Bean
@@ -28,8 +32,9 @@ public class SecurityConfiguration {
         http.sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No session management; microservice
         );
-        http.httpBasic(Customizer.withDefaults()); 
         http.csrf(csrf -> csrf.disable()); // Disable CSRF protection since we are using JWT
+
+        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
     }
 
@@ -37,7 +42,7 @@ public class SecurityConfiguration {
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
-            public void addCorsMappings(CorsRegistry registry) {
+            public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("http://localhost:3000")
                         .allowedMethods("*")
