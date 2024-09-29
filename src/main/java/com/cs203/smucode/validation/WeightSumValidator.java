@@ -11,17 +11,15 @@ public class WeightSumValidator implements ConstraintValidator<WeightSum, Tourna
     @Override
     public boolean isValid(Tournament tournament, ConstraintValidatorContext context) {
 
-        if (tournament.getTimeWeight() == null ||
-            tournament.getMemWeight() == null ||
-            tournament.getTestCaseWeight() == null) {
+        if (tournament.getTimeWeight() < 0 ||
+            tournament.getMemWeight() < 0 ||
+            tournament.getTestCaseWeight() < 0) {
             return false;
         }
 
-        BigDecimal sum = tournament.getTimeWeight()
-                                   .add(tournament.getMemWeight())
-                                   .add(tournament.getTestCaseWeight());
+        int sum = tournament.getTimeWeight() + tournament.getMemWeight() + tournament.getTestCaseWeight();
 
-        return sum.compareTo(BigDecimal.ONE) == 0;
+        return sum == 100;
     }
 
 }

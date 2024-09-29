@@ -1,13 +1,14 @@
 package com.cs203.smucode.repositories;
 
 import com.cs203.smucode.models.Bracket;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface BracketServiceRepository extends MongoRepository<Bracket, String> {
+public interface BracketServiceRepository extends JpaRepository<Bracket, UUID> {
 
-    List<Bracket> findByRoundId(String roundId);
+    List<Bracket> findByRoundId(UUID roundId);
 }
