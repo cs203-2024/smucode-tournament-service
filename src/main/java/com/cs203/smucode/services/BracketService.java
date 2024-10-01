@@ -8,11 +8,11 @@ import java.util.UUID;
 
 public interface BracketService {
 
-    List<BracketDTO> findAllBracketsByRoundId(UUID roundId);
+    List<Bracket> findAllBracketsByRoundId(UUID roundId);
 
     Bracket findBracketById(UUID id);
 
-    Bracket createBracket(Bracket bracket);
+    Bracket createBracket(Bracket bracketDTO);
 
     Bracket updateBracket(UUID id, Bracket bracket);
 
