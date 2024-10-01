@@ -1,9 +1,12 @@
 package com.cs203.smucode.models;
 
+import com.cs203.smucode.constants.Band;
 import com.cs203.smucode.constants.SignupStatus;
 import com.cs203.smucode.constants.Status;
+import com.cs203.smucode.converters.BandConverter;
 import com.cs203.smucode.converters.SignupStatusConverter;
 import com.cs203.smucode.converters.StatusConverter;
+import com.cs203.smucode.validation.PowerOfTwo;
 import com.cs203.smucode.validation.WeightSum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -28,11 +31,13 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name="tournaments")
 @WeightSum
+// TODO: add rest of Bean validation
 public class Tournament {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    @NotNull
     @Column(nullable = false, length = 255)
     private String name;
 
@@ -51,18 +56,15 @@ public class Tournament {
     @Column(name = "format", length = 50)
     private String format; // e.g., "single-elimination", "double-elimination", "round-robin"
 
+    @PowerOfTwo
     @Column(nullable = false)
     private int capacity;
 
     @Column(length = 255)
     private String icon;
 
-    @ManyToOne
-    @JoinColumn(name = "owner", referencedColumnName = "id")
-    private User owner;
-
-    @Column(name = "signup_deadline", nullable = false)
-    private LocalDateTime signUpDeadline;
+    @Column(name = "owner", nullable = false)
+    private UUID owner;
 
     @Column(name = "time_weight", nullable = false)
     private int timeWeight;
@@ -74,7 +76,6 @@ public class Tournament {
     private int testCaseWeight;
 
     @Convert(converter = StatusConverter.class)
-//    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
 
@@ -85,13 +86,14 @@ public class Tournament {
     private LocalDateTime signupEndDate;
 
     @Convert(converter = SignupStatusConverter.class)
-//    @Enumerated(EnumType.STRING)
     @Column(name = "signup_status", nullable = false)
     private SignupStatus signupStatus;
+
+    @Convert(converter = BandConverter.class)
+    @Column(name = "band")
+    private Band band;
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Round> rounds;
 
-//    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
-//    List<Bracket> brackets;
 }

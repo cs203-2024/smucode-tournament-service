@@ -1,6 +1,7 @@
 package com.cs203.smucode.controllers;
 
 import com.cs203.smucode.dto.BracketDTO;
+import com.cs203.smucode.mappers.BracketMapper;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.services.BracketService;
 import jakarta.validation.Valid;
@@ -16,31 +17,40 @@ import java.util.UUID;
 public class BracketRestController {
 
     private BracketService bracketService;
+    private BracketMapper bracketMapper;
 
     @Autowired
-    public BracketRestController(BracketService bracketService) {
+    public BracketRestController(BracketService bracketService,
+                                 BracketMapper bracketMapper) {
         this.bracketService = bracketService;
+        this.bracketMapper = bracketMapper;
     }
 
     @GetMapping("/round/{id}")
     public List<BracketDTO> getAllBracketsByRoundId(@PathVariable UUID id) {
-        return bracketService.findAllBracketsByRoundId(id);
+        List<Bracket> brackets = bracketService.findAllBracketsByRoundId(id);
+        return bracketMapper.bracketsToBracketDTOs(brackets);
     }
 
     @GetMapping("/{id}")
-    public Bracket getBracketById(@PathVariable UUID id) {
-        return bracketService.findBracketById(id);
+    public BracketDTO getBracketById(@PathVariable UUID id) {
+        Bracket bracket = bracketService.findBracketById(id);
+        return bracketMapper.bracketToBracketDTO(bracket);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/")
-    public Bracket createBracket(@Valid @RequestBody Bracket bracket) {
-        return bracketService.createBracket(bracket);
+    public BracketDTO createBracket(@Valid @RequestBody BracketDTO bracketDTO) {
+        Bracket bracket = bracketMapper.bracketDTOToBracket(bracketDTO);
+        bracketService.createBracket(bracket);
+        return bracketDTO;
     }
 
     @PutMapping("{id}")
-    public Bracket updateBracket(@PathVariable UUID id, @Valid @RequestBody Bracket bracket) {
-        return bracketService.updateBracket(id, bracket);
+    public BracketDTO updateBracket(@PathVariable UUID id, @Valid @RequestBody BracketDTO bracketDTO) {
+        Bracket bracket = bracketMapper.bracketDTOToBracket(bracketDTO);
+        bracketService.updateBracket(id, bracket);
+        return bracketDTO;
     }
 
     @DeleteMapping("{id}")

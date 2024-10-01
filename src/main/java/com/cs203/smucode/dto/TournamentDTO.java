@@ -18,4 +18,5 @@ public class TournamentDTO {
     private String status;
     private int capacity;
     private List<RoundDTO> rounds;
+    private String band;
 }

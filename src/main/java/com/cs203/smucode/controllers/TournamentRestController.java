@@ -1,8 +1,12 @@
 package com.cs203.smucode.controllers;
 
+import com.cs203.smucode.dto.CreateTournamentDTO;
 import com.cs203.smucode.dto.TournamentDTO;
+import com.cs203.smucode.exceptions.TournamentNotFoundException;
+import com.cs203.smucode.mappers.TournamentMapper;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.TournamentService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -15,33 +19,46 @@ import java.util.UUID;
 public class TournamentRestController {
 
     private TournamentService tournamentService;
+    private TournamentMapper tournamentMapper;
 
     @Autowired
-    public TournamentRestController(TournamentService tournamentService) {
+    public TournamentRestController(TournamentService tournamentService,
+                                    TournamentMapper tournamentMapper) {
         this.tournamentService = tournamentService;
+        this.tournamentMapper = tournamentMapper;
     }
 
 //    expose "/" and return list of tournaments
     @GetMapping("/")
     public List<TournamentDTO> getAllTournaments() {
-        return tournamentService.findAllTournaments();
+        List<Tournament> tournaments = tournamentService.findAllTournaments();
+        return tournamentMapper.tournamentsToTournamentDTOs(tournaments);
     }
 
 
 //    expose "/{id}" and return specified tournament
     @GetMapping("/{id}")
     public TournamentDTO getTournamentById(@PathVariable UUID id) {
-        return tournamentService.findTournamentById(id);
+        Tournament tournament = tournamentService.findTournamentById(id);
+        return tournamentMapper.tournamentToTournamentDTO(tournament);
     }
 
 //    POST mapping "/" to create new tournament
     @ResponseStatus(HttpStatus.CREATED)
-//    @PostMapping("/")
-//    public Tournament createTournament(@Valid @RequestBody Tournament tournament) { return tournamentService.createTournament(tournament); }
+    @PostMapping("/create")
+    public CreateTournamentDTO createTournament(@Valid @RequestBody CreateTournamentDTO tournamentDTO) {
+        Tournament tournament = tournamentMapper.createTournamentDTOToTournament(tournamentDTO);
+        tournamentService.createTournament(tournament);
+        return tournamentDTO;
+    }
 
 //    PUT mapping "/{id}" to update tournament
-//    @PutMapping("/{id}")
-//    public Tournament updateTournament(@PathVariable String id, @Valid @RequestBody Tournament tournament) { return tournamentService.updateTournament(id, tournament); }
+    @PutMapping("/{id}")
+    public TournamentDTO updateTournament(@PathVariable UUID id, @Valid @RequestBody TournamentDTO tournamentDTO) {
+        Tournament tournament = tournamentMapper.tournamentDTOToTournament(tournamentDTO);
+        tournamentService.updateTournament(id, tournament);
+        return tournamentDTO;
+    }
 
 //    DELETE mapping "/{id}" to delete tournament
     @DeleteMapping("/{id}")

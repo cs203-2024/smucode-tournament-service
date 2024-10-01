@@ -3,7 +3,7 @@ package com.cs203.smucode.dto;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Set;
+import java.util.UUID;
 
 @Data
 public class BracketDTO {
@@ -11,6 +11,6 @@ public class BracketDTO {
     private String status;
 //    private UserDTO player1;
 //    private UserDTO player2;
-    private List<UserDTO> players;
-    private UserDTO winner;
+    private List<UUID> playerIds;
+    private UUID winner;
 }

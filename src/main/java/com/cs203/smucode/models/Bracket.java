@@ -7,8 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -20,25 +20,32 @@ public class Bracket {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    @Convert(converter = StatusConverter.class)
+    @Column(name = "status", nullable = false, insertable = false)
+    private Status status;
+
+//    @ManyToOne
+//    @JoinColumn(name = "winner")
+    @Column(name = "winner")
+    private UUID winner;
+
     @ManyToOne
     @JoinColumn(name = "round_id", nullable = false)
     private Round round;
 
-    @Convert(converter = StatusConverter.class)
-    @Column(nullable = false)
-    private Status status;
+//    @ManyToMany(cascade = CascadeType.ALL)
+//    @JoinTable(
+//            name = "bracket_players",
+//            joinColumns = @JoinColumn(name = "bracket_id"),
+//            inverseJoinColumns = @JoinColumn(name = "player_id")
+//    )
+//    private List<User> players = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(
+    @ElementCollection
+    @CollectionTable(
             name = "bracket_players",
-            joinColumns = @JoinColumn(name = "bracket_id"),
-            inverseJoinColumns = @JoinColumn(name = "player_id")
+            joinColumns = @JoinColumn(name = "bracket_id")
     )
-    private List<User> players;
-//    private User player1;
-//    private User player2;
-
-    @ManyToOne
-    @JoinColumn(name = "winner")
-    private User winner;
+    @Column(name = "player_id")
+    private List<UUID> playerIds = new ArrayList<>();
 }

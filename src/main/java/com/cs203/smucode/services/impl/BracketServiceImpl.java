@@ -1,9 +1,5 @@
 package com.cs203.smucode.services.impl;
 
-import com.cs203.smucode.dto.BracketDTO;
-import com.cs203.smucode.exceptions.BracketNotFoundException;
-import com.cs203.smucode.mappers.BracketMapper;
-import com.cs203.smucode.mappers.UserMapper;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.repositories.BracketServiceRepository;
 import com.cs203.smucode.services.BracketService;
@@ -17,18 +13,14 @@ import java.util.UUID;
 public class BracketServiceImpl implements BracketService {
 
     private BracketServiceRepository bracketServiceRepository;
-    private BracketMapper bracketMapper;
 
     @Autowired
-    public BracketServiceImpl(BracketServiceRepository bracketServiceRepository,
-                              BracketMapper bracketMapper) {
+    public BracketServiceImpl(BracketServiceRepository bracketServiceRepository) {
         this.bracketServiceRepository = bracketServiceRepository;
-        this.bracketMapper = bracketMapper;
     }
 
-    public List<BracketDTO> findAllBracketsByRoundId(UUID roundId) {
-        List<Bracket> brackets = bracketServiceRepository.findByRoundId(roundId);
-        return bracketMapper.bracketsToBracketDTOs(brackets);
+    public List<Bracket> findAllBracketsByRoundId(UUID roundId) {
+        return bracketServiceRepository.findByRoundId(roundId);
     }
 
     public Bracket findBracketById(UUID id) {
