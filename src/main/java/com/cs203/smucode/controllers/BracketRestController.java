@@ -1,5 +1,6 @@
 package com.cs203.smucode.controllers;
 
+import com.cs203.smucode.dto.BracketDTO;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.services.BracketService;
 import jakarta.validation.Valid;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/brackets")
@@ -21,12 +23,12 @@ public class BracketRestController {
     }
 
     @GetMapping("/round/{id}")
-    public List<Bracket> getAllBracketsByRoundId(@PathVariable String id) {
+    public List<BracketDTO> getAllBracketsByRoundId(@PathVariable UUID id) {
         return bracketService.findAllBracketsByRoundId(id);
     }
 
     @GetMapping("/{id}")
-    public Bracket getBracketById(@PathVariable String id) {
+    public Bracket getBracketById(@PathVariable UUID id) {
         return bracketService.findBracketById(id);
     }
 
@@ -37,12 +39,12 @@ public class BracketRestController {
     }
 
     @PutMapping("{id}")
-    public Bracket updateBracket(@PathVariable String id, @Valid @RequestBody Bracket bracket) {
+    public Bracket updateBracket(@PathVariable UUID id, @Valid @RequestBody Bracket bracket) {
         return bracketService.updateBracket(id, bracket);
     }
 
     @DeleteMapping("{id}")
-    public void deleteBracket(@PathVariable String id) {
+    public void deleteBracket(@PathVariable UUID id) {
         bracketService.deleteBracketById(id);
     }
 }
