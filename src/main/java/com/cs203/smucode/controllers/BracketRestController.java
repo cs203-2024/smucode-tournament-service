@@ -1,6 +1,7 @@
 package com.cs203.smucode.controllers;
 
 import com.cs203.smucode.dto.BracketDTO;
+import com.cs203.smucode.dto.BracketScoreDTO;
 import com.cs203.smucode.dto.RoundDTO;
 import com.cs203.smucode.exceptions.UserNotFoundException;
 import com.cs203.smucode.mappers.BracketMapper;
@@ -61,7 +62,7 @@ public class BracketRestController {
     }
 
     @PutMapping("/{bracketId}/updateScore")
-    public BracketDTO updateBracketScore(@PathVariable UUID bracketId, @Valid @RequestBody BracketDTO bracketDTO) {
+    public BracketDTO updateBracketScore(@PathVariable UUID bracketId, @Valid @RequestBody BracketScoreDTO bracketDTO) {
         List<UUID> playerIds = bracketDTO.getPlayerIds();
 
 //        TODO: uncomment when connection established with user microservice
@@ -73,9 +74,7 @@ public class BracketRestController {
 
         Bracket bracket = bracketService.findBracketById(bracketId);
         bracket.setPlayerIds(playerIds);
-        bracketService.updateBracket(bracketId, bracket);
-
-        return bracketDTO;
+        return bracketMapper.bracketToBracketDTO(bracketService.updateBracket(bracketId, bracket));
     }
 
     @DeleteMapping("{id}")
