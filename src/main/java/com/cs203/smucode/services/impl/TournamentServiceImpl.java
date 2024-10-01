@@ -1,9 +1,5 @@
 package com.cs203.smucode.services.impl;
 
-import com.cs203.smucode.dto.CreateTournamentDTO;
-import com.cs203.smucode.dto.RoundDTO;
-import com.cs203.smucode.mappers.TournamentMapper;
-import com.cs203.smucode.dto.TournamentDTO;
 import com.cs203.smucode.exceptions.TournamentNotFoundException;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
@@ -56,24 +52,26 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     public Tournament updateTournament(UUID id, Tournament tournament) {
-//        return tournamentServiceRepository.findById(id).map(existingTournament -> {
-//            existingTournament.setName(tournament.getName());
-//            existingTournament.setDescription(tournament.getDescription());
-//            existingTournament.setStatus(tournament.getStatus());
-//            existingTournament.setStartDate(tournament.getStartDate());
-//            existingTournament.setEndDate(tournament.getEndDate());
-//            existingTournament.setFormat(tournament.getFormat());
-//            existingTournament.setCapacity(tournament.getCapacity());
-//            existingTournament.setIcon(tournament.getIcon());
-//            existingTournament.setOwner(tournament.getOwner());
-//            existingTournament.setSignUpDeadline(tournament.getSignUpDeadline());
-//            existingTournament.setTimeWeight(tournament.getTimeWeight());
-//            existingTournament.setMemWeight(tournament.getMemWeight());
-//            existingTournament.setTestCaseWeight(tournament.getTestCaseWeight());
-//
-//            return tournamentServiceRepository.save(existingTournament);
-//        }).orElseThrow(() -> new TournamentNotFoundException("Tournament not found with id: " +id));
-        return null;
+        return tournamentServiceRepository.findById(id).map(existingTournament -> {
+            existingTournament.setName(tournament.getName());
+            existingTournament.setDescription(tournament.getDescription());
+            existingTournament.setStartDate(tournament.getStartDate());
+            existingTournament.setEndDate(tournament.getEndDate());
+            existingTournament.setFormat(tournament.getFormat());
+            existingTournament.setCapacity(tournament.getCapacity());
+            existingTournament.setIcon(tournament.getIcon());
+            existingTournament.setOwner(tournament.getOwner());
+            existingTournament.setTimeWeight(tournament.getTimeWeight());
+            existingTournament.setMemWeight(tournament.getMemWeight());
+            existingTournament.setTestCaseWeight(tournament.getTestCaseWeight());
+            existingTournament.setStatus(tournament.getStatus());
+            existingTournament.setSignupStartDate(tournament.getSignupStartDate());
+            existingTournament.setSignupEndDate(tournament.getSignupEndDate());
+            existingTournament.setSignupStatus(tournament.getSignupStatus());
+            existingTournament.setBand(tournament.getBand());
+
+            return tournamentServiceRepository.save(existingTournament);
+        }).orElseThrow(() -> new TournamentNotFoundException("Tournament not found with id: " + id));
     }
 
     public void deleteTournamentById(UUID id) { tournamentServiceRepository.deleteById(id); }

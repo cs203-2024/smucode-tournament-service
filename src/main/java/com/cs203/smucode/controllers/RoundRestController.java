@@ -38,13 +38,13 @@ public class RoundRestController {
         return roundMapper.roundToRoundDTO(round);
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/")
-    public RoundDTO createRound(@Valid @RequestBody RoundDTO roundDTO) {
-        Round round = roundMapper.roundDTOToRound(roundDTO);
-        roundService.createRound(round);
-        return roundDTO;
-    }
+//    @ResponseStatus(HttpStatus.CREATED)
+//    @PostMapping("/")
+//    public RoundDTO createRound(@Valid @RequestBody RoundDTO roundDTO) {
+//        Round round = roundMapper.roundDTOToRound(roundDTO);
+//        roundService.createRound(round);
+//        return roundDTO;
+//    }
 
     @PutMapping("/{id}")
     public RoundDTO updateRound(@PathVariable UUID id, @Valid @RequestBody RoundDTO roundDTO) {

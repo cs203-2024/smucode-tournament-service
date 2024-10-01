@@ -56,14 +56,14 @@ public class RoundServiceImpl implements RoundService {
     }
 
     public Round updateRound(UUID id, Round round) {
-//        return roundServiceRepository.findById(id).map(existingRound -> {
-//            existingRound.setName(round.getName());
-//            existingRound.setStartDate(round.getStartDate());
-//            existingRound.setEndDate(round.getEndDate());
-//
-//            return roundServiceRepository.save(existingRound);
-//        }).orElseThrow(() -> new RoundNotFoundException("Round not found with id: " + id));
-        return null;
+        return roundServiceRepository.findById(id).map(existingRound -> {
+            existingRound.setName(round.getName());
+            existingRound.setStartDate(round.getStartDate());
+            existingRound.setEndDate(round.getEndDate());
+            existingRound.setStatus(round.getStatus());
+
+            return roundServiceRepository.save(existingRound);
+        }).orElseThrow(() -> new RoundNotFoundException("Round not found with id: " + id));
     }
 
     public void deleteRoundById(UUID id) { roundServiceRepository.deleteById(id); }
