@@ -58,24 +58,19 @@ public class BracketRestController {
     public BracketDTO updateBracket(@PathVariable UUID id, @Valid @RequestBody BracketDTO bracketDTO) {
         Bracket bracket = bracketMapper.bracketDTOToBracket(bracketDTO);
         bracketService.updateBracket(id, bracket);
+//        TODO: separate api?
+//        bracketService.updateBracketPlayers(id, bracketDTO.getPlayerIds());
         return bracketDTO;
     }
 
-    @PutMapping("/{bracketId}/updateScore")
-    public BracketDTO updateBracketScore(@PathVariable UUID bracketId, @Valid @RequestBody BracketScoreDTO bracketDTO) {
-        List<UUID> playerIds = bracketDTO.getPlayerIds();
+//    @PutMapping("/{bracketId}/updateScore")
+//    public BracketDTO updateBracketScore(@PathVariable UUID bracketId, @Valid @RequestBody BracketScoreDTO bracketDTO) {
+//        Bracket bracket = bracketMapper.bracketScoreDTOToBracketScore(bracketDTO);
+//        bracketService.updateBracketScore(bracketId, bracket);
+//    }
 
-//        TODO: uncomment when connection established with user microservice
-//        for (UUID playerId : playerIds) {
-//            if (!userServiceClientImpl.userExists(playerId)) {
-//                throw new UserNotFoundException("User not found with id: " + playerId);
-//            }
-//        }
-
-        Bracket bracket = bracketService.findBracketById(bracketId);
-        bracket.setPlayerIds(playerIds);
-        return bracketMapper.bracketToBracketDTO(bracketService.updateBracket(bracketId, bracket));
-    }
+//    @PutMapping
+//    public BracketDTO endBracket(@PathVariable UUID id) {}
 
     @DeleteMapping("{id}")
     public void deleteBracket(@PathVariable UUID id) {
