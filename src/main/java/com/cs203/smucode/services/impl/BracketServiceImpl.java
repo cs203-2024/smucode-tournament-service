@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -35,26 +34,43 @@ public class BracketServiceImpl implements BracketService {
 
     public Bracket updateBracket(UUID id, Bracket bracket) {
 
-        Bracket exisitigBracket = bracketServiceRepository.findById(id)
+        Bracket exisitingBracket = bracketServiceRepository.findById(id)
                 .orElseThrow(() -> new BracketNotFoundException("Round not found with id: " + id));
 
-        exisitigBracket.setRound(bracket.getRound());
-        exisitigBracket.setStatus(bracket.getStatus());
-        exisitigBracket.setWinner(bracket.getWinner());
-        bracketServiceRepository.save(exisitigBracket);
+//        exisitingBracket.setRound(bracket.getRound());
+        exisitingBracket.setStatus(bracket.getStatus());
+        exisitingBracket.setWinner(bracket.getWinner());
+
+////        TODO: uncomment when connection established with user microservice
+////        for (UUID playerId : playerIds) {
+////            if (!userServiceClientImpl.userExists(playerId)) {
+////                throw new UserNotFoundException("User not found with id: " + playerId);
+////            }
+////        }
+//
+
+        exisitingBracket.setPlayerIds(bracket.getPlayerIds());
+        bracketServiceRepository.save(exisitingBracket);
 
         return bracket;
     }
 
-    public Bracket updateBracketPlayers(UUID bracketId, List<UUID> playerIds) {
-
-        Bracket exisitigBracket = bracketServiceRepository.findById(bracketId)
-                .orElseThrow(() -> new BracketNotFoundException("Bracket not found with id: " + bracketId));
-
-        exisitigBracket.setPlayerIds(playerIds);
-        return bracketServiceRepository.save(exisitigBracket);
-
-    }
+//    public Bracket updateBracketPlayers(UUID bracketId, List<UUID> playerIds) {
+//
+//        Bracket exisitigBracket = bracketServiceRepository.findById(bracketId)
+//                .orElseThrow(() -> new BracketNotFoundException("Bracket not found with id: " + bracketId));
+//
+////        TODO: uncomment when connection established with user microservice
+////        for (UUID playerId : playerIds) {
+////            if (!userServiceClientImpl.userExists(playerId)) {
+////                throw new UserNotFoundException("User not found with id: " + playerId);
+////            }
+////        }
+//
+//        exisitigBracket.setPlayerIds(playerIds);
+//        return bracketServiceRepository.save(exisitigBracket);
+//    }
 
     public void deleteBracketById(UUID id) {bracketServiceRepository.deleteById(id);}
+
 }

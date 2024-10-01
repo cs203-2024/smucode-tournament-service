@@ -9,8 +9,6 @@ import java.util.UUID;
 public class BracketDTO {
     private String id;
     private String status;
-//    private UserDTO player1;
-//    private UserDTO player2;
     private List<UUID> playerIds;
     private UUID winner;
 }
