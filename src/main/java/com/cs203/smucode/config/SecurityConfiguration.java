@@ -1,10 +1,18 @@
 package com.cs203.smucode.config;
 
 import com.cs203.smucode.security.JWTAuthenticationFilter;
+
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.lang.NonNull;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,14 +21,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.List;
 
 /**
  * @author : gav
@@ -48,6 +51,9 @@ public class SecurityConfiguration {
         http.csrf(AbstractHttpConfigurer::disable); // Disable CSRF protection since we are using JWT
         http.cors(Customizer.withDefaults());
 
+        http.oauth2ResourceServer(oauth2 ->
+            oauth2.jwt(Customizer.withDefaults())
+        );
         return http.build();
     }
 
@@ -58,8 +64,20 @@ public class SecurityConfiguration {
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+            new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder(
+        @Value("${jwt.public.key}") String publicKeyString
+    ) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyString);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        RSAPublicKey rsaPublicKey = (RSAPublicKey) keyFactory.generatePublic(
+            new X509EncodedKeySpec(publicKeyBytes)
+        );
+        return NimbusJwtDecoder.withPublicKey(rsaPublicKey).build();
     }
 }
