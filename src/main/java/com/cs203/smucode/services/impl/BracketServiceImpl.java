@@ -1,5 +1,6 @@
 package com.cs203.smucode.services.impl;
 
+import com.cs203.smucode.exceptions.BracketNotFoundException;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.repositories.BracketServiceRepository;
 import com.cs203.smucode.services.BracketService;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -32,19 +34,27 @@ public class BracketServiceImpl implements BracketService {
     }
 
     public Bracket updateBracket(UUID id, Bracket bracket) {
-//        return bracketServiceRepository.findById(id).map(existingBracket -> {
-//            existingBracket.setPlayer1(bracket.getPlayer1());
-//            existingBracket.setPlayer2(bracket.getPlayer2());
-//            existingBracket.setRoundId(bracket.getRoundId());
-//
-//            return bracketServiceRepository.save(existingBracket);
-//        }).orElseThrow(() -> new BracketNotFoundException("Round not found with id: " + id));
-        return null;
+
+        Bracket exisitigBracket = bracketServiceRepository.findById(id)
+                .orElseThrow(() -> new BracketNotFoundException("Round not found with id: " + id));
+
+        exisitigBracket.setRound(bracket.getRound());
+        exisitigBracket.setStatus(bracket.getStatus());
+        exisitigBracket.setWinner(bracket.getWinner());
+        bracketServiceRepository.save(exisitigBracket);
+
+        return bracket;
+    }
+
+    public Bracket updateBracketPlayers(UUID bracketId, List<UUID> playerIds) {
+
+        Bracket exisitigBracket = bracketServiceRepository.findById(bracketId)
+                .orElseThrow(() -> new BracketNotFoundException("Bracket not found with id: " + bracketId));
+
+        exisitigBracket.setPlayerIds(playerIds);
+        return bracketServiceRepository.save(exisitigBracket);
+
     }
 
     public void deleteBracketById(UUID id) {bracketServiceRepository.deleteById(id);}
-
-
-
-
 }

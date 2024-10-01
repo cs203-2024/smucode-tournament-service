@@ -9,7 +9,9 @@ import com.cs203.smucode.services.TournamentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
 import java.util.UUID;
@@ -54,11 +56,16 @@ public class TournamentRestController {
 
 //    PUT mapping "/{id}" to update tournament
     @PutMapping("/{id}")
-    public TournamentDTO updateTournament(@PathVariable UUID id, @Valid @RequestBody TournamentDTO tournamentDTO) {
-        Tournament tournament = tournamentMapper.tournamentDTOToTournament(tournamentDTO);
+    public CreateTournamentDTO updateTournament(@PathVariable UUID id, @Valid @RequestBody CreateTournamentDTO tournamentDTO) {
+        Tournament tournament = tournamentMapper.createTournamentDTOToTournament(tournamentDTO);
         tournamentService.updateTournament(id, tournament);
         return tournamentDTO;
     }
+
+//    TODO: can create more focused DTOs
+//    TODO: should these apis (updateBracketScore, endRound) be here or in round / bracket controller
+//    public TournamentDTO updateTournamentScore(@PathVariable UUID bracketId, @Valid @RequestBody) {}
+
 
 //    DELETE mapping "/{id}" to delete tournament
     @DeleteMapping("/{id}")

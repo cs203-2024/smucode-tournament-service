@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface TournamentService {
 //    reason for having mapping within controller and not service:
-//    services may be use one another - would have to map everytime
+//    services may use one another - would have to map everytime
 
     List<Tournament> findAllTournaments();
 
