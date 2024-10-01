@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface WeightSum {
-    String message() default "The values of timeWeight, memWeight and testCaseWeight must sum up to 1";
+    String message() default "The values of timeWeight, memWeight and testCaseWeight must sum up to 100";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 
