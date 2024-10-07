@@ -22,7 +22,7 @@ public class TournamentScheduler {
         this.matchmakingService = matchmakingService;
     }
 
-    @Scheduled(fixedRate = 30000) //every 30secs
+    @Scheduled(cron = "0 0/30 * * * ?") //Runs every 30 minutes
     public void scheduleMatchmaking() {
         LocalDateTime now = LocalDateTime.now();
         List<Tournament> tournaments = tournamentService.findTournamentsBySignUpDeadline(now, "pending");
