@@ -30,6 +30,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         //Placeholder for signup collections (not implemented)
         List<UserDTO> signups = userServiceClient.getTournamentSignups(tournament.getId());
 
+        //TODO: Potentially (not needed)/changed
         if (signups.isEmpty() || signups.size() < tournament.getCapacity()) {
             //Case: when no/not enough players signed up
             tournament.setStatus("cancelled");
@@ -41,7 +42,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         List<UserDTO> selectedPlayers = selectParticipants(signups, tournament.getCapacity(), "best");
 
         //Pair the selected players
-        List<Bracket> brackets = pairPlayers(selectedPlayers, tournament);
+        List<Bracket> brackets = pairPlayers(selectedPlayers, tournament, true);
 
         //Save em
         for (Bracket bracket : brackets) {
@@ -81,104 +82,36 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         };
     }
 
-    private List<Bracket> pairPlayers(List<UserDTO> players, Tournament tournament) {
-        //Step 1: Rank players by skillIndex in descending order
+    public List<Bracket> pairPlayers(List<UserDTO> players, Tournament tournament, boolean shuffle) {
+        //Step 1: Sort players by skillIndex (descending)
         players.sort(Comparator.comparingDouble(UserDTO::getSkillIndex).reversed());
 
-        //Step 2: Determine top (fixed) seeds
-        int fixedSeedCount = players.size() / 2; //Half the total seeds
-        List<UserDTO> topSeeds = players.subList(0, fixedSeedCount);
-        //lower seeds
-        List<UserDTO> otherPlayers = new ArrayList<>(players.subList(fixedSeedCount, players.size()));
-
-        //Step 3: Assign seeds
-        Map<Integer, UserDTO> seededPlayers = new HashMap<>();
-        int seedNumber = 1;
-
-        //fixed seeds first
-        for (UserDTO player : topSeeds) {
-            seededPlayers.put(seedNumber++, player);
-        }
-
-        //Shuffle and assign seeds to remaining players
-        Collections.shuffle(otherPlayers);
-        for (UserDTO player : otherPlayers) {
-            seededPlayers.put(seedNumber++, player);
-        }
-
-        //Step 4: Generate seeding matrix
         int totalPlayers = players.size();
-        int[] seedingMatrix = generateSeedingMatrix(totalPlayers, fixedSeedCount);
+        int halfSize = totalPlayers / 2;
 
-        //Map positions to seeds
-        Map<Integer, Integer> positionToSeed = new HashMap<>();
-        for (int i = 0; i < seedingMatrix.length; i++) {
-            positionToSeed.put(i + 1, seedingMatrix[i]);
+        //Step 2: Divide players into fixed (top players) and variable seeds (bottom)
+        List<UserDTO> fixedSeeds = players.subList(0, halfSize); //Top half
+        List<UserDTO> variableSeeds = new ArrayList<>(players.subList(halfSize, totalPlayers)); //Bottom half
+
+        //Step 3: Shuffle variable seeds (if required)
+        //shuffling adds more "fairness" and randomness, keeping it (optional) here rn so its easier for me to unit test
+        if (shuffle) {
+            Collections.shuffle(variableSeeds);
+        } else {
+            //Reverse variable seeds to match highest vs. lowest when not shuffled
+            Collections.reverse(variableSeeds);
         }
 
-        //TODO: handle bracketID & roundID accumulation
-        //Step 5: Pair and populate brackets according to the seeding matrix
+        //Step 4: Pair em up
         List<Bracket> brackets = new ArrayList<>();
-        int totalBrackets = totalPlayers / 2;
+        for (int i = 0; i < halfSize; i++) {
+            UserDTO player1 = fixedSeeds.get(i);
+            UserDTO player2 = variableSeeds.get(i);
 
-        for (int i = 0; i < totalBrackets; i++) {
-            int position1 = i * 2 + 1;
-            int position2 = position1 + 1;
-
-            int seed1 = positionToSeed.get(position1);
-            int seed2 = positionToSeed.get(position2);
-
-            UserDTO player1 = seededPlayers.get(seed1);
-            UserDTO player2 = seededPlayers.get(seed2);
-
-            Bracket bracket = new Bracket("0",player1, player2, "1");
-            brackets.add(bracket);
-        }
-
-        //Handle odd number of players: temp solution, giving a bye
-        if (totalPlayers % 2 != 0) {
-            //last player
-            int seed = positionToSeed.get(totalPlayers);
-            UserDTO player = seededPlayers.get(seed);
-
-            Bracket bracket = new Bracket("0",player, null, "1");
+            Bracket bracket = new Bracket("0", player1, player2, "1");
             brackets.add(bracket);
         }
 
         return brackets;
     }
-
-
-    private int[] generateSeedingMatrix(int totalPlayers, int fixedSeedCount) {
-        int[] seeds = new int[totalPlayers];
-        List<Integer> fixedSeeds = new ArrayList<>();
-        for (int i = 1; i <= fixedSeedCount; i++) {
-            fixedSeeds.add(i);
-        }
-        List<Integer> variableSeeds = new ArrayList<>();
-        for (int i = fixedSeedCount + 1; i <= totalPlayers; i++) {
-            variableSeeds.add(i);
-        }
-
-        int highFixedIndex = 0;
-        int lowFixedIndex = fixedSeeds.size() - 1;
-        int variableIndex = 0;
-        boolean useFixed = true;
-
-        for (int i = 0; i < totalPlayers; i++) {
-            if (useFixed && highFixedIndex <= lowFixedIndex) {
-                seeds[i] = fixedSeeds.get(highFixedIndex++);
-                useFixed = false;
-            } else if (!useFixed && lowFixedIndex >= highFixedIndex) {
-                seeds[i] = fixedSeeds.get(lowFixedIndex--);
-                useFixed = true;
-            } else {
-                //Assign variable seeds randomly
-                seeds[i] = variableSeeds.get(variableIndex++);
-            }
-        }
-
-        return seeds;
-    }
-
 }
