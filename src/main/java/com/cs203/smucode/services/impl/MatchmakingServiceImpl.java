@@ -54,17 +54,17 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         tournamentService.updateTournament(tournament.getId(), tournament);
     }
 
-    private List<UserDTO> selectParticipants(List<UserDTO> signups, int tournamentCapacity, String selectionType) {
+    public List<UserDTO> selectParticipants(List<UserDTO> signups, int tournamentCapacity, String selectionType) {
         // Sort players by skill index (ascending)
         List<UserDTO> sortedSignups = signups.stream()
-                .sorted(Comparator.comparingDouble(UserDTO::getSkillIndex))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparingDouble(UserDTO::skillIndex))
+                .toList();
 
         int totalSignups = sortedSignups.size();
 
         return switch (selectionType) {
             case "best" -> sortedSignups.stream()
-                    .sorted(Comparator.comparingDouble(UserDTO::getSkillIndex).reversed())
+                    .sorted(Comparator.comparingDouble(UserDTO::skillIndex).reversed())
                     .limit(tournamentCapacity)
                     .collect(Collectors.toList());
             case "worst" -> sortedSignups.stream()
@@ -84,7 +84,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
 
     public List<Bracket> pairPlayers(List<UserDTO> players, Tournament tournament, boolean shuffle) {
         //Step 1: Sort players by skillIndex (descending)
-        players.sort(Comparator.comparingDouble(UserDTO::getSkillIndex).reversed());
+        players.sort(Comparator.comparingDouble(UserDTO::skillIndex).reversed());
 
         int totalPlayers = players.size();
         int halfSize = totalPlayers / 2;
