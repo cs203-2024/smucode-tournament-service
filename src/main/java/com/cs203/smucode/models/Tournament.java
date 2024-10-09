@@ -4,6 +4,7 @@ import com.cs203.smucode.constants.SignupStatus;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.converters.SignupStatusConverter;
 import com.cs203.smucode.converters.StatusConverter;
+import com.cs203.smucode.dto.UserDTO;
 import com.cs203.smucode.validation.WeightSum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -91,6 +92,11 @@ public class Tournament {
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Round> rounds;
+
+    //TODO: Temp method, delete/replace when implementation is clear
+    public List<UserDTO> getTournamentSignups(String s) {
+        return null;
+    }
 
 //    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
 //    List<Bracket> brackets;
