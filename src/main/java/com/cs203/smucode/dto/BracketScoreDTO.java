@@ -7,5 +7,5 @@ import java.util.UUID;
 
 @Data
 public class BracketScoreDTO {
-    private List<UUID> playerIds;
+    private List<String> playerIds;
 }

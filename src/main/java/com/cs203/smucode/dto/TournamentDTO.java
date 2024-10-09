@@ -17,6 +17,6 @@ public class TournamentDTO {
     private String signupStatus;
     private String status;
     private int capacity;
-    private List<RoundDTO> rounds;
     private String band;
+    private List<RoundDTO> rounds;
 }

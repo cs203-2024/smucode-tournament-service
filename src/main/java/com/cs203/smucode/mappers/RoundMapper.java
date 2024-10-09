@@ -9,7 +9,6 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = {BracketMapper.class})
 public interface RoundMapper {
 
-//    @Mapping(target = "brackets", source = "brackets")
     RoundDTO roundToRoundDTO(Round round);
 
     Round roundDTOToRound(RoundDTO roundDTO);
