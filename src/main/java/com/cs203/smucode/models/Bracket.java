@@ -2,6 +2,7 @@ package com.cs203.smucode.models;
 
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.converters.StatusConverter;
+import com.cs203.smucode.dto.UserDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,7 +35,7 @@ public class Bracket {
             joinColumns = @JoinColumn(name = "bracket_id"),
             inverseJoinColumns = @JoinColumn(name = "player_id")
     )
-    private List<User> players;
+    private List<UserDTO> players;
 //    private User player1;
 //    private User player2;
 

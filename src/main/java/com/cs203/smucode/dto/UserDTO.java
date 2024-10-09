@@ -1,9 +1,18 @@
 package com.cs203.smucode.dto;
 
-import lombok.Data;
 
-@Data
-public class UserDTO {
-    private String id;
-    private String name;
-}
+public record UserDTO(
+
+        String username,
+
+        String password,
+
+        String email,
+        String profileImageUrl,
+
+        String role,
+
+        double mu,
+        double sigma,
+        double skillIndex
+) {}
