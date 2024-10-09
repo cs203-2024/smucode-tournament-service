@@ -1,10 +1,13 @@
 package com.cs203.smucode.services.impl;
 
+import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.dto.UserDTO;
 import com.cs203.smucode.models.Bracket;
+import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.MatchmakingService;
+import com.cs203.smucode.services.RoundService;
 import com.cs203.smucode.services.TournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,48 +17,42 @@ import java.util.stream.Collectors;
 
 @Service
 public class MatchmakingServiceImpl implements MatchmakingService {
-    private final UserServiceClient userServiceClient;
-    private final BracketService bracketService;
     private final TournamentService tournamentService;
+    private final RoundService roundService;
+    private final BracketService bracketService;
 
     @Autowired
-    public MatchmakingServiceImpl(UserServiceClient userServiceClient, BracketService bracketService, TournamentService tournamentService) {
-        this.userServiceClient = userServiceClient;
+    public MatchmakingServiceImpl(RoundService roundService, BracketService bracketService, TournamentService tournamentService) {
+        this.roundService = roundService;
         this.bracketService = bracketService;
         this.tournamentService = tournamentService;
     }
 
     @Override
     public void runMatchmaking(Tournament tournament) {
-        //Placeholder for signup collections (not implemented)
-        List<UserDTO> signups = userServiceClient.getTournamentSignups(tournament.getId());
+        //Get the signups for the tourney
+        //TODO: adjust accordingly when signup implementation is clear
+        List<UserDTO> signups = tournament.getTournamentSignups(String.valueOf(tournament.getId()));
 
-        //TODO: Potentially (not needed)/changed
-        if (signups.isEmpty() || signups.size() < tournament.getCapacity()) {
-            //Case: when no/not enough players signed up
-            tournament.setStatus("cancelled");
-            tournamentService.updateTournament(tournament.getId(), tournament);
-            return;
-        }
-
-        //Select participant according to metric
+        //Select participants according to the selection metric
         List<UserDTO> selectedPlayers = selectParticipants(signups, tournament.getCapacity(), "best");
 
-        //Pair the selected players
+        //Pair the selected players into brackets
         List<Bracket> brackets = pairPlayers(selectedPlayers, tournament, true);
 
-        //Save em
+        //Save the brackets
         for (Bracket bracket : brackets) {
             bracketService.createBracket(bracket);
         }
 
-        //and finally, update the tournament status
-        tournament.setStatus("ongoing");
-        tournamentService.updateTournament(tournament.getId(), tournament);
+        //Update tournament status to ongoing
+        tournament.setStatus(Status.ONGOING);
+        //TODO: readjust when "save" is implemented
+//        tournamentService.saveTournament(tournament);
     }
 
     public List<UserDTO> selectParticipants(List<UserDTO> signups, int tournamentCapacity, String selectionType) {
-        // Sort players by skill index (ascending)
+        //Sort players by skill index (descending)
         List<UserDTO> sortedSignups = signups.stream()
                 .sorted(Comparator.comparingDouble(UserDTO::skillIndex))
                 .toList();
@@ -63,27 +60,31 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         int totalSignups = sortedSignups.size();
 
         return switch (selectionType) {
-            case "best" -> sortedSignups.stream()
-                    .sorted(Comparator.comparingDouble(UserDTO::skillIndex).reversed())
-                    .limit(tournamentCapacity)
-                    .collect(Collectors.toList());
-            case "worst" -> sortedSignups.stream()
-                    .limit(tournamentCapacity)
-                    .collect(Collectors.toList());
+            case "best" ->
+                //select the top players
+                    sortedSignups.stream()
+                            .sorted(Comparator.comparingDouble(UserDTO::skillIndex).reversed())
+                            .limit(tournamentCapacity)
+                            .collect(Collectors.toList());
+            case "worst" ->
+                //select the bottom players
+                    sortedSignups.stream()
+                            .limit(tournamentCapacity)
+                            .collect(Collectors.toList());
             case "neutral" -> {
+                //select players from the middle
                 int startIndex = (totalSignups - tournamentCapacity) / 2;
                 yield sortedSignups.stream()
                         .skip(startIndex)
                         .limit(tournamentCapacity)
                         .collect(Collectors.toList());
             }
-            //TODO: custom exception
             default -> throw new IllegalArgumentException("Invalid selection type: " + selectionType);
         };
     }
 
     public List<Bracket> pairPlayers(List<UserDTO> players, Tournament tournament, boolean shuffle) {
-        //Step 1: Sort players by skillIndex (descending)
+        //Step 1: Sort players by skillIndex in descending order
         players.sort(Comparator.comparingDouble(UserDTO::skillIndex).reversed());
 
         int totalPlayers = players.size();
@@ -104,11 +105,50 @@ public class MatchmakingServiceImpl implements MatchmakingService {
 
         //Step 4: Pair em up
         List<Bracket> brackets = new ArrayList<>();
+
+        List<Round> rounds = tournament.getRounds();
+        if (rounds != null && !rounds.isEmpty()) {
+            //fetch the first round, which might be null
+            Round firstRound = rounds.getFirst();
+
+            //if the first round is null, create a new Round
+            if (firstRound == null) {
+                firstRound = new Round();
+                firstRound.setTournament(tournament);
+                firstRound.setName("Round 1");
+                firstRound.setStartDate(tournament.getStartDate());
+                firstRound.setEndDate(tournament.getEndDate());
+                firstRound.setStatus(Status.ONGOING);
+
+                rounds.set(0, firstRound);
+            } else {
+                firstRound.setTournament(tournament);
+                firstRound.setName("Round 1");
+                firstRound.setStartDate(tournament.getStartDate());
+                firstRound.setEndDate(tournament.getEndDate());
+                firstRound.setStatus(Status.ONGOING);
+            }
+
+            //roundService.updateRound(firstRound)? if necessary
+        } else {
+            throw new IllegalStateException("Rounds have not been pre-created in the tournament.");
+        }
+
         for (int i = 0; i < halfSize; i++) {
             UserDTO player1 = fixedSeeds.get(i);
             UserDTO player2 = variableSeeds.get(i);
 
-            Bracket bracket = new Bracket("0", player1, player2, "1");
+            //Create a new bracket
+            Bracket bracket = new Bracket();
+            bracket.setPlayers(Arrays.asList(player1, player2));
+
+            //Set the round
+            bracket.setRound(rounds.getFirst());
+
+            //Set the status of the bracket
+            bracket.setStatus(Status.ONGOING);
+
+            //Add the bracket to the list
             brackets.add(bracket);
         }
 
