@@ -64,7 +64,7 @@ public class Tournament {
     private String icon;
 
     @Column(name = "owner", nullable = false)
-    private UUID owner;
+    private String owner;
 
     @Column(name = "time_weight", nullable = false)
     private int timeWeight;

@@ -1,8 +1,11 @@
 package com.cs203.smucode.services.impl;
 
+import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.BracketNotFoundException;
 import com.cs203.smucode.models.Bracket;
+import com.cs203.smucode.models.Round;
 import com.cs203.smucode.repositories.BracketServiceRepository;
+import com.cs203.smucode.repositories.RoundServiceRepository;
 import com.cs203.smucode.services.BracketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,10 +17,13 @@ import java.util.UUID;
 public class BracketServiceImpl implements BracketService {
 
     private BracketServiceRepository bracketServiceRepository;
+    private RoundServiceRepository roundServiceRepository;
 
     @Autowired
-    public BracketServiceImpl(BracketServiceRepository bracketServiceRepository) {
+    public BracketServiceImpl(BracketServiceRepository bracketServiceRepository,
+                              RoundServiceRepository roundServiceRepository) {
         this.bracketServiceRepository = bracketServiceRepository;
+        this.roundServiceRepository = roundServiceRepository;
     }
 
     public List<Bracket> findAllBracketsByRoundId(UUID roundId) {
@@ -36,6 +42,13 @@ public class BracketServiceImpl implements BracketService {
 
         Bracket exisitingBracket = bracketServiceRepository.findById(id)
                 .orElseThrow(() -> new BracketNotFoundException("Round not found with id: " + id));
+
+//        update status of parent round
+        Round parentRound = exisitingBracket.getRound();
+        if (parentRound.getStatus() == Status.UPCOMING) {
+            parentRound.setStatus(Status.ONGOING);
+            roundServiceRepository.save(parentRound);
+        }
 
 //        exisitingBracket.setRound(bracket.getRound());
         exisitingBracket.setStatus(bracket.getStatus());

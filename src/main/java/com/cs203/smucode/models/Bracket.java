@@ -20,6 +20,9 @@ public class Bracket {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    @Column(name = "seq_id")
+    private int seqId;
+
     @Convert(converter = StatusConverter.class)
     @Column(name = "status", nullable = false, insertable = false)
     private Status status;
@@ -27,7 +30,7 @@ public class Bracket {
 //    @ManyToOne
 //    @JoinColumn(name = "winner")
     @Column(name = "winner")
-    private UUID winner;
+    private String winner;
 
     @ManyToOne
     @JoinColumn(name = "round_id", nullable = false)
@@ -47,5 +50,5 @@ public class Bracket {
             joinColumns = @JoinColumn(name = "bracket_id")
     )
     @Column(name = "player_id")
-    private List<UUID> playerIds = new ArrayList<>();
+    private List<String> playerIds = new ArrayList<>();
 }

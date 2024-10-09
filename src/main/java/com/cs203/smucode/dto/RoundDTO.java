@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 public class RoundDTO {
     private String id;
+    private int seqId;
     private String name;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
