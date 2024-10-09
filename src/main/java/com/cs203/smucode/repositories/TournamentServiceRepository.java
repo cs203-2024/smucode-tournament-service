@@ -8,6 +8,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface TournamentServiceRepository extends MongoRepository<Tournament, String> {
+public interface TournamentServiceRepository extends JpaRepository<Tournament, String> {
     List<Tournament> findBySignUpDeadlineBeforeAndStatus(LocalDateTime dateTime, String status);
 }
