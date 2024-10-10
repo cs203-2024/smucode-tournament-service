@@ -24,6 +24,7 @@ public class CreateTournamentDTO {
     private String description;
     private String icon;
     private UUID owner;
+    private String currentRound;
 
     private Set<String> signups;
 }

@@ -17,7 +17,7 @@ public class TournamentDTO {
     private LocalDateTime endDate;
     private LocalDateTime signupStartDate;
     private LocalDateTime signupEndDate;
-    private String signupStatus;
+//    private String signupStatus;
     private String status;
     private int capacity;
     private String band;

@@ -38,6 +38,14 @@ public class RoundServiceImpl implements RoundService {
         return roundServiceRepository.findById(id).orElse(null);
     }
 
+    public Round findRoundByTournamentIdAndSeqId(UUID tournamentId, int seqId) {
+        return roundServiceRepository.findByTournamentIdAndSeqId(tournamentId, seqId);
+    }
+
+    public Round findRoundByTournamentIdAndName(UUID tournamentId, String name) {
+        return roundServiceRepository.findByTournamentIdAndName(tournamentId, name);
+    }
+
     public Round createRound(Round round) {
         roundServiceRepository.save(round);
         int bracketCount = getBracketCountFromRoundName(round.getName());

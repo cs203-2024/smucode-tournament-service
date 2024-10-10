@@ -15,7 +15,7 @@ import java.util.UUID;
 public interface TournamentMapper {
 
 //    TournamentDTO
-    @Mapping(target = "currentRound", expression = "java(getCurrentRound(tournamentDTO.getRounds()))")
+//    @Mapping(target = "currentRound", expression = "java(getCurrentRound(tournamentDTO.getRounds()))")
     TournamentDTO tournamentToTournamentDTO(Tournament tournament);
 
     Tournament tournamentDTOToTournament(TournamentDTO tournamentDTO);
@@ -34,13 +34,14 @@ public interface TournamentMapper {
     List<Tournament> tournamentDTOsToCreateTournaments(List<TournamentDTO> tournamentDTOs);
 
 //    helper functions
-    default String getCurrentRound(List<RoundDTO> rounds) {
-        String currentRound = null;
-        for (RoundDTO roundDTO : rounds) {
-            if (roundDTO.getStatus().equals("ONGOING")) {
-                currentRound = roundDTO.getName();
-            }
-        }
-        return currentRound;
-    }
+//    default String getCurrentRound(List<RoundDTO> rounds) {
+//        String currentRound = null;
+//        for (RoundDTO roundDTO : rounds) {
+//            if (roundDTO.getStatus().equals("ONGOING")) {
+//                currentRound = roundDTO.getName();
+//            }
+//            else { break; }
+//        }
+//        return currentRound;
+//    }
 }

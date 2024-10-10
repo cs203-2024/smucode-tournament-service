@@ -5,8 +5,10 @@ import com.cs203.smucode.exceptions.BracketNotFoundException;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.PlayerInfo;
 import com.cs203.smucode.models.Round;
+import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.BracketServiceRepository;
 import com.cs203.smucode.repositories.RoundServiceRepository;
+import com.cs203.smucode.repositories.TournamentServiceRepository;
 import com.cs203.smucode.services.BracketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,12 +22,15 @@ public class BracketServiceImpl implements BracketService {
 
     private BracketServiceRepository bracketServiceRepository;
     private RoundServiceRepository roundServiceRepository;
+    private TournamentServiceRepository tournamentServiceRepository;
 
     @Autowired
     public BracketServiceImpl(BracketServiceRepository bracketServiceRepository,
-                              RoundServiceRepository roundServiceRepository) {
+                              RoundServiceRepository roundServiceRepository,
+                              TournamentServiceRepository tournamentServiceRepository) {
         this.bracketServiceRepository = bracketServiceRepository;
         this.roundServiceRepository = roundServiceRepository;
+        this.tournamentServiceRepository = tournamentServiceRepository;
     }
 
     public List<Bracket> findAllBracketsByRoundId(UUID roundId) {
@@ -34,6 +39,10 @@ public class BracketServiceImpl implements BracketService {
 
     public Bracket findBracketById(UUID id) {
         return bracketServiceRepository.findById(id).orElse(null);
+    }
+
+    public Bracket findBracketByRoundIdAndSeqId(UUID id, int seqId) {
+        return bracketServiceRepository.findByRoundIdAndSeqId(id, seqId);
     }
 
     public Bracket createBracket(Bracket bracket) {
@@ -51,6 +60,11 @@ public class BracketServiceImpl implements BracketService {
             parentRound.setStatus(Status.ONGOING);
             roundServiceRepository.save(parentRound);
         }
+
+//        update tournament status
+        Tournament tournament = parentRound.getTournament();
+        tournament.setCurrentRound(parentRound.getName());
+        tournamentServiceRepository.save(tournament);
 
 //        existingBracket.setRound(bracket.getRound());
         existingBracket.setStatus(bracket.getStatus());
