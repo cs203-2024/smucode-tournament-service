@@ -14,8 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import lombok.NoArgsConstructor;
 
@@ -95,5 +94,13 @@ public class Tournament {
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Round> rounds;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "tournament_signups",
+            joinColumns = @JoinColumn(name = "tournament_id")
+    )
+    @Column(name = "signup")
+    private Set<String> signups = new HashSet<>();
 
 }
