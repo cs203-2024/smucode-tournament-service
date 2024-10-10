@@ -1,7 +1,7 @@
 package com.cs203.smucode.mappers;
 
 import com.cs203.smucode.dto.BracketDTO;
-import com.cs203.smucode.dto.BracketScoreDTO;
+import com.cs203.smucode.dto.UpdateBracketDTO;
 import com.cs203.smucode.models.Bracket;
 import org.mapstruct.Mapper;
 
@@ -19,14 +19,14 @@ public interface BracketMapper {
 
     List<Bracket> bracketDTOsToBrackets(List<BracketDTO> bracketDTOs);
 
-//    update bracket score DTO
-    BracketScoreDTO bracketScoreToBracketScoreDTO(Bracket bracket);
+//    update bracket DTO
+    UpdateBracketDTO bracketToUpdateBracketDTO(Bracket bracket);
 
-    List<BracketScoreDTO> bracketScoresToBracketScoreDTOs(List<Bracket> brackets);
+    List<UpdateBracketDTO> bracketToUpdateBracketDTOs(List<Bracket> brackets);
 
-    Bracket bracketScoreDTOToBracketScore(BracketScoreDTO bracketDTO);
+    Bracket updateBracketDTOToBracket(UpdateBracketDTO bracketDTO);
 
-    List<Bracket> bracketScoreDTOsToBracketScores(List<BracketScoreDTO> bracketDTOs);
+    List<Bracket> bracketScoreDTOsToBrackets(List<UpdateBracketDTO> bracketDTOs);
 
 
 

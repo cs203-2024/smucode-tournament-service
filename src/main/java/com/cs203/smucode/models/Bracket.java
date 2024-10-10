@@ -49,6 +49,5 @@ public class Bracket {
             name = "bracket_players",
             joinColumns = @JoinColumn(name = "bracket_id")
     )
-    @Column(name = "player_id")
-    private List<String> playerIds = new ArrayList<>();
+    private List<PlayerInfo> players = new ArrayList<>();
 }
