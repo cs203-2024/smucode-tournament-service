@@ -3,6 +3,7 @@ package com.cs203.smucode.services.impl;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.BracketNotFoundException;
 import com.cs203.smucode.models.Bracket;
+import com.cs203.smucode.models.PlayerInfo;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.repositories.BracketServiceRepository;
 import com.cs203.smucode.repositories.RoundServiceRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class BracketServiceImpl implements BracketService {
@@ -41,7 +43,7 @@ public class BracketServiceImpl implements BracketService {
     public Bracket updateBracket(UUID id, Bracket bracket) {
 
         Bracket exisitingBracket = bracketServiceRepository.findById(id)
-                .orElseThrow(() -> new BracketNotFoundException("Round not found with id: " + id));
+                .orElseThrow(() -> new BracketNotFoundException("Bracket not found with id: " + id));
 
 //        update status of parent round
         Round parentRound = exisitingBracket.getRound();
@@ -62,7 +64,12 @@ public class BracketServiceImpl implements BracketService {
 ////        }
 //
 
-        exisitingBracket.setPlayerIds(bracket.getPlayerIds());
+        exisitingBracket.setPlayers(bracket.getPlayers().stream()
+                .map(playerInfo -> new PlayerInfo(playerInfo.getPlayerId(), playerInfo.getScore()))
+                .collect(Collectors.toList()));
+        System.out.println("hello");
+        System.out.println(bracket.getPlayers());
+        System.out.println(exisitingBracket.getPlayers());
         bracketServiceRepository.save(exisitingBracket);
 
         return bracket;

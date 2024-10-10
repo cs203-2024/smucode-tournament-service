@@ -1,15 +1,12 @@
 package com.cs203.smucode.controllers;
 
 import com.cs203.smucode.dto.BracketDTO;
-import com.cs203.smucode.dto.BracketScoreDTO;
-import com.cs203.smucode.dto.RoundDTO;
-import com.cs203.smucode.exceptions.UserNotFoundException;
+import com.cs203.smucode.dto.UpdateBracketDTO;
 import com.cs203.smucode.mappers.BracketMapper;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.impl.UserServiceClientImpl;
 import jakarta.validation.Valid;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -55,16 +52,16 @@ public class BracketRestController {
     }
 
     @PutMapping("{id}")
-    public BracketDTO updateBracket(@PathVariable UUID id, @Valid @RequestBody BracketDTO bracketDTO) {
-        Bracket bracket = bracketMapper.bracketDTOToBracket(bracketDTO);
-        bracketService.updateBracket(id, bracket);
+    public BracketDTO updateBracket(@PathVariable UUID id, @Valid @RequestBody UpdateBracketDTO bracketDTO) {
+        Bracket bracket = bracketMapper.updateBracketDTOToBracket(bracketDTO);
+        bracket = bracketService.updateBracket(id, bracket);
 //        TODO: separate api?
 //        bracketService.updateBracketPlayers(id, bracketDTO.getPlayerIds());
-        return bracketDTO;
+        return bracketMapper.bracketToBracketDTO(bracket);
     }
 
 //    @PutMapping("/{bracketId}/updateScore")
-//    public BracketDTO updateBracketScore(@PathVariable UUID bracketId, @Valid @RequestBody BracketScoreDTO bracketDTO) {
+//    public BracketDTO updateBracketScore(@PathVariable UUID bracketId, @Valid @RequestBody UpdateBracketDTO bracketDTO) {
 //        Bracket bracket = bracketMapper.bracketScoreDTOToBracketScore(bracketDTO);
 //        bracketService.updateBracketScore(bracketId, bracket);
 //    }
