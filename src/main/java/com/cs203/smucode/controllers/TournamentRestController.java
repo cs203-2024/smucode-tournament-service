@@ -74,6 +74,11 @@ public class TournamentRestController {
 //    TODO: should these apis (updateBracketScore, endRound) be here or in round / bracket controller
 //    public TournamentDTO updateTournamentScore(@PathVariable UUID bracketId, @Valid @RequestBody) {}
 
+    @PutMapping("/{id}/progress")
+    public TournamentDTO updateTournamentProgression(@PathVariable UUID id) {
+        Tournament tournament = tournamentService.updateTournamentProgress(id);
+        return tournamentMapper.tournamentToTournamentDTO(tournament);
+    }
 
 //    DELETE mapping "/{id}" to delete tournament
     @DeleteMapping("/{id}")

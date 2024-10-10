@@ -12,6 +12,8 @@ public interface BracketService {
 
     Bracket findBracketById(UUID id);
 
+    Bracket findBracketByRoundIdAndSeqId(UUID roundId, int seqId);
+
     Bracket createBracket(Bracket bracketDTO);
 
     Bracket updateBracket(UUID id, Bracket bracket);

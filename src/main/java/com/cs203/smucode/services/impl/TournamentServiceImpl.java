@@ -1,10 +1,12 @@
 package com.cs203.smucode.services.impl;
 
 import com.cs203.smucode.exceptions.TournamentNotFoundException;
+import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.PlayerInfo;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.TournamentServiceRepository;
+import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.RoundService;
 import com.cs203.smucode.services.TournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +19,15 @@ import java.util.stream.Collectors;
 public class TournamentServiceImpl implements TournamentService {
     private final TournamentServiceRepository tournamentServiceRepository;
     private final RoundService roundService;
+    private final BracketService bracketService;
 
     @Autowired
     public TournamentServiceImpl(TournamentServiceRepository tournamentServiceRepository,
-                                 RoundService roundService) {
+                                 RoundService roundService,
+                                 BracketService bracketService) {
         this.tournamentServiceRepository = tournamentServiceRepository;
         this.roundService = roundService;
+        this.bracketService = bracketService;
     }
 
     public List<Tournament> findAllTournaments() {
@@ -65,9 +70,10 @@ public class TournamentServiceImpl implements TournamentService {
             existingTournament.setStatus(tournament.getStatus());
             existingTournament.setSignupStartDate(tournament.getSignupStartDate());
             existingTournament.setSignupEndDate(tournament.getSignupEndDate());
-            existingTournament.setSignupStatus(tournament.getSignupStatus());
+//            existingTournament.setSignupStatus(tournament.getSignupStatus());
             existingTournament.setBand(tournament.getBand());
             existingTournament.setSignups(tournament.getSignups());
+            existingTournament.setCurrentRound(tournament.getCurrentRound());
 
 //            Set<String> signups = existingTournament.getSignups();
 //            signups.addAll(tournament.getSignups());
@@ -85,6 +91,51 @@ public class TournamentServiceImpl implements TournamentService {
 
             return tournamentServiceRepository.save(existingTournament);
         }).orElseThrow(() -> new TournamentNotFoundException("Tournament not found with id: " + id));
+
+    }
+
+//    progress tournament (when round ends)
+    public Tournament updateTournamentProgress(UUID id) {
+        Optional<Tournament> tournamentOptional = tournamentServiceRepository.findById(id);
+
+        if (tournamentOptional.isEmpty()) {
+            throw new TournamentNotFoundException("Tournament with id " + id + " not found");
+        }
+
+//        get current round
+        Tournament tournament = tournamentOptional.get();
+        String currRoundName = tournament.getCurrentRound();
+        Round currRound = roundService.findRoundByTournamentIdAndName(id, currRoundName);
+        UUID currRoundId = currRound.getId();
+        int currRoundSeqId = currRound.getSeqId();
+
+//        get next round
+        Round nextRound = roundService.findRoundByTournamentIdAndSeqId(id, currRoundSeqId+1);
+        UUID nextRoundId = nextRound.getId();
+
+//        move winners to respective brackets
+        for (int i = 1; i <= nextRound.getBrackets().size(); i++) {
+            Bracket newBracket = bracketService.findBracketByRoundIdAndSeqId(nextRoundId, i);
+
+            // TODO: round progression validation (whether previous round has finished - null winner)
+            String player1 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2 - 1).getWinner();
+            String player2 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2).getWinner();
+
+            newBracket.setPlayers(new ArrayList<>(
+                    List.of(
+                            new PlayerInfo(player1, 0),
+                            new PlayerInfo(player2, 0)
+                    )
+            ));
+
+            bracketService.updateBracket(newBracket.getId(), newBracket);
+
+        }
+
+        tournament.setCurrentRound(nextRound.getName());
+        tournamentServiceRepository.save(tournament);
+
+        return tournament;
 
     }
 

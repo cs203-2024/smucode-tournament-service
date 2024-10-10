@@ -22,6 +22,8 @@ public interface TournamentService {
 
     Tournament updateTournamentSignups(UUID id, Set<String> signups);
 
+    Tournament updateTournamentProgress(UUID id);
+
     void deleteTournamentById(UUID id);
 
 }

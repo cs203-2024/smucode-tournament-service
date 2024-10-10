@@ -84,13 +84,16 @@ public class Tournament {
     @Column(name = "signup_end_date", nullable = false)
     private LocalDateTime signupEndDate;
 
-    @Convert(converter = SignupStatusConverter.class)
-    @Column(name = "signup_status", nullable = false)
-    private SignupStatus signupStatus;
+//    @Convert(converter = SignupStatusConverter.class)
+//    @Column(name = "signup_status", nullable = false)
+//    private SignupStatus signupStatus;
 
     @Convert(converter = BandConverter.class)
     @Column(name = "band")
     private Band band;
+
+    @Column(name = "current_round")
+    private String currentRound;
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Round> rounds;
