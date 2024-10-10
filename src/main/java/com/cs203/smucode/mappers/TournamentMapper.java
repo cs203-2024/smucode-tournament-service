@@ -1,6 +1,8 @@
 package com.cs203.smucode.mappers;
 
+import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.dto.CreateTournamentDTO;
+import com.cs203.smucode.dto.RoundDTO;
 import com.cs203.smucode.dto.TournamentDTO;
 import com.cs203.smucode.models.Tournament;
 import org.mapstruct.Mapper;
@@ -13,6 +15,7 @@ import java.util.UUID;
 public interface TournamentMapper {
 
 //    TournamentDTO
+    @Mapping(target = "currentRound", expression = "java(getCurrentRound(tournamentDTO.getRounds()))")
     TournamentDTO tournamentToTournamentDTO(Tournament tournament);
 
     Tournament tournamentDTOToTournament(TournamentDTO tournamentDTO);
@@ -30,4 +33,14 @@ public interface TournamentMapper {
 
     List<Tournament> tournamentDTOsToCreateTournaments(List<TournamentDTO> tournamentDTOs);
 
+//    helper functions
+    default String getCurrentRound(List<RoundDTO> rounds) {
+        String currentRound = null;
+        for (RoundDTO roundDTO : rounds) {
+            if (roundDTO.getStatus().equals("ONGOING")) {
+                currentRound = roundDTO.getName();
+            }
+        }
+        return currentRound;
+    }
 }
