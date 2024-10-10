@@ -1,5 +1,6 @@
 package com.cs203.smucode.services.impl;
 
+import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.TournamentNotFoundException;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.PlayerInfo;
@@ -108,6 +109,15 @@ public class TournamentServiceImpl implements TournamentService {
         Round currRound = roundService.findRoundByTournamentIdAndName(id, currRoundName);
         UUID currRoundId = currRound.getId();
         int currRoundSeqId = currRound.getSeqId();
+//        update current round status
+        currRound.setStatus(Status.COMPLETED);
+        roundService.updateRound(currRoundId, currRound);
+
+//        final round
+        if (currRoundName.equals("Round of 2")) {
+//            TODO: tournament complete logic
+            return tournament;
+        }
 
 //        get next round
         Round nextRound = roundService.findRoundByTournamentIdAndSeqId(id, currRoundSeqId+1);
