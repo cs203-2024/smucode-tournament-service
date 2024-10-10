@@ -18,5 +18,6 @@ public class TournamentDTO {
     private String status;
     private int capacity;
     private String band;
+    private String currentRound;
     private List<RoundDTO> rounds;
 }
