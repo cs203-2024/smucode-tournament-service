@@ -3,6 +3,7 @@ package com.cs203.smucode.dto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -23,4 +24,6 @@ public class CreateTournamentDTO {
     private String description;
     private String icon;
     private UUID owner;
+
+    private Set<String> signups;
 }

@@ -1,6 +1,7 @@
 package com.cs203.smucode.services.impl;
 
 import com.cs203.smucode.exceptions.TournamentNotFoundException;
+import com.cs203.smucode.models.PlayerInfo;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.TournamentServiceRepository;
@@ -9,10 +10,8 @@ import com.cs203.smucode.services.TournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TournamentServiceImpl implements TournamentService {
@@ -43,10 +42,9 @@ public class TournamentServiceImpl implements TournamentService {
         // TODO: data insert validation
         if (tournament == null) { return null; }
 
-        // TODO: generate rounds logic
-
         tournamentServiceRepository.save(tournament);
-        createRounds(tournament);
+
+        createRounds(tournament); // generate rounds
 
         return tournament;
     }
@@ -69,9 +67,25 @@ public class TournamentServiceImpl implements TournamentService {
             existingTournament.setSignupEndDate(tournament.getSignupEndDate());
             existingTournament.setSignupStatus(tournament.getSignupStatus());
             existingTournament.setBand(tournament.getBand());
+            existingTournament.setSignups(tournament.getSignups());
+
+//            Set<String> signups = existingTournament.getSignups();
+//            signups.addAll(tournament.getSignups());
+//            existingTournament.setSignups(signups);
 
             return tournamentServiceRepository.save(existingTournament);
         }).orElseThrow(() -> new TournamentNotFoundException("Tournament not found with id: " + id));
+    }
+
+    public Tournament updateTournamentSignups(UUID id, Set<String> signups) {
+        return tournamentServiceRepository.findById(id).map(existingTournament -> {
+            Set<String> existingSignups = existingTournament.getSignups();
+            existingSignups.addAll(signups);
+            existingTournament.setSignups(existingSignups);
+
+            return tournamentServiceRepository.save(existingTournament);
+        }).orElseThrow(() -> new TournamentNotFoundException("Tournament not found with id: " + id));
+
     }
 
     public void deleteTournamentById(UUID id) { tournamentServiceRepository.deleteById(id); }

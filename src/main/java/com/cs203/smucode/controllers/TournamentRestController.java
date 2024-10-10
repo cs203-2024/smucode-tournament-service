@@ -62,6 +62,14 @@ public class TournamentRestController {
         return tournamentDTO;
     }
 
+//    PUT mapping "/signups" to update tournament signups
+    @PutMapping("/{id}/signups")
+    public CreateTournamentDTO updateTournamentSignups(@PathVariable UUID id, @Valid @RequestBody CreateTournamentDTO tournamentDTO) {
+        Tournament tournament = tournamentMapper.createTournamentDTOToTournament(tournamentDTO);
+        tournamentService.updateTournamentSignups(id, tournament.getSignups());
+        return tournamentDTO;
+    }
+
 //    TODO: can create more focused DTOs
 //    TODO: should these apis (updateBracketScore, endRound) be here or in round / bracket controller
 //    public TournamentDTO updateTournamentScore(@PathVariable UUID bracketId, @Valid @RequestBody) {}

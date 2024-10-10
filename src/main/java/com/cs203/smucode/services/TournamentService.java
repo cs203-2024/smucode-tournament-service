@@ -5,6 +5,7 @@ import com.cs203.smucode.dto.TournamentDTO;
 import com.cs203.smucode.models.Tournament;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface TournamentService {
@@ -18,6 +19,8 @@ public interface TournamentService {
     Tournament createTournament(Tournament tournament);
 
     Tournament updateTournament(UUID id, Tournament tournament);
+
+    Tournament updateTournamentSignups(UUID id, Set<String> signups);
 
     void deleteTournamentById(UUID id);
 

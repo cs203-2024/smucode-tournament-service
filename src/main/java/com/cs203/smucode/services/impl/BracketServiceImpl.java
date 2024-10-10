@@ -42,19 +42,19 @@ public class BracketServiceImpl implements BracketService {
 
     public Bracket updateBracket(UUID id, Bracket bracket) {
 
-        Bracket exisitingBracket = bracketServiceRepository.findById(id)
+        Bracket existingBracket = bracketServiceRepository.findById(id)
                 .orElseThrow(() -> new BracketNotFoundException("Bracket not found with id: " + id));
 
 //        update status of parent round
-        Round parentRound = exisitingBracket.getRound();
+        Round parentRound = existingBracket.getRound();
         if (parentRound.getStatus() == Status.UPCOMING) {
             parentRound.setStatus(Status.ONGOING);
             roundServiceRepository.save(parentRound);
         }
 
-//        exisitingBracket.setRound(bracket.getRound());
-        exisitingBracket.setStatus(bracket.getStatus());
-        exisitingBracket.setWinner(bracket.getWinner());
+//        existingBracket.setRound(bracket.getRound());
+        existingBracket.setStatus(bracket.getStatus());
+        existingBracket.setWinner(bracket.getWinner());
 
 ////        TODO: uncomment when connection established with user microservice
 ////        for (UUID playerId : playerIds) {
@@ -64,13 +64,10 @@ public class BracketServiceImpl implements BracketService {
 ////        }
 //
 
-        exisitingBracket.setPlayers(bracket.getPlayers().stream()
+        existingBracket.setPlayers(bracket.getPlayers().stream()
                 .map(playerInfo -> new PlayerInfo(playerInfo.getPlayerId(), playerInfo.getScore()))
                 .collect(Collectors.toList()));
-        System.out.println("hello");
-        System.out.println(bracket.getPlayers());
-        System.out.println(exisitingBracket.getPlayers());
-        bracketServiceRepository.save(exisitingBracket);
+        bracketServiceRepository.save(existingBracket);
 
         return bracket;
     }
