@@ -5,7 +5,9 @@ import com.cs203.smucode.models.Tournament;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 
@@ -16,6 +18,8 @@ public interface TournamentServiceRepository extends JpaRepository<Tournament, U
 
     List<Tournament> findByStatus(Status status);
 
-    List<Tournament> findByParticipants(String participant);
+    Set<Tournament> findByParticipants(String participant);
+
+    List<Tournament> findBySignupEndDateBeforeAndStatus(LocalDateTime dateTime, String status);
 
 }

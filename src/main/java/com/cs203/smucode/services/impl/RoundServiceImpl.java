@@ -1,9 +1,6 @@
 package com.cs203.smucode.services.impl;
 
-import com.cs203.smucode.dto.RoundDTO;
 import com.cs203.smucode.exceptions.RoundNotFoundException;
-import com.cs203.smucode.exceptions.TournamentNotFoundException;
-import com.cs203.smucode.mappers.RoundMapper;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.repositories.RoundServiceRepository;
@@ -78,11 +75,11 @@ public class RoundServiceImpl implements RoundService {
 
 //    helper functions
     int getBracketCountFromRoundName(String roundName) {
-        Pattern pattern = Pattern.compile("\\d+");
-        Matcher matcher = pattern.matcher(roundName);
+        Pattern pattern = Pattern.compile("\\d+"); // regex pattern to match 1 or more digits
+        Matcher matcher = pattern.matcher(roundName); // searches regex pattern against roundName
 
         if (matcher.find()) {
-            return Integer.parseInt(matcher.group()) / 2;
+            return Integer.parseInt(matcher.group()) / 2; // retrieves first match
         }
         return 0;
     }

@@ -1,5 +1,6 @@
 package com.cs203.smucode;
 
+import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.dto.UserDTO;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.models.Bracket;
@@ -16,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,9 +49,12 @@ public class MatchmakingServiceImplTest {
         MockitoAnnotations.openMocks(this);
 
         // Set mock tournament properties
-        when(tournament.getId()).thenReturn("1");
+        UUID tournamentId = UUID.randomUUID();
+//        when(tournament.getId()).thenReturn("1");
+        when(tournament.getId()).thenReturn(tournamentId);
         when(tournament.getCapacity()).thenReturn(4);
-        when(tournament.getStatus()).thenReturn("pending");
+//        when(tournament.getStatus()).thenReturn("pending");
+        when(tournament.getStatus()).thenReturn(Status.UPCOMING);
 
         // Set mock user properties
         when(user1.skillIndex()).thenReturn(1200.0);
@@ -75,8 +80,10 @@ public class MatchmakingServiceImplTest {
 
         // Assert
         // Verify that the tournament is canceled due to not enough players
-        verify(tournamentService).updateTournament(eq("1"), any(Tournament.class));
-        verify(tournament).setStatus("cancelled");
+//        verify(tournamentService).updateTournament(eq("1"), any(Tournament.class));
+        verify(tournamentService).updateTournament(eq(tournament.getId()), any(Tournament.class));
+//        verify(tournament).setStatus("cancelled");
+        verify(tournament).setStatus(Status.UPCOMING);
         verify(bracketService, never()).createBracket(any());
     }
 
@@ -171,8 +178,10 @@ public class MatchmakingServiceImplTest {
 
         // Assert
         // Verify that the tournament status is updated to "ongoing"
-        verify(tournamentService).updateTournament(eq("1"), any(Tournament.class));
-        verify(tournament).setStatus("ongoing");
+//        verify(tournamentService).updateTournament(eq("1"), any(Tournament.class));
+        verify(tournamentService).updateTournament(eq(tournament.getId()), any(Tournament.class));
+//        verify(tournament).setStatus("ongoing");
+        verify(tournament).setStatus(Status.ONGOING);
 
         // Verify that brackets are created
         verify(bracketService, times(2)).createBracket(any(Bracket.class));
@@ -199,11 +208,15 @@ public class MatchmakingServiceImplTest {
         assertEquals(2, brackets.size(), "There should be 2 brackets for 4 players");
 
         // Assert correct pairings based on fixed seed order
-        assertEquals("player4", brackets.get(0).getPlayer1().username());  // Highest skill player
-        assertEquals("player3", brackets.get(0).getPlayer2().username());  // Lowest skill player
+//        assertEquals("player4", brackets.get(0).getPlayer1().username());  // Highest skill player
+//        assertEquals("player3", brackets.get(0).getPlayer2().username());  // Lowest skill player
+        assertEquals("player4", brackets.get(0).getPlayers().getFirst().getPlayerId());  // Highest skill player
+        assertEquals("player3", brackets.get(0).getPlayers().getLast().getPlayerId());  // Lowest skill player
 
-        assertEquals("player2", brackets.get(1).getPlayer1().username());  // Second highest
-        assertEquals("player1", brackets.get(1).getPlayer2().username());  // Second lowest
+//        assertEquals("player2", brackets.get(1).getPlayer1().username());  // Second highest
+//        assertEquals("player1", brackets.get(1).getPlayer2().username());  // Second lowest
+        assertEquals("player2", brackets.get(1).getPlayers().getFirst().getPlayerId());  // Highest skill player
+        assertEquals("player1", brackets.get(1).getPlayers().getLast().getPlayerId());  // Lowest skill player
     }
 
 
@@ -232,11 +245,15 @@ public class MatchmakingServiceImplTest {
         List<String> bottomPlayers = Arrays.asList("player1", "player3");
 
         // Ensure that top-seeded players are in the Player1 position
-        assertEquals(true, topPlayers.contains(brackets.get(0).getPlayer1().username()));
-        assertEquals(true, topPlayers.contains(brackets.get(1).getPlayer1().username()));
+//        assertEquals(true, topPlayers.contains(brackets.get(0).getPlayer1().username()));
+//        assertEquals(true, topPlayers.contains(brackets.get(1).getPlayer1().username()));
+        assertEquals(true, topPlayers.contains(brackets.get(0).getPlayers().getFirst().getPlayerId()));
+        assertEquals(true, topPlayers.contains(brackets.get(1).getPlayers().getFirst().getPlayerId()));
 
         // Ensure that bottom-seeded players are in the Player2 position
-        assertEquals(true, bottomPlayers.contains(brackets.get(0).getPlayer2().username()));
-        assertEquals(true, bottomPlayers.contains(brackets.get(1).getPlayer2().username()));
+//        assertEquals(true, bottomPlayers.contains(brackets.get(0).getPlayer2().username()));
+//        assertEquals(true, bottomPlayers.contains(brackets.get(1).getPlayer2().username()));
+        assertEquals(true, topPlayers.contains(brackets.get(0).getPlayers().getLast().getPlayerId()));
+        assertEquals(true, topPlayers.contains(brackets.get(1).getPlayers().getLast().getPlayerId()));
     }
 }

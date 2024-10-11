@@ -137,7 +137,7 @@ class TournamentServiceImplTest {
         // Given
         String participant = "User1";
         List<Tournament> expectedTournaments = Arrays.asList(sampleTournament);
-        when(tournamentServiceRepository.findByParticipants(participant)).thenReturn(expectedTournaments);
+        when(tournamentServiceRepository.findByParticipants(participant).stream().toList()).thenReturn(expectedTournaments);
 
         // When
         List<Tournament> actualTournaments = tournamentService.findAllTournamentsByParticipant(participant);
