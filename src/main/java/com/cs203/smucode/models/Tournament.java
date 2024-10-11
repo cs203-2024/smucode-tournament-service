@@ -1,16 +1,10 @@
 package com.cs203.smucode.models;
 
 import com.cs203.smucode.constants.Band;
-import com.cs203.smucode.constants.SignupStatus;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.converters.BandConverter;
-import com.cs203.smucode.converters.SignupStatusConverter;
 import com.cs203.smucode.converters.StatusConverter;
-import com.cs203.smucode.validation.PowerOfTwo;
-import com.cs203.smucode.dto.UserDTO;
-import com.cs203.smucode.validation.WeightSum;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -33,15 +27,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name="tournaments")
-@WeightSum
-// TODO: add rest of Bean validation
 public class Tournament {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @NotNull
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String name;
 
     @Column(columnDefinition = "TEXT")
@@ -59,11 +50,10 @@ public class Tournament {
     @Column(name = "format", length = 50)
     private String format; // e.g., "single-elimination", "double-elimination", "round-robin"
 
-    @PowerOfTwo
     @Column(nullable = false)
     private int capacity;
 
-    @Column(length = 255)
+    @Column(name = "icon")
     private String icon;
 
     @Column(name = "organiser", nullable = false)

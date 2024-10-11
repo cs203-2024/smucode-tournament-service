@@ -13,6 +13,7 @@ import com.cs203.smucode.services.TournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,7 +53,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     public List<Tournament> findAllTournamentsByParticipant(String participant) {
-        return tournamentServiceRepository.findByParticipants(participant);
+        return tournamentServiceRepository.findByParticipants(participant).stream().toList();
     }
 
     public Tournament createTournament(Tournament tournament) {
@@ -172,6 +173,10 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     public void deleteTournamentById(UUID id) { tournamentServiceRepository.deleteById(id); }
+
+    public List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime, String status) {
+        return tournamentServiceRepository.findBySignupEndDateBeforeAndStatus(dateTime, status);
+    }
 
 //    helper classes
     List<Round> createRounds(Tournament tournament) {
