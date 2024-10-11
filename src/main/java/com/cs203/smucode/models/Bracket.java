@@ -2,6 +2,7 @@ package com.cs203.smucode.models;
 
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.converters.StatusConverter;
+import com.cs203.smucode.dto.UserDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
