@@ -1,20 +1,18 @@
 package com.cs203.smucode.controllers;
 
-import com.cs203.smucode.dto.CreateTournamentDTO;
+import com.cs203.smucode.constants.Status;
+import com.cs203.smucode.dto.DetailedTournamentDTO;
+import com.cs203.smucode.dto.TournamentCardDTO;
 import com.cs203.smucode.dto.TournamentDTO;
-import com.cs203.smucode.exceptions.TournamentNotFoundException;
 import com.cs203.smucode.mappers.TournamentMapper;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.TournamentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/tournaments")
@@ -31,10 +29,19 @@ public class TournamentRestController {
     }
 
 //    expose "/" and return list of tournaments
-    @GetMapping("/")
-    public List<TournamentDTO> getAllTournaments() {
-        List<Tournament> tournaments = tournamentService.findAllTournaments();
-        return tournamentMapper.tournamentsToTournamentDTOs(tournaments);
+    @GetMapping()
+    public List<? extends TournamentCardDTO> getAllTournaments(@RequestParam String id) {
+//        TODO: if admin
+        if (id.equals("admin")) {
+            List<Tournament> tournaments = tournamentService.findAllTournamentsByOrganiser(id);
+            return tournamentMapper.tournamentsToAdminTournamentCardDTOs(tournaments);
+        }
+
+//        TODO: if user
+        Set<Tournament> tournaments = new HashSet<>();
+        tournaments.addAll(tournamentService.findAllTournamentsByStatus(Status.UPCOMING));
+        tournaments.addAll(tournamentService.findAllTournamentsByParticipant(id));
+        return tournamentMapper.tournamentsToUserTournamentCardDTOs(tournaments.stream().toList());
     }
 
 
@@ -48,26 +55,34 @@ public class TournamentRestController {
 //    POST mapping "/" to create new tournament
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/create")
-    public CreateTournamentDTO createTournament(@Valid @RequestBody CreateTournamentDTO tournamentDTO) {
-        Tournament tournament = tournamentMapper.createTournamentDTOToTournament(tournamentDTO);
+    public DetailedTournamentDTO createTournament(@Valid @RequestBody DetailedTournamentDTO tournamentDTO) {
+        Tournament tournament = tournamentMapper.detailedTournamentDTOToTournament(tournamentDTO);
         tournamentService.createTournament(tournament);
         return tournamentDTO;
     }
 
 //    PUT mapping "/{id}" to update tournament
     @PutMapping("/{id}")
-    public CreateTournamentDTO updateTournament(@PathVariable UUID id, @Valid @RequestBody CreateTournamentDTO tournamentDTO) {
-        Tournament tournament = tournamentMapper.createTournamentDTOToTournament(tournamentDTO);
+    public DetailedTournamentDTO updateTournament(@PathVariable UUID id, @Valid @RequestBody DetailedTournamentDTO tournamentDTO) {
+        Tournament tournament = tournamentMapper.detailedTournamentDTOToTournament(tournamentDTO);
         tournamentService.updateTournament(id, tournament);
         return tournamentDTO;
     }
 
-//    PUT mapping "/signups" to update tournament signups
-    @PutMapping("/{id}/signups")
-    public CreateTournamentDTO updateTournamentSignups(@PathVariable UUID id, @Valid @RequestBody CreateTournamentDTO tournamentDTO) {
-        Tournament tournament = tournamentMapper.createTournamentDTOToTournament(tournamentDTO);
-        tournamentService.updateTournamentSignups(id, tournament.getSignups());
-        return tournamentDTO;
+//    POST mapping "/signup" to create new signup
+    @PostMapping("/{id}/signup")
+    public DetailedTournamentDTO addTournamentSignups(@PathVariable UUID id, @RequestParam String user) {
+        Tournament tournament = tournamentService.findTournamentById(id);
+        tournamentService.addTournamentSignup(id, user);
+        return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
+    }
+
+    //    DELETE mapping "/signup" to delete signup
+    @DeleteMapping("/{id}/signup")
+    public DetailedTournamentDTO deleteTournamentSignups(@PathVariable UUID id, @RequestParam String user) {
+        Tournament tournament = tournamentService.findTournamentById(id);
+        tournamentService.deleteTournamentSignup(id, user);
+        return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
     }
 
 //    TODO: can create more focused DTOs

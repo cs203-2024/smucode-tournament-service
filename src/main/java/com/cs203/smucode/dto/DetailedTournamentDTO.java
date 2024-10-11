@@ -4,10 +4,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.UUID;
 
 @Data
-public class CreateTournamentDTO {
+public class DetailedTournamentDTO {
     private String name;
     private String format;
     private int capacity;
@@ -23,7 +22,7 @@ public class CreateTournamentDTO {
     private int testCaseWeight;
     private String description;
     private String icon;
-    private UUID owner;
+    private String owner;
     private String currentRound;
 
     private Set<String> signups;

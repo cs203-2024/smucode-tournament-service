@@ -43,6 +43,18 @@ public class TournamentServiceImpl implements TournamentService {
         return tournament.get();
     }
 
+    public List<Tournament> findAllTournamentsByOrganiser(String organiser) {
+        return tournamentServiceRepository.findByOrganiser(organiser);
+    }
+
+    public List<Tournament> findAllTournamentsByStatus(Status status) {
+        return tournamentServiceRepository.findByStatus(status);
+    }
+
+    public List<Tournament> findAllTournamentsByParticipant(String participant) {
+        return tournamentServiceRepository.findByParticipants(participant);
+    }
+
     public Tournament createTournament(Tournament tournament) {
 
         // TODO: data insert validation
@@ -64,7 +76,7 @@ public class TournamentServiceImpl implements TournamentService {
             existingTournament.setFormat(tournament.getFormat());
             existingTournament.setCapacity(tournament.getCapacity());
             existingTournament.setIcon(tournament.getIcon());
-            existingTournament.setOwner(tournament.getOwner());
+            existingTournament.setOrganiser(tournament.getOrganiser());
             existingTournament.setTimeWeight(tournament.getTimeWeight());
             existingTournament.setMemWeight(tournament.getMemWeight());
             existingTournament.setTestCaseWeight(tournament.getTestCaseWeight());
@@ -84,15 +96,25 @@ public class TournamentServiceImpl implements TournamentService {
         }).orElseThrow(() -> new TournamentNotFoundException("Tournament not found with id: " + id));
     }
 
-    public Tournament updateTournamentSignups(UUID id, Set<String> signups) {
+    public Tournament addTournamentSignup(UUID id, String signup) {
         return tournamentServiceRepository.findById(id).map(existingTournament -> {
             Set<String> existingSignups = existingTournament.getSignups();
-            existingSignups.addAll(signups);
+            existingSignups.add(signup);
             existingTournament.setSignups(existingSignups);
 
             return tournamentServiceRepository.save(existingTournament);
         }).orElseThrow(() -> new TournamentNotFoundException("Tournament not found with id: " + id));
+    }
 
+    public Tournament deleteTournamentSignup(UUID id, String signup) {
+        return tournamentServiceRepository.findById(id).map(existingTournament -> {
+            Set<String> existingSignups = existingTournament.getSignups();
+            existingSignups.remove(signup);
+//            TODO: handle exception of user not being in signups
+            existingTournament.setSignups(existingSignups);
+
+            return tournamentServiceRepository.save(existingTournament);
+        }).orElseThrow(() -> new TournamentNotFoundException("Tournament not found with id: " + id));
     }
 
 //    progress tournament (when round ends)
