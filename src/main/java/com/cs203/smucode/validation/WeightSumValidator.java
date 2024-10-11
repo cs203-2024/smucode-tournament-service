@@ -4,8 +4,6 @@ import com.cs203.smucode.models.Tournament;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import java.math.BigDecimal;
-
 public class WeightSumValidator implements ConstraintValidator<WeightSum, Tournament> {
 
     @Override

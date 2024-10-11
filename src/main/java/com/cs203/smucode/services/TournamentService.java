@@ -1,6 +1,6 @@
 package com.cs203.smucode.services;
 
-import com.cs203.smucode.dto.TournamentDTO;
+import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.models.Tournament;
 
 import java.time.LocalDateTime;
@@ -8,14 +8,28 @@ import java.util.List;
 import java.util.UUID;
 
 public interface TournamentService {
+//    reason for having mapping within controller and not service:
+//    services may use one another - would have to map everytime
 
-    List<TournamentDTO> findAllTournaments();
+    List<Tournament> findAllTournaments();
 
-    TournamentDTO findTournamentById(UUID id);
+    Tournament findTournamentById(UUID id);
 
-//    TournamentDTO createTournament(TournamentDTO tournament);
+    List<Tournament> findAllTournamentsByOrganiser(String organiser);
 
-//    TournamentDTO updateTournament(String id, TournamentDTO tournament);
+    List<Tournament> findAllTournamentsByStatus(Status status);
+
+    List<Tournament> findAllTournamentsByParticipant(String participant);
+
+    Tournament createTournament(Tournament tournament);
+
+    Tournament updateTournament(UUID id, Tournament tournament);
+
+    Tournament addTournamentSignup(UUID id, String signups);
+
+    Tournament deleteTournamentSignup(UUID id, String signups);
+
+    Tournament updateTournamentProgress(UUID id);
 
     void deleteTournamentById(UUID id);
 

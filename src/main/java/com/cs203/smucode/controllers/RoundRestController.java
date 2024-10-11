@@ -1,6 +1,8 @@
 package com.cs203.smucode.controllers;
 
 import com.cs203.smucode.dto.RoundDTO;
+import com.cs203.smucode.mappers.RoundMapper;
+import com.cs203.smucode.models.Round;
 import com.cs203.smucode.services.RoundService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,30 +17,41 @@ import java.util.UUID;
 public class RoundRestController {
 
     private RoundService roundService;
+    private RoundMapper roundMapper;
 
     @Autowired
-    public RoundRestController(RoundService roundService) { this.roundService = roundService; }
+    public RoundRestController(RoundService roundService,
+                               RoundMapper roundMapper) {
+        this.roundService = roundService;
+        this.roundMapper = roundMapper;
+    }
 
     @GetMapping("/tournament/{id}")
     public List<RoundDTO> getAllRoundsByTournamentId(@PathVariable UUID id) {
-        return roundService.findAllRoundsByTournamentId(id);
+        List<Round> rounds = roundService.findAllRoundsByTournamentId(id);
+        return roundMapper.roundsToRoundDTOs(rounds);
     }
 
     @GetMapping("/{id}")
     public RoundDTO getRoundById(@PathVariable UUID id) {
-        return roundService.findRoundById(id);
+        Round round = roundService.findRoundById(id);
+        return roundMapper.roundToRoundDTO(round);
     }
 
 //    @ResponseStatus(HttpStatus.CREATED)
 //    @PostMapping("/")
-//    public Round createRound(@Valid @RequestBody Round round) {
-//        return roundService.createRound(round);
+//    public RoundDTO createRound(@Valid @RequestBody RoundDTO roundDTO) {
+//        Round round = roundMapper.roundDTOToRound(roundDTO);
+//        roundService.createRound(round);
+//        return roundDTO;
 //    }
-//
-//    @PutMapping("/{id}")
-//    public Round updateRound(@PathVariable String id, @Valid @RequestBody Round round) {
-//        return roundService.updateRound(id, round);
-//    }
+
+    @PutMapping("/{id}")
+    public RoundDTO updateRound(@PathVariable UUID id, @Valid @RequestBody RoundDTO roundDTO) {
+        Round round = roundMapper.roundDTOToRound(roundDTO);
+        roundService.updateRound(id, round);
+        return roundDTO;
+    }
 
     @DeleteMapping("/{id}")
     public void deleteRound(@PathVariable UUID id) {

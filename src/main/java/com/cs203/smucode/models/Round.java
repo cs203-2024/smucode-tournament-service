@@ -20,25 +20,33 @@ public class Round {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "tournament_id", nullable = false)
-    private Tournament tournament;
+//    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "seq_id")
+    private int seqId;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "start_date", nullable = false)
+    @Column(name = "start_date")
     // TODO: check that startDate and endDate within tournament startDate and endDate
     private LocalDateTime startDate;
 
-    @Column(name = "end_date", nullable = false)
+    @Column(name = "end_date")
     private LocalDateTime endDate;
 
     @Convert(converter = StatusConverter.class)
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false, insertable = false)
+//    @Column(name = "status", nullable = false)
     private Status status;
 
     @OneToMany(mappedBy = "round", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bracket> brackets;
+
+//    @Column(name = "tournament_id", nullable = false)
+//    private UUID tournamentId;
+
+    @ManyToOne
+    @JoinColumn(name = "tournament_id", nullable = false)
+    private Tournament tournament;
 
 }
