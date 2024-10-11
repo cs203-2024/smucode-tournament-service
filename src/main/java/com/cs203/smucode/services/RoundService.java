@@ -8,15 +8,17 @@ import java.util.UUID;
 
 public interface RoundService {
 
-    List<RoundDTO> findAllRoundsByTournamentId(UUID tournamentId);
+    List<Round> findAllRoundsByTournamentId(UUID tournamentId);
 
-    RoundDTO findRoundById(UUID id);
+    Round findRoundById(UUID id);
 
-//    RoundDTO createRound(Round round);
-//
-//    RoundDTO updateRound(String id, Round round);
+    Round findRoundByTournamentIdAndSeqId(UUID tournamentId, int seqId);
+
+    Round findRoundByTournamentIdAndName(UUID tournamentId, String name);
+
+    Round createRound(Round round);
+
+    Round updateRound(UUID id, Round round);
 
     void deleteRoundById(UUID id);
-
-//    List<RoundDTO> toRoundDTOs(List<Round> rounds);
 }

@@ -11,4 +11,6 @@ import java.util.UUID;
 public interface BracketServiceRepository extends JpaRepository<Bracket, UUID> {
 
     List<Bracket> findByRoundId(UUID roundId);
+
+    Bracket findByRoundIdAndSeqId(UUID roundId, int seqId);
 }

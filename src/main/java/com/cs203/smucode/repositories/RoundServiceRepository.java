@@ -11,4 +11,8 @@ import java.util.UUID;
 public interface RoundServiceRepository extends JpaRepository<Round, UUID> {
 
     List<Round> findByTournamentId(UUID tournamentId);
+
+    Round findByTournamentIdAndSeqId(UUID tournamentId, int seqId);
+
+    Round findByTournamentIdAndName(UUID tournamentId, String name);
 }

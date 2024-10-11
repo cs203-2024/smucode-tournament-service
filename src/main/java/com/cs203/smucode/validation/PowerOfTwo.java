@@ -8,12 +8,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = WeightSumValidator.class)
-@Target(ElementType.TYPE)
+@Constraint(validatedBy = PowerOfTwoValidator.class)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WeightSum {
+public @interface PowerOfTwo {
 
-    String message() default "The values of timeWeight, memWeight and testCaseWeight must sum up to 100";
+    String message() default "The capacity of a tournament must be to the power of two";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 

@@ -3,12 +3,14 @@ package com.cs203.smucode.services.impl;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.dto.UserDTO;
 import com.cs203.smucode.models.Bracket;
+import com.cs203.smucode.models.PlayerInfo;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.MatchmakingService;
 import com.cs203.smucode.services.RoundService;
 import com.cs203.smucode.services.TournamentService;
+import com.cs203.smucode.services.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,19 +22,26 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     private final TournamentService tournamentService;
     private final RoundService roundService;
     private final BracketService bracketService;
+    private final UserServiceClient userServiceClient;
 
     @Autowired
-    public MatchmakingServiceImpl(RoundService roundService, BracketService bracketService, TournamentService tournamentService) {
+    public MatchmakingServiceImpl(RoundService roundService,
+                                  BracketService bracketService,
+                                  TournamentService tournamentService,
+                                  UserServiceClient userServiceClient) {
         this.roundService = roundService;
         this.bracketService = bracketService;
         this.tournamentService = tournamentService;
+        this.userServiceClient = userServiceClient;
     }
 
     @Override
     public void runMatchmaking(Tournament tournament) {
         //Get the signups for the tourney
         //TODO: adjust accordingly when signup implementation is clear
-        List<UserDTO> signups = tournament.getTournamentSignups(String.valueOf(tournament.getId()));
+        List<String> signupUsernames = tournament.getSignups().stream().toList();
+        List<UserDTO> signups = userServiceClient.getUsers(signupUsernames);
+//        List<UserDTO> signups = tournament.getTournamentSignups(String.valueOf(tournament.getId()));
 
         //Select participants according to the selection metric
         List<UserDTO> selectedPlayers = selectParticipants(signups, tournament.getCapacity(), "best");
@@ -140,7 +149,10 @@ public class MatchmakingServiceImpl implements MatchmakingService {
 
             //Create a new bracket
             Bracket bracket = new Bracket();
-            bracket.setPlayers(Arrays.asList(player1, player2));
+            bracket.setPlayers(Arrays.asList(
+                    new PlayerInfo(player1.username(), 0),
+                    new PlayerInfo(player2.username(), 0)
+            ));
 
             //Set the round
             bracket.setRound(rounds.getFirst());
