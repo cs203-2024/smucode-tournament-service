@@ -118,7 +118,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         List<Round> rounds = tournament.getRounds();
         if (rounds != null && !rounds.isEmpty()) {
             //fetch the first round, which might be null
-            Round firstRound = rounds.getFirst();
+            Round firstRound = rounds.get(0);
 
             //if the first round is null, create a new Round
             if (firstRound == null) {
@@ -155,7 +155,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
             ));
 
             //Set the round
-            bracket.setRound(rounds.getFirst());
+            bracket.setRound(rounds.get(0));
 
             //Set the status of the bracket
             bracket.setStatus(Status.ONGOING);
