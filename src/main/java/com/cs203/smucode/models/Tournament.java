@@ -7,6 +7,7 @@ import com.cs203.smucode.converters.BandConverter;
 import com.cs203.smucode.converters.SignupStatusConverter;
 import com.cs203.smucode.converters.StatusConverter;
 import com.cs203.smucode.validation.PowerOfTwo;
+import com.cs203.smucode.dto.UserDTO;
 import com.cs203.smucode.validation.WeightSum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -14,7 +15,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import lombok.NoArgsConstructor;
 
