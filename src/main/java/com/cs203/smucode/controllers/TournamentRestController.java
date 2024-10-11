@@ -53,6 +53,7 @@ public class TournamentRestController {
     }
 
 //    POST mapping "/" to create new tournament
+    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/create")
     public DetailedTournamentDTO createTournament(@Valid @RequestBody DetailedTournamentDTO tournamentDTO) {
