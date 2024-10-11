@@ -18,6 +18,7 @@ import com.cs203.smucode.services.impl.TournamentServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 class TournamentServiceImplTest {
 
@@ -137,7 +138,7 @@ class TournamentServiceImplTest {
         // Given
         String participant = "User1";
         List<Tournament> expectedTournaments = Arrays.asList(sampleTournament);
-        when(tournamentServiceRepository.findByParticipants(participant).stream().toList()).thenReturn(expectedTournaments);
+        when(tournamentServiceRepository.findByParticipants(participant)).thenReturn(new HashSet<>(expectedTournaments));
 
         // When
         List<Tournament> actualTournaments = tournamentService.findAllTournamentsByParticipant(participant);
