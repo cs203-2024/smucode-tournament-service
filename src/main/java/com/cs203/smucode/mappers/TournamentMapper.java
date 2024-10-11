@@ -1,47 +1,36 @@
 package com.cs203.smucode.mappers;
 
-import com.cs203.smucode.constants.Status;
-import com.cs203.smucode.dto.CreateTournamentDTO;
-import com.cs203.smucode.dto.RoundDTO;
-import com.cs203.smucode.dto.TournamentDTO;
+import com.cs203.smucode.dto.*;
 import com.cs203.smucode.models.Tournament;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
-import java.util.UUID;
 
 @Mapper(componentModel="spring", uses={RoundMapper.class})
 public interface TournamentMapper {
 
+//    TournamentCardDTO
+    AdminTournamentCardDTO tournamentToAdminTournamentCardDTO(Tournament tournament);
+    Tournament AdminTournamentCardDTOToTournament(AdminTournamentCardDTO adminTournamentCardDTO);
+    List<AdminTournamentCardDTO> tournamentsToAdminTournamentCardDTOs(List<Tournament> tournaments);
+    List<Tournament> adminTournamentCardDTOsToTournaments(List<AdminTournamentCardDTO> adminTournamentCardDTOs);
+
+    UserTournamentCardDTO tournamentToUserTournamentCardDTO(Tournament tournament);
+    Tournament UserTournamentCardDTOToTournament(UserTournamentCardDTO userTournamentCardDTO);
+    List<UserTournamentCardDTO> tournamentsToUserTournamentCardDTOs(List<Tournament> tournaments);
+    List<Tournament> userTournamentCardDTOsToTournaments(List<UserTournamentCardDTO> userTournamentCardDTOs);
+
+
 //    TournamentDTO
-//    @Mapping(target = "currentRound", expression = "java(getCurrentRound(tournamentDTO.getRounds()))")
     TournamentDTO tournamentToTournamentDTO(Tournament tournament);
-
     Tournament tournamentDTOToTournament(TournamentDTO tournamentDTO);
-
     List<TournamentDTO> tournamentsToTournamentDTOs(List<Tournament> tournaments);
-
     List<Tournament> tournamentDTOsToTournaments(List<TournamentDTO> tournamentDTOs);
 
-//    CreateTournamentDTO
-    CreateTournamentDTO tournamentToCreateTournamentDTO(Tournament tournament);
-
-    Tournament createTournamentDTOToTournament(CreateTournamentDTO createTournamentDTO);
-
-    List<CreateTournamentDTO> tournamentsToCreateTournamentDTOs(List<Tournament> tournaments);
-
+//    DetailedTournamentDTO
+    DetailedTournamentDTO tournamentToDetailedTournamentDTO(Tournament tournament);
+    Tournament detailedTournamentDTOToTournament(DetailedTournamentDTO detailedTournamentDTO);
+    List<DetailedTournamentDTO> tournamentsToDetailedTournamentDTOs(List<Tournament> tournaments);
     List<Tournament> tournamentDTOsToCreateTournaments(List<TournamentDTO> tournamentDTOs);
 
-//    helper functions
-//    default String getCurrentRound(List<RoundDTO> rounds) {
-//        String currentRound = null;
-//        for (RoundDTO roundDTO : rounds) {
-//            if (roundDTO.getStatus().equals("ONGOING")) {
-//                currentRound = roundDTO.getName();
-//            }
-//            else { break; }
-//        }
-//        return currentRound;
-//    }
 }

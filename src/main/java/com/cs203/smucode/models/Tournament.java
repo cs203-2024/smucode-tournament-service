@@ -62,8 +62,8 @@ public class Tournament {
     @Column(length = 255)
     private String icon;
 
-    @Column(name = "owner", nullable = false)
-    private String owner;
+    @Column(name = "organiser", nullable = false)
+    private String organiser;
 
     @Column(name = "time_weight", nullable = false)
     private int timeWeight;
@@ -106,4 +106,11 @@ public class Tournament {
     @Column(name = "signup")
     private Set<String> signups = new HashSet<>();
 
+    @ElementCollection
+    @CollectionTable(
+            name = "tournament_participants",
+            joinColumns = @JoinColumn(name = "tournament_id")
+    )
+    @Column(name = "participant")
+    private Set<String> participants = new HashSet<>();
 }

@@ -3,13 +3,9 @@ package com.cs203.smucode.dto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Data
-public class TournamentDTO {
+public class TournamentCardDTO {
     private String id;
     private String icon;
     private String name;
@@ -21,12 +17,9 @@ public class TournamentDTO {
     private LocalDateTime signupEndDate;
 //    private String signupStatus;
     private String status;
-    private String organiser;
 
     private int numberOfSignups;
     private String currentRound;
     private LocalDateTime currentRoundEndDate;
 
-    private List<RoundDTO> rounds = new ArrayList<>();
-    private Set<String> signups = new HashSet<>();
 }

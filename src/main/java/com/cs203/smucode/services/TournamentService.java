@@ -1,11 +1,9 @@
 package com.cs203.smucode.services;
 
-import com.cs203.smucode.dto.CreateTournamentDTO;
-import com.cs203.smucode.dto.TournamentDTO;
+import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.models.Tournament;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public interface TournamentService {
@@ -16,11 +14,19 @@ public interface TournamentService {
 
     Tournament findTournamentById(UUID id);
 
+    List<Tournament> findAllTournamentsByOrganiser(String organiser);
+
+    List<Tournament> findAllTournamentsByStatus(Status status);
+
+    List<Tournament> findAllTournamentsByParticipant(String participant);
+
     Tournament createTournament(Tournament tournament);
 
     Tournament updateTournament(UUID id, Tournament tournament);
 
-    Tournament updateTournamentSignups(UUID id, Set<String> signups);
+    Tournament addTournamentSignup(UUID id, String signups);
+
+    Tournament deleteTournamentSignup(UUID id, String signups);
 
     Tournament updateTournamentProgress(UUID id);
 
