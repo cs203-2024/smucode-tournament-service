@@ -1,5 +1,6 @@
 package com.cs203.smucode.schedulers;
 
+import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.MatchmakingService;
 import com.cs203.smucode.services.TournamentService;
@@ -25,7 +26,7 @@ public class TournamentScheduler {
     @Scheduled(cron = "0 0/30 * * * ?") //Runs every 30 minutes
     public void scheduleMatchmaking() {
         LocalDateTime now = LocalDateTime.now();
-        List<Tournament> tournaments = tournamentService.findTournamentsBySignUpDeadline(now, "pending");
+        List<Tournament> tournaments = tournamentService.findTournamentsBySignUpDeadline(now, Status.UPCOMING);
 
         for (Tournament tournament : tournaments) {
             matchmakingService.runMatchmaking(tournament);
