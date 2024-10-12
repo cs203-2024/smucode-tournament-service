@@ -15,6 +15,6 @@ USER spring
 EXPOSE 8081
 
 HEALTHCHECK --interval=30s --timeout=3s \
-  CMD wget -q --spider http://localhost:8761/actuator/health || exit 1
+  CMD wget -q --spider http://localhost:8081/actuator/health || exit 1
 
 ENTRYPOINT ["java", "-jar", "smucode-tournament-service.jar"]
