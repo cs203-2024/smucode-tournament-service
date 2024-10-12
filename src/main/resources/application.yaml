@@ -6,6 +6,8 @@ server:
 spring:
   application:
     name: tournament-service
+  config:
+    import: "optional:configserver:"
   cloud:
     config:
       uri: ${SPRING_CLOUD_CONFIG_URI:http://localhost:8888}
