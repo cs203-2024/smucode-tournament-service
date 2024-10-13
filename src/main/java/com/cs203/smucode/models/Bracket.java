@@ -2,6 +2,7 @@ package com.cs203.smucode.models;
 
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.converters.StatusConverter;
+import com.cs203.smucode.dto.UserBracketDTO;
 import com.cs203.smucode.dto.UserDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,18 @@ public class Bracket {
     @Column(name = "status", nullable = false, insertable = false)
     private Status status;
 
+    @Column(name = "player1")
+    private String player1;
+
+    @Column(name = "player1_score")
+    private int player1Score;
+
+    @Column(name = "player2")
+    private String player2;
+
+    @Column(name = "player2_score")
+    private int player2Score;
+
 //    @ManyToOne
 //    @JoinColumn(name = "winner")
     @Column(name = "winner")
@@ -45,10 +58,10 @@ public class Bracket {
 //    )
 //    private List<User> players = new ArrayList<>();
 
-    @ElementCollection
-    @CollectionTable(
-            name = "bracket_players",
-            joinColumns = @JoinColumn(name = "bracket_id")
-    )
-    private List<PlayerInfo> players = new ArrayList<>();
+//    @ElementCollection
+//    @CollectionTable(
+//            name = "bracket_players",
+//            joinColumns = @JoinColumn(name = "bracket_id")
+//    )
+//    private List<PlayerInfo> players = new ArrayList<>();
 }
