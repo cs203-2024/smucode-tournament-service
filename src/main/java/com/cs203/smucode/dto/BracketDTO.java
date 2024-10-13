@@ -8,9 +8,19 @@ import java.util.List;
 
 @Data
 public class BracketDTO {
+
     private String id;
+
     private int seqId;
+
     private String status;
-    private List<PlayerInfo> players = new ArrayList<>();
+
+    private UserBracketDTO player1;
+
+    private UserBracketDTO player2;
+
+//    private List<PlayerInfo> players = new ArrayList<>();
+
     private String winner;
+
 }

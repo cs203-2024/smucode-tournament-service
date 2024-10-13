@@ -154,12 +154,14 @@ public class TournamentServiceImpl implements TournamentService {
             String player1 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2 - 1).getWinner();
             String player2 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2).getWinner();
 
-            newBracket.setPlayers(new ArrayList<>(
-                    List.of(
-                            new PlayerInfo(player1, 0),
-                            new PlayerInfo(player2, 0)
-                    )
-            ));
+//            newBracket.setPlayers(new ArrayList<>(
+//                    List.of(
+//                            new PlayerInfo(player1, 0),
+//                            new PlayerInfo(player2, 0)
+//                    )
+//            ));
+            newBracket.setPlayer1(player1);
+            newBracket.setPlayer2(player2);
 
             bracketService.updateBracket(newBracket.getId(), newBracket);
 

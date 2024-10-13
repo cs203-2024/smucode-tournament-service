@@ -8,8 +8,11 @@ import java.time.LocalDateTime;
 public class AdminTournamentCardDTO extends TournamentCardDTO{
 
     private String band;
+
     private int timeWeight;
+
     private int memWeight;
+
     private int testCaseWeight;
 
 }

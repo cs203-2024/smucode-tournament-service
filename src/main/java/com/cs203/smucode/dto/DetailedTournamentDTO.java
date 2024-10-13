@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 @Data
-@WeightSum
+//@WeightSum
 // TODO: add rest of Bean validation
 public class DetailedTournamentDTO {
 
