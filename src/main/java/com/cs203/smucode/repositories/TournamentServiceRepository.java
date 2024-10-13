@@ -20,6 +20,6 @@ public interface TournamentServiceRepository extends JpaRepository<Tournament, U
 
     Set<Tournament> findByParticipants(String participant);
 
-    List<Tournament> findBySignupEndDateBeforeAndStatus(LocalDateTime dateTime, String status);
+    List<Tournament> findBySignupEndDateBeforeAndStatus(LocalDateTime dateTime, Status status);
 
 }

@@ -176,7 +176,7 @@ public class TournamentServiceImpl implements TournamentService {
 
     public void deleteTournamentById(UUID id) { tournamentServiceRepository.deleteById(id); }
 
-    public List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime, String status) {
+    public List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime, Status status) {
         return tournamentServiceRepository.findBySignupEndDateBeforeAndStatus(dateTime, status);
     }
 
