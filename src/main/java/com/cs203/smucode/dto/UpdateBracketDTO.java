@@ -8,7 +8,11 @@ import java.util.List;
 
 @Data
 public class UpdateBracketDTO {
-    private String status;
+
+//    private String status;
+
     private List<PlayerInfo> players = new ArrayList<>();
+
     private String winner;
+
 }

@@ -2,6 +2,7 @@ package com.cs203.smucode.controllers;
 
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.dto.DetailedTournamentDTO;
+import com.cs203.smucode.dto.TournamentBracketsDTO;
 import com.cs203.smucode.dto.TournamentCardDTO;
 import com.cs203.smucode.dto.TournamentDTO;
 import com.cs203.smucode.mappers.TournamentMapper;
@@ -30,18 +31,18 @@ public class TournamentRestController {
 
 //    expose "/" and return list of tournaments
     @GetMapping()
-    public List<? extends TournamentCardDTO> getAllTournaments(@RequestParam String id) {
+    public List<? extends TournamentCardDTO> getAllTournaments(@RequestParam String username) {
 //        TODO: if admin
-        if (id.equals("admin")) {
-            List<Tournament> tournaments = tournamentService.findAllTournamentsByOrganiser(id);
+        if (username.equals("admin")) {
+            List<Tournament> tournaments = tournamentService.findAllTournamentsByOrganiser(username);
             return tournamentMapper.tournamentsToAdminTournamentCardDTOs(tournaments);
         }
 
 //        TODO: if user
         Set<Tournament> tournaments = new HashSet<>();
         tournaments.addAll(tournamentService.findAllTournamentsByStatus(Status.UPCOMING));
-        tournaments.addAll(tournamentService.findAllTournamentsByParticipant(id));
-        return tournamentMapper.tournamentsToUserTournamentCardDTOs(tournaments.stream().toList());
+        tournaments.addAll(tournamentService.findAllTournamentsByParticipant(username));
+        return tournamentMapper.tournamentsToUserTournamentCardDTOs(tournaments.stream().toList(), username);
     }
 
 
@@ -50,6 +51,13 @@ public class TournamentRestController {
     public TournamentDTO getTournamentById(@PathVariable UUID id) {
         Tournament tournament = tournamentService.findTournamentById(id);
         return tournamentMapper.tournamentToTournamentDTO(tournament);
+    }
+
+//    endpoint for specified tournament's brackets
+    @GetMapping("/{id}/brackets")
+    public TournamentBracketsDTO getTournamentBracketsByTournamentId(@PathVariable UUID id) {
+        Tournament tournament = tournamentService.findTournamentById(id);
+        return tournamentMapper.tournamentToTournamentBracketsDTO(tournament);
     }
 
 //    POST mapping "/" to create new tournament

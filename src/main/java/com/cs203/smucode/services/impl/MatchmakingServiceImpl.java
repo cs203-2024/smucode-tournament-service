@@ -149,10 +149,12 @@ public class MatchmakingServiceImpl implements MatchmakingService {
 
             //Create a new bracket
             Bracket bracket = new Bracket();
-            bracket.setPlayers(Arrays.asList(
-                    new PlayerInfo(player1.username(), 0),
-                    new PlayerInfo(player2.username(), 0)
-            ));
+//            bracket.setPlayers(Arrays.asList(
+//                    new PlayerInfo(player1.username(), 0),
+//                    new PlayerInfo(player2.username(), 0)
+//            ));
+            bracket.setPlayer1(player1.username());
+            bracket.setPlayer2(player2.username());
 
             //Set the round
             bracket.setRound(rounds.get(0));

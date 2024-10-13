@@ -105,10 +105,10 @@ public class MatchmakingServiceImplTest {
         assertEquals(2, brackets.size(), "There should be 2 brackets for 4 players");
 
         // Check the players paired in the brackets
-        assertEquals("player4", brackets.get(0).getPlayers().get(0).getPlayerId());  // Highest skill player
-        assertEquals("player3", brackets.get(0).getPlayers().get(1).getPlayerId());  // Lowest skill player
+        assertEquals("player4", brackets.get(0).getPlayer1());  // Highest skill player
+        assertEquals("player3", brackets.get(0).getPlayer2());  // Lowest skill player
 
-        assertEquals("player2", brackets.get(1).getPlayers().get(0).getPlayerId());  // Second highest skill
-        assertEquals("player1", brackets.get(1).getPlayers().get(1).getPlayerId());  // Second lowest skill
+        assertEquals("player2", brackets.get(1).getPlayer1());
+        assertEquals("player1", brackets.get(1).getPlayer2());
     }
 }
