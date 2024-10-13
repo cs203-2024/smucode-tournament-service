@@ -33,5 +33,5 @@ public interface TournamentService {
 
     void deleteTournamentById(UUID id);
 
-    List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime, String status);
+    List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime, Status status);
 }

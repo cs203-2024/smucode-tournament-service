@@ -1,3 +1,23 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+
 spring:
+  application:
+    name: tournament-service
+  config:
+    import: "optional:configserver:"
+  cloud:
+    config:
+      uri: ${SPRING_CLOUD_CONFIG_URI:http://localhost:8888}
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE:default}
+
+eureka:
+  client:
+    enabled: true
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
