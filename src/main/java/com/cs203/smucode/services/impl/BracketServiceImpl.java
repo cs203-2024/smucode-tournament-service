@@ -61,14 +61,13 @@ public class BracketServiceImpl implements BracketService {
             roundServiceRepository.save(parentRound);
         }
 
-//        update tournament status
+//        update tournament current round and status
         Tournament tournament = parentRound.getTournament();
         tournament.setCurrentRound(parentRound.getName());
+        if (tournament.getStatus() == Status.UPCOMING) {
+            tournament.setStatus(Status.ONGOING);
+        }
         tournamentServiceRepository.save(tournament);
-
-//        existingBracket.setRound(bracket.getRound());
-        existingBracket.setStatus(bracket.getStatus());
-        existingBracket.setWinner(bracket.getWinner());
 
 ////        TODO: uncomment when connection established with user microservice
 ////        for (UUID playerId : playerIds) {
@@ -78,9 +77,19 @@ public class BracketServiceImpl implements BracketService {
 ////        }
 //
 
-        existingBracket.setPlayers(bracket.getPlayers().stream()
-                .map(playerInfo -> new PlayerInfo(playerInfo.getPlayerId(), playerInfo.getScore()))
-                .collect(Collectors.toList()));
+//        update bracket
+        if (existingBracket.getStatus() == Status.UPCOMING) { // set status to ongoing if previously upcoming
+            existingBracket.setStatus(Status.ONGOING);
+        }
+        if (bracket.getWinner() != null) {
+            existingBracket.setWinner(bracket.getWinner()); // set status to completed if winner is passed
+            existingBracket.setStatus(Status.COMPLETED);
+        }
+//        existingBracket.setPlayers(bracket.getPlayers().stream()
+//                .map(playerInfo -> new PlayerInfo(playerInfo.getPlayerId(), playerInfo.getScore()))
+//                .collect(Collectors.toList()));
+        existingBracket.setPlayer1(bracket.getPlayer1());
+        existingBracket.setPlayer2(bracket.getPlayer2());
         bracketServiceRepository.save(existingBracket);
 
         return bracket;
@@ -102,6 +111,6 @@ public class BracketServiceImpl implements BracketService {
 //        return bracketServiceRepository.save(exisitigBracket);
 //    }
 
-    public void deleteBracketById(UUID id) {bracketServiceRepository.deleteById(id);}
+    public void deleteBracketById(UUID id) { bracketServiceRepository.deleteById(id); }
 
 }

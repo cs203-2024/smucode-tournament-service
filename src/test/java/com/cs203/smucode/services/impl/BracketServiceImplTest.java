@@ -106,10 +106,14 @@ class BracketServiceImplTest {
         updatedBracket.setId(bracketId);
         updatedBracket.setStatus(Status.ONGOING);
         updatedBracket.setWinner("Player1");
-        updatedBracket.setPlayers(Arrays.asList(
-                new PlayerInfo("player1", 10),
-                new PlayerInfo("player2", 5)
-        ));
+//        updatedBracket.setPlayers(Arrays.asList(
+//                new PlayerInfo("player1", 10),
+//                new PlayerInfo("player2", 5)
+//        ));
+        updatedBracket.setPlayer1("player1");
+        updatedBracket.setPlayer1Score(10);
+        updatedBracket.setPlayer2("player2");
+        updatedBracket.setPlayer2Score(5);
 
         when(bracketServiceRepository.findById(bracketId)).thenReturn(Optional.of(existingBracket));
         when(bracketServiceRepository.save(any(Bracket.class))).thenReturn(updatedBracket);
@@ -118,7 +122,11 @@ class BracketServiceImplTest {
 
         assertEquals(updatedBracket.getStatus(), result.getStatus());
         assertEquals(updatedBracket.getWinner(), result.getWinner());
-        assertEquals(updatedBracket.getPlayers(), result.getPlayers());
+//        assertEquals(updatedBracket.getPlayers(), result.getPlayers());
+        assertEquals(updatedBracket.getPlayer1(), result.getPlayer1());
+        assertEquals(updatedBracket.getPlayer2(), result.getPlayer2());
+        assertEquals(updatedBracket.getPlayer1Score(), result.getPlayer1Score());
+        assertEquals(updatedBracket.getPlayer2Score(), result.getPlayer2Score());
         assertEquals(Status.ONGOING, parentRound.getStatus());
         assertEquals("Round 1", tournament.getCurrentRound());
         verify(roundServiceRepository).save(parentRound);
