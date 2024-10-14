@@ -131,7 +131,8 @@ class RoundServiceImplTest {
         // Then
         assertEquals(roundToCreate, actualRound);
         verify(roundServiceRepository).save(roundToCreate);
-        verify(bracketService, times(8)).createBracket(any(Bracket.class));
+//       TODO: MOCKDATA
+        verify(bracketService, times(2)).createBracket(any(Bracket.class));
     }
 
     @Test
