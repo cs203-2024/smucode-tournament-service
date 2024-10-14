@@ -3,7 +3,6 @@ package com.cs203.smucode.services.impl;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.dto.UserDTO;
 import com.cs203.smucode.models.Bracket;
-import com.cs203.smucode.models.PlayerInfo;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.BracketService;
@@ -11,6 +10,8 @@ import com.cs203.smucode.services.MatchmakingService;
 import com.cs203.smucode.services.RoundService;
 import com.cs203.smucode.services.TournamentService;
 import com.cs203.smucode.services.UserServiceClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class MatchmakingServiceImpl implements MatchmakingService {
+
+    private static final Logger logger = LoggerFactory.getLogger(MatchmakingServiceImpl.class);
     private final TournamentService tournamentService;
     private final RoundService roundService;
     private final BracketService bracketService;
@@ -41,11 +44,16 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         //TODO: adjust accordingly when signup implementation is clear
         List<String> signupUsernames = tournament.getSignups().stream().toList();
 
-        List<UserDTO> signups = new ArrayList<>();
-        for (String username : signupUsernames) {
-            signups.add(userServiceClient.getUserById(username));
-        }
-        System.out.println(signups);
+        List<UserDTO> signups = List.of(
+                new UserDTO("user1", null, "user1@test.com", null, "player", 25, 8.33,0),
+                new UserDTO("user2", null, "user2@test.com", null, "player", 25, 8.33,0),
+                new UserDTO("user3", null, "user3@test.com", null, "player", 25, 8.33,0),
+                new UserDTO("user4", null, "user4@test.com", null, "player", 25, 8.33,0)
+        );
+//        for (String username : signupUsernames) {
+//            signups.add(username);
+//        }
+//        System.out.println(signups);
 //        List<UserDTO> signups = tournament.getTournamentSignups(String.valueOf(tournament.getId()));
 
         //Select participants according to the selection metric
@@ -57,12 +65,14 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         //Save the brackets
         for (Bracket bracket : brackets) {
             bracketService.createBracket(bracket);
+            logger.info(bracket.getPlayer1());
+            logger.info(bracket.getPlayer2());
         }
 
         //Update tournament status to ongoing
         tournament.setStatus(Status.ONGOING);
         //TODO: readjust when "save" is implemented
-//        tournamentService.saveTournament(tournament);
+        tournamentService.updateTournament(tournament.getId(), tournament);
     }
 
     public List<UserDTO> selectParticipants(List<UserDTO> signups, int tournamentCapacity, String selectionType) {
