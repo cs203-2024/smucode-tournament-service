@@ -194,6 +194,8 @@ public class TournamentServiceImpl implements TournamentService {
         for (int roundSize : roundSizes) {
             Round round = new Round();
             round.setTournament(tournament);
+//            TODO: move default value of status to db?
+            round.setStatus(Status.UPCOMING);
             round.setName("Round of " + roundSize);
 
             Round createdRound = roundService.createRound(round);

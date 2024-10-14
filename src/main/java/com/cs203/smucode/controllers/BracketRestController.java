@@ -5,7 +5,7 @@ import com.cs203.smucode.dto.UpdateBracketDTO;
 import com.cs203.smucode.mappers.BracketMapper;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.services.BracketService;
-import com.cs203.smucode.services.impl.UserServiceClientImpl;
+//import com.cs203.smucode.services.impl.UserServiceClientImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,15 +20,15 @@ public class BracketRestController {
 
     private BracketService bracketService;
     private BracketMapper bracketMapper;
-    private final UserServiceClientImpl userServiceClientImpl;
+//    private final UserServiceClientImpl userServiceClientImpl;
 
     @Autowired
     public BracketRestController(BracketService bracketService,
-                                 BracketMapper bracketMapper,
-                                 UserServiceClientImpl userServiceClientImpl) {
+                                 BracketMapper bracketMapper) {
+//                                 UserServiceClientImpl userServiceClientImpl) {
         this.bracketService = bracketService;
         this.bracketMapper = bracketMapper;
-        this.userServiceClientImpl = userServiceClientImpl;
+//        this.userServiceClientImpl = userServiceClientImpl;
     }
 
     @GetMapping("/round/{id}")

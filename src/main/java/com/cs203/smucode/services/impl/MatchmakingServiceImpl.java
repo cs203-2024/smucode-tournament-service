@@ -35,12 +35,17 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         this.userServiceClient = userServiceClient;
     }
 
-    @Override
+//    @Override
     public void runMatchmaking(Tournament tournament) {
         //Get the signups for the tourney
         //TODO: adjust accordingly when signup implementation is clear
         List<String> signupUsernames = tournament.getSignups().stream().toList();
-        List<UserDTO> signups = userServiceClient.getUsers(signupUsernames);
+
+        List<UserDTO> signups = new ArrayList<>();
+        for (String username : signupUsernames) {
+            signups.add(userServiceClient.getUserById(username));
+        }
+        System.out.println(signups);
 //        List<UserDTO> signups = tournament.getTournamentSignups(String.valueOf(tournament.getId()));
 
         //Select participants according to the selection metric

@@ -78,7 +78,7 @@ public class MatchmakingServiceImplTest {
         user4 = new UserDTO("player4", "password4", "player4@example.com", "/images/player4.png", "ROLE_USER", 25.0, 8.33, 1400.0);
 
         // Mark the stubbing of the user service as lenient
-        lenient().when(userServiceClient.getUsers(anyList())).thenReturn(Arrays.asList(user1, user2, user3, user4));
+//        lenient().when(userServiceClient.getUsers(anyList())).thenReturn(Arrays.asList(user1, user2, user3, user4));
     }
 
     @Test
