@@ -9,6 +9,7 @@ import com.cs203.smucode.services.RoundService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -43,6 +44,9 @@ public class RoundServiceImpl implements RoundService {
         return roundServiceRepository.findByTournamentIdAndName(tournamentId, name);
     }
 
+    private List<String> mockUsers = List.of("user1", "user2", "user3", "user4");
+    private int index = 0;
+
     public Round createRound(Round round) {
         roundServiceRepository.save(round);
         int bracketCount = getBracketCountFromRoundName(round.getName());
@@ -50,6 +54,11 @@ public class RoundServiceImpl implements RoundService {
             for (int i = 0; i < bracketCount; i++) {
                 Bracket bracket = new Bracket();
                 bracket.setRound(round);
+//                TODO: mock data
+                bracket.setPlayer1(mockUsers.get(index));
+                index++;
+                bracket.setPlayer2(mockUsers.get(index));
+                index++;
                 bracketService.createBracket(bracket);
             }
         }
