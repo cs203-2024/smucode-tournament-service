@@ -1,4 +1,0 @@
-package com.cs203.smucode.repositories;
-
-public class RoundServiceRepositoryTest {
-}

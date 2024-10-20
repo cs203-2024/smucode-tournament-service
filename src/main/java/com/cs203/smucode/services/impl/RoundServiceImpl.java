@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,20 +29,23 @@ public class RoundServiceImpl implements RoundService {
         this.bracketService = bracketService;
     }
 
-    public List<Round> findAllRoundsByTournamentId(UUID tournamentId) {
-        return roundServiceRepository.findByTournamentId(tournamentId);
-    }
-
     public Round findRoundById(UUID id) {
-        return roundServiceRepository.findById(id).orElse(null);
+        return roundServiceRepository.findById(id).orElseThrow(() ->
+                new RoundNotFoundException("Round with id " + id + " not found"));
     }
 
     public Round findRoundByTournamentIdAndSeqId(UUID tournamentId, int seqId) {
-        return roundServiceRepository.findByTournamentIdAndSeqId(tournamentId, seqId);
+        return roundServiceRepository.findByTournamentIdAndSeqId(tournamentId, seqId).orElseThrow(() ->
+                new RoundNotFoundException("Round with tournament id " + tournamentId + " and seq id " + seqId + " not found"));
     }
 
     public Round findRoundByTournamentIdAndName(UUID tournamentId, String name) {
-        return roundServiceRepository.findByTournamentIdAndName(tournamentId, name);
+        return roundServiceRepository.findByTournamentIdAndName(tournamentId, name).orElseThrow(() ->
+                new RoundNotFoundException("Round with tournament id " + tournamentId + " and name " + name + " not found"));
+    }
+
+    public List<Round> findAllRoundsByTournamentId(UUID tournamentId) {
+        return roundServiceRepository.findByTournamentId(tournamentId).orElse(null);
     }
 
     private List<String> mockUsers = List.of("user1", "user2", "user3", "user4");
@@ -70,17 +74,27 @@ public class RoundServiceImpl implements RoundService {
     }
 
     public Round updateRound(UUID id, Round round) {
-        return roundServiceRepository.findById(id).map(existingRound -> {
-            existingRound.setName(round.getName());
-            existingRound.setStartDate(round.getStartDate());
-            existingRound.setEndDate(round.getEndDate());
-            existingRound.setStatus(round.getStatus());
+        Optional<Round> roundOptional = roundServiceRepository.findById(id);
 
-            return roundServiceRepository.save(existingRound);
-        }).orElseThrow(() -> new RoundNotFoundException("Round not found with id: " + id));
+        if (roundOptional.isEmpty()) {
+            throw new RoundNotFoundException("Round with id " + id + " not found");
+        }
+
+        Round roundToUpdate = roundOptional.get();
+        roundToUpdate.setName(round.getName());
+        roundToUpdate.setStartDate(round.getStartDate());
+        roundToUpdate.setEndDate(round.getEndDate());
+        roundToUpdate.setStatus(round.getStatus());
+
+        return roundServiceRepository.save(roundToUpdate);
     }
 
-    public void deleteRoundById(UUID id) { roundServiceRepository.deleteById(id); }
+    public void deleteRoundById(UUID id) {
+        if (!roundServiceRepository.existsById(id)) {
+            throw new RoundNotFoundException("Round with id " + id + " not found");
+        }
+        roundServiceRepository.deleteById(id);
+    }
 
 //    helper functions
     int getBracketCountFromRoundName(String roundName) {

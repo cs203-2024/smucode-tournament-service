@@ -14,11 +14,9 @@ import com.cs203.smucode.models.*;
 import com.cs203.smucode.repositories.TournamentServiceRepository;
 import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.RoundService;
-import com.cs203.smucode.services.impl.TournamentServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 class TournamentServiceImplTest {
 
@@ -66,91 +64,91 @@ class TournamentServiceImplTest {
 
     @Test
     void findAllTournaments_shouldReturnListOfTournaments() {
-        // Given
-        List<Tournament> expectedTournaments = Arrays.asList(sampleTournament);
+        // Arrange
+        List<Tournament> expectedTournaments = Collections.singletonList(sampleTournament);
         when(tournamentServiceRepository.findAll()).thenReturn(expectedTournaments);
 
-        // When
+        // Act
         List<Tournament> actualTournaments = tournamentService.findAllTournaments();
 
-        // Then
+        // Assert
         assertEquals(expectedTournaments, actualTournaments);
         verify(tournamentServiceRepository).findAll();
     }
 
     @Test
     void findTournamentById_withValidId_shouldReturnTournament() {
-        // Given
+        // Arrange
         UUID id = sampleTournament.getId();
         when(tournamentServiceRepository.findById(id)).thenReturn(Optional.of(sampleTournament));
 
-        // When
+        // Act
         Tournament actualTournament = tournamentService.findTournamentById(id);
 
-        // Then
+        // Assert
         assertEquals(sampleTournament, actualTournament);
         verify(tournamentServiceRepository).findById(id);
     }
 
     @Test
     void findTournamentById_withInvalidId_shouldThrowTournamentNotFoundException() {
-        // Given
+        // Arrange
         UUID id = UUID.randomUUID();
         when(tournamentServiceRepository.findById(id)).thenReturn(Optional.empty());
 
-        // When & Then
+        // Act & Assert
         assertThrows(TournamentNotFoundException.class, () -> tournamentService.findTournamentById(id));
         verify(tournamentServiceRepository).findById(id);
     }
 
     @Test
     void findAllTournamentsByOrganiser_shouldReturnListOfTournaments() {
-        // Given
+        // Arrange
         String organiser = "TestOrganiser";
-        List<Tournament> expectedTournaments = Arrays.asList(sampleTournament);
-        when(tournamentServiceRepository.findByOrganiser(organiser)).thenReturn(expectedTournaments);
+        List<Tournament> expectedTournaments = Collections.singletonList(sampleTournament);
+        when(tournamentServiceRepository.findByOrganiser(organiser)).thenReturn(Optional.of(expectedTournaments));
 
-        // When
+        // Act
         List<Tournament> actualTournaments = tournamentService.findAllTournamentsByOrganiser(organiser);
 
-        // Then
+        // Assert
         assertEquals(expectedTournaments, actualTournaments);
         verify(tournamentServiceRepository).findByOrganiser(organiser);
     }
 
     @Test
     void findAllTournamentsByStatus_shouldReturnListOfTournaments() {
-        // Given
+        // Arrange
         Status status = Status.UPCOMING;
-        List<Tournament> expectedTournaments = Arrays.asList(sampleTournament);
-        when(tournamentServiceRepository.findByStatus(status)).thenReturn(expectedTournaments);
+        List<Tournament> expectedTournaments = Collections.singletonList(sampleTournament);
+        when(tournamentServiceRepository.findByStatus(status)).thenReturn(Optional.of(expectedTournaments));
 
-        // When
+        // Act
         List<Tournament> actualTournaments = tournamentService.findAllTournamentsByStatus(status);
 
-        // Then
+        // Assert
         assertEquals(expectedTournaments, actualTournaments);
         verify(tournamentServiceRepository).findByStatus(status);
     }
 
     @Test
     void findAllTournamentsByParticipant_shouldReturnListOfTournaments() {
-        // Given
+        // Arrange
         String participant = "User1";
-        List<Tournament> expectedTournaments = Arrays.asList(sampleTournament);
-        when(tournamentServiceRepository.findByParticipants(participant)).thenReturn(new HashSet<>(expectedTournaments));
+        List<Tournament> expectedTournaments = Collections.singletonList(sampleTournament);
+        when(tournamentServiceRepository.findByParticipant(participant)).thenReturn(Optional.of(expectedTournaments));
 
-        // When
+        // Act
         List<Tournament> actualTournaments = tournamentService.findAllTournamentsByParticipant(participant);
 
-        // Then
+        // Assert
         assertEquals(expectedTournaments, actualTournaments);
-        verify(tournamentServiceRepository).findByParticipants(participant);
+        verify(tournamentServiceRepository).findByParticipant(participant);
     }
 
     @Test
     void createTournament_shouldCreateTournamentAndRounds() {
-        // Given
+        // Arrange
         Tournament tournamentToCreate = createSampleTournament();
         tournamentToCreate.setId(sampleTournament.getId());
         tournamentToCreate.setStartDate(sampleTournament.getStartDate());
@@ -160,10 +158,10 @@ class TournamentServiceImplTest {
         when(tournamentServiceRepository.save(tournamentToCreate)).thenReturn(sampleTournament);
         when(roundService.createRound(any(Round.class))).thenReturn(new Round());
 
-        // When
+        // Act
         Tournament createdTournament = tournamentService.createTournament(tournamentToCreate);
 
-        // Then
+        // Assert
         assertEquals(sampleTournament, createdTournament);
         verify(tournamentServiceRepository).save(tournamentToCreate);
         verify(roundService, times(4)).createRound(any(Round.class)); // log2(16) = 4 rounds
@@ -171,17 +169,17 @@ class TournamentServiceImplTest {
 
     @Test
     void updateTournament_withValidIdAndTournament_shouldReturnUpdatedTournament() {
-        // Given
+        // Arrange
         UUID id = sampleTournament.getId();
         Tournament updatedTournament = createSampleTournament();
         updatedTournament.setName("Updated Tournament Name");
         when(tournamentServiceRepository.findById(id)).thenReturn(Optional.of(sampleTournament));
         when(tournamentServiceRepository.save(any(Tournament.class))).thenReturn(updatedTournament);
 
-        // When
+        // Act
         Tournament actualTournament = tournamentService.updateTournament(id, updatedTournament);
 
-        // Then
+        // Assert
         assertEquals(updatedTournament, actualTournament);
         verify(tournamentServiceRepository).findById(id);
         verify(tournamentServiceRepository).save(any(Tournament.class));
@@ -189,12 +187,12 @@ class TournamentServiceImplTest {
 
     @Test
     void updateTournament_withInvalidId_shouldThrowTournamentNotFoundException() {
-        // Given
+        // Arrange
         UUID id = UUID.randomUUID();
         Tournament updatedTournament = createSampleTournament();
         when(tournamentServiceRepository.findById(id)).thenReturn(Optional.empty());
 
-        // When & Then
+        // Act & Assert
         assertThrows(TournamentNotFoundException.class, () -> tournamentService.updateTournament(id, updatedTournament));
         verify(tournamentServiceRepository).findById(id);
         verify(tournamentServiceRepository, never()).save(any(Tournament.class));
@@ -202,7 +200,7 @@ class TournamentServiceImplTest {
 
     @Test
     void addTournamentSignup_shouldAddSignupAndReturnUpdatedTournament() {
-        // Given
+        // Arrange
         UUID id = sampleTournament.getId();
         String newSignup = "NewUser";
         Tournament updatedTournament = createSampleTournament();
@@ -210,10 +208,10 @@ class TournamentServiceImplTest {
         when(tournamentServiceRepository.findById(id)).thenReturn(Optional.of(sampleTournament));
         when(tournamentServiceRepository.save(any(Tournament.class))).thenReturn(updatedTournament);
 
-        // When
+        // Act
         Tournament actualTournament = tournamentService.addTournamentSignup(id, newSignup);
 
-        // Then
+        // Assert
         assertTrue(actualTournament.getSignups().contains(newSignup));
         verify(tournamentServiceRepository).findById(id);
         verify(tournamentServiceRepository).save(any(Tournament.class));
@@ -221,7 +219,7 @@ class TournamentServiceImplTest {
 
     @Test
     void deleteTournamentSignup_shouldRemoveSignupAndReturnUpdatedTournament() {
-        // Given
+        // Arrange
         UUID id = sampleTournament.getId();
         String signupToRemove = "User1";
         Tournament updatedTournament = createSampleTournament();
@@ -229,10 +227,10 @@ class TournamentServiceImplTest {
         when(tournamentServiceRepository.findById(id)).thenReturn(Optional.of(sampleTournament));
         when(tournamentServiceRepository.save(any(Tournament.class))).thenReturn(updatedTournament);
 
-        // When
+        // Act
         Tournament actualTournament = tournamentService.deleteTournamentSignup(id, signupToRemove);
 
-        // Then
+        // Assert
         assertFalse(actualTournament.getSignups().contains(signupToRemove));
         verify(tournamentServiceRepository).findById(id);
         verify(tournamentServiceRepository).save(any(Tournament.class));
@@ -240,7 +238,7 @@ class TournamentServiceImplTest {
 
 //    @Test
 //    void updateTournamentProgress_shouldUpdateRoundsAndReturnUpdatedTournament() {
-//        // Given
+//        // Arrange
 //        UUID id = sampleTournament.getId();
 //        Round currentRound = new Round();
 //        currentRound.setId(UUID.randomUUID());
@@ -259,10 +257,10 @@ class TournamentServiceImplTest {
 //        when(bracketService.findBracketByRoundIdAndSeqId(any(UUID.class), anyInt())).thenReturn(new Bracket());
 //        when(tournamentServiceRepository.save(any(Tournament.class))).thenReturn(sampleTournament);
 //
-//        // When
+//        // Act
 //        Tournament actualTournament = tournamentService.updateTournamentProgress(id);
 //
-//        // Then
+//        // Assert
 //        assertEquals("Round of 8", actualTournament.getCurrentRound());
 //        verify(tournamentServiceRepository).findById(id);
 //        verify(roundService).findRoundByTournamentIdAndName(id, "Round of 16");
@@ -274,13 +272,14 @@ class TournamentServiceImplTest {
 
     @Test
     void deleteTournamentById_shouldCallRepositoryMethod() {
-        // Given
+        // Arrange
         UUID id = sampleTournament.getId();
+        when(tournamentServiceRepository.existsById(id)).thenReturn(true);
 
-        // When
+        // Act
         tournamentService.deleteTournamentById(id);
 
-        // Then
+        // Assert
         verify(tournamentServiceRepository).deleteById(id);
     }
 }

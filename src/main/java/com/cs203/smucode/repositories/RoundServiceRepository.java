@@ -5,14 +5,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface RoundServiceRepository extends JpaRepository<Round, UUID> {
 
-    List<Round> findByTournamentId(UUID tournamentId);
+    Optional<List<Round>> findByTournamentId(UUID tournamentId);
 
-    Round findByTournamentIdAndSeqId(UUID tournamentId, int seqId);
+    Optional<Round> findByTournamentIdAndSeqId(UUID tournamentId, int seqId);
 
-    Round findByTournamentIdAndName(UUID tournamentId, String name);
+    Optional<Round> findByTournamentIdAndName(UUID tournamentId, String name);
 }
