@@ -1,5 +1,6 @@
 package com.cs203.smucode.dto;
 
+import lombok.Data;
 
 public record UserDTO(
 

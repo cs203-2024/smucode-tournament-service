@@ -3,7 +3,6 @@ package com.cs203.smucode.services.impl;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.BracketNotFoundException;
 import com.cs203.smucode.models.Bracket;
-import com.cs203.smucode.models.PlayerInfo;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.BracketServiceRepository;
@@ -14,15 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class BracketServiceImpl implements BracketService {
 
-    private BracketServiceRepository bracketServiceRepository;
-    private RoundServiceRepository roundServiceRepository;
-    private TournamentServiceRepository tournamentServiceRepository;
+    private final BracketServiceRepository bracketServiceRepository;
+    private final RoundServiceRepository roundServiceRepository;
+    private final TournamentServiceRepository tournamentServiceRepository;
 
     @Autowired
     public BracketServiceImpl(BracketServiceRepository bracketServiceRepository,
@@ -34,7 +33,7 @@ public class BracketServiceImpl implements BracketService {
     }
 
     public List<Bracket> findAllBracketsByRoundId(UUID roundId) {
-        return bracketServiceRepository.findByRoundId(roundId);
+        return bracketServiceRepository.findByRoundId(roundId).orElse(null);
     }
 
     public Bracket findBracketById(UUID id) {
@@ -42,7 +41,8 @@ public class BracketServiceImpl implements BracketService {
     }
 
     public Bracket findBracketByRoundIdAndSeqId(UUID id, int seqId) {
-        return bracketServiceRepository.findByRoundIdAndSeqId(id, seqId);
+        return bracketServiceRepository.findByRoundIdAndSeqId(id, seqId).orElseThrow(() ->
+                new BracketNotFoundException("Bracket with id " + id + " not found"));
     }
 
     public Bracket createBracket(Bracket bracket) {
@@ -50,12 +50,16 @@ public class BracketServiceImpl implements BracketService {
     }
 
     public Bracket updateBracket(UUID id, Bracket bracket) {
+        Optional<Bracket> bracketOptional = bracketServiceRepository.findById(id);
 
-        Bracket existingBracket = bracketServiceRepository.findById(id)
-                .orElseThrow(() -> new BracketNotFoundException("Bracket not found with id: " + id));
+        if (bracketOptional.isEmpty()) {
+            throw new BracketNotFoundException("Bracket with id " + id + " not found");
+        }
+
+        Bracket bracketToUpdate = bracketOptional.get();
 
 //        update status of parent round
-        Round parentRound = existingBracket.getRound();
+        Round parentRound = bracketToUpdate.getRound();
         if (parentRound.getStatus() == Status.UPCOMING) {
             parentRound.setStatus(Status.ONGOING);
             roundServiceRepository.save(parentRound);
@@ -78,39 +82,24 @@ public class BracketServiceImpl implements BracketService {
 //
 
 //        update bracket
-        if (existingBracket.getStatus() == Status.UPCOMING) { // set status to ongoing if previously upcoming
-            existingBracket.setStatus(Status.ONGOING);
+        if (bracketToUpdate.getStatus() == Status.UPCOMING) { // set status to ongoing if previously upcoming
+            bracketToUpdate.setStatus(Status.ONGOING);
         }
         if (bracket.getWinner() != null) {
-            existingBracket.setWinner(bracket.getWinner()); // set status to completed if winner is passed
-            existingBracket.setStatus(Status.COMPLETED);
+            bracketToUpdate.setWinner(bracket.getWinner()); // set status to completed if winner is passed
+            bracketToUpdate.setStatus(Status.COMPLETED);
         }
-//        existingBracket.setPlayers(bracket.getPlayers().stream()
-//                .map(playerInfo -> new PlayerInfo(playerInfo.getPlayerId(), playerInfo.getScore()))
-//                .collect(Collectors.toList()));
-        existingBracket.setPlayer1(bracket.getPlayer1());
-        existingBracket.setPlayer2(bracket.getPlayer2());
-        bracketServiceRepository.save(existingBracket);
+        bracketToUpdate.setPlayer1(bracket.getPlayer1());
+        bracketToUpdate.setPlayer2(bracket.getPlayer2());
+        bracketServiceRepository.save(bracketToUpdate);
 
         return bracket;
     }
 
-//    public Bracket updateBracketPlayers(UUID bracketId, List<UUID> playerIds) {
-//
-//        Bracket exisitigBracket = bracketServiceRepository.findById(bracketId)
-//                .orElseThrow(() -> new BracketNotFoundException("Bracket not found with id: " + bracketId));
-//
-////        TODO: uncomment when connection established with user microservice
-////        for (UUID playerId : playerIds) {
-////            if (!userServiceClientImpl.userExists(playerId)) {
-////                throw new UserNotFoundException("User not found with id: " + playerId);
-////            }
-////        }
-//
-//        exisitigBracket.setPlayerIds(playerIds);
-//        return bracketServiceRepository.save(exisitigBracket);
-//    }
-
-    public void deleteBracketById(UUID id) { bracketServiceRepository.deleteById(id); }
-
+    public void deleteBracketById(UUID id) {
+        if (!bracketServiceRepository.existsById(id)) {
+            throw new BracketNotFoundException("Bracket with id " + id + " not found");
+        }
+        bracketServiceRepository.deleteById(id);
+    }
 }

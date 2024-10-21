@@ -86,7 +86,7 @@ public class MatchmakingServiceImplTest {
         // Act: Run the matchmaking process
         matchmakingService.runMatchmaking(tournament);
 
-        // Verify that the brackets were created
+        // Verify that the brackets were created <><><>
         verify(bracketService, times(2)).createBracket(any(Bracket.class));
 
         // Assert that the tournament status was updated

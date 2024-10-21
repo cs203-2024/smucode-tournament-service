@@ -13,15 +13,15 @@ import java.util.UUID;
 
 @Service
 public class UserServiceClientImpl implements UserServiceClient {
-
-    private RestTemplate restTemplate;
-//    TODO: change route to user microservice
-    private String url = "user-microservice-route";
-
-    @Autowired
-    public UserServiceClientImpl(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
+//
+//    private RestTemplate restTemplate;
+////    TODO: change route to user microservice
+//    private String url = "localhost:8080/api";
+//
+//    @Autowired
+//    public UserServiceClientImpl(RestTemplate restTemplate) {
+//        this.restTemplate = restTemplate;
+//    }
 
 //    public boolean userExists(UUID userId) {
 //        String url = "user-microservice" + userId;
@@ -33,21 +33,18 @@ public class UserServiceClientImpl implements UserServiceClient {
 //        }
 //    }
 
-    public UserDTO getUser(String username) {
-        System.out.println(restTemplate.getForObject(url + "/" + username, UserDTO.class));
-        return restTemplate.getForObject(url + "/" + username, UserDTO.class);
-    }
-
+//    public UserDTO getUser(String username) {
+//        System.out.println(restTemplate.getForObject(url + "/users/" + username, UserDTO.class));
+//        return restTemplate.getForObject(url + "/" + username, UserDTO.class);
+//    }
+//
     public List<UserDTO> getUsers(List<String> usernames) {
-        List<UserDTO> users = new ArrayList<>();
-        for (String username : usernames) {
-            users.add(getUser(username));
-        }
-        return users;
-    }
-
-    public static void main(String[] args) {
-
+//        List<UserDTO> users = new ArrayList<>();
+//        for (String username : usernames) {
+//            users.add(getUser(username));
+//        }
+//        return users;
+        return null;
     }
 
 }

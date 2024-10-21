@@ -35,8 +35,8 @@ public class Round {
     private LocalDateTime endDate;
 
     @Convert(converter = StatusConverter.class)
-    @Column(name = "status", nullable = false, insertable = false)
-//    @Column(name = "status", nullable = false)
+//    @Column(name = "status", nullable = false, insertable = false)
+    @Column(name = "status", nullable = false)
     private Status status;
 
     @OneToMany(mappedBy = "round", cascade = CascadeType.ALL, orphanRemoval = true)

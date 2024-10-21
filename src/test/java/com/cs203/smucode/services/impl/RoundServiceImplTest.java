@@ -1,5 +1,6 @@
 package com.cs203.smucode.services.impl;
 
+import com.cs203.smucode.exceptions.TournamentNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -62,73 +63,97 @@ class RoundServiceImplTest {
 
     @Test
     void findAllRoundsByTournamentId_shouldReturnListOfRounds() {
-        // Given
+        // Assert
         UUID tournamentId = sampleTournament.getId();
-        List<Round> expectedRounds = Arrays.asList(sampleRound);
-        when(roundServiceRepository.findByTournamentId(tournamentId)).thenReturn(expectedRounds);
+        List<Round> expectedRounds = Collections.singletonList(sampleRound);
+        when(roundServiceRepository.findByTournamentId(tournamentId)).thenReturn(Optional.of(expectedRounds));
 
-        // When
+        // Act
         List<Round> actualRounds = roundService.findAllRoundsByTournamentId(tournamentId);
 
-        // Then
+        // Assert
         assertEquals(expectedRounds, actualRounds);
         verify(roundServiceRepository).findByTournamentId(tournamentId);
     }
 
     @Test
     void findRoundById_withValidId_shouldReturnRound() {
-        // Given
+        // Assert
         UUID id = sampleRound.getId();
         when(roundServiceRepository.findById(id)).thenReturn(Optional.of(sampleRound));
 
-        // When
+        // Act
         Round actualRound = roundService.findRoundById(id);
 
-        // Then
+        // Assert
         assertEquals(sampleRound, actualRound);
         verify(roundServiceRepository).findById(id);
     }
 
     @Test
+    void findRoundById_withInvalidId_shouldThrowBadRequestException() {
+        // Arrange
+        UUID id = UUID.randomUUID();
+        when(roundServiceRepository.findById(id)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(RoundNotFoundException.class, () -> roundService.findRoundById(id));
+        verify(roundServiceRepository).findById(id);
+    }
+
+    @Test
     void findRoundByTournamentIdAndSeqId_shouldReturnRound() {
-        // Given
+        // Assert
         UUID tournamentId = sampleTournament.getId();
         int seqId = sampleRound.getSeqId();
-        when(roundServiceRepository.findByTournamentIdAndSeqId(tournamentId, seqId)).thenReturn(sampleRound);
+        when(roundServiceRepository.findByTournamentIdAndSeqId(tournamentId, seqId)).thenReturn(Optional.ofNullable(sampleRound));
 
-        // When
+        // Act
         Round actualRound = roundService.findRoundByTournamentIdAndSeqId(tournamentId, seqId);
 
-        // Then
+        // Assert
         assertEquals(sampleRound, actualRound);
         verify(roundServiceRepository).findByTournamentIdAndSeqId(tournamentId, seqId);
     }
 
     @Test
+    void findRoundByTournamentIdAndSeqId_withInvalidArguments_shouldThrowBadRequestException() {
+        // Arrange
+        UUID tournamentId = UUID.randomUUID();
+        int seqId = -1;
+
+        when(roundServiceRepository.findByTournamentIdAndSeqId(tournamentId, seqId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(RoundNotFoundException.class, () -> roundService.findRoundByTournamentIdAndSeqId(tournamentId, seqId));
+        verify(roundServiceRepository).findByTournamentIdAndSeqId(tournamentId, seqId);
+    }
+
+    @Test
     void findRoundByTournamentIdAndName_shouldReturnRound() {
-        // Given
+        // Assert
         UUID tournamentId = sampleTournament.getId();
         String name = sampleRound.getName();
-        when(roundServiceRepository.findByTournamentIdAndName(tournamentId, name)).thenReturn(sampleRound);
+        when(roundServiceRepository.findByTournamentIdAndName(tournamentId, name)).thenReturn(Optional.ofNullable(sampleRound));
 
-        // When
+        // Act
         Round actualRound = roundService.findRoundByTournamentIdAndName(tournamentId, name);
 
-        // Then
+        // Assert
         assertEquals(sampleRound, actualRound);
         verify(roundServiceRepository).findByTournamentIdAndName(tournamentId, name);
     }
 
     @Test
     void createRound_shouldReturnCreatedRoundAndCreateBrackets() {
-        // Given
+        // Assert
         Round roundToCreate = createSampleRound();
         when(roundServiceRepository.save(roundToCreate)).thenReturn(roundToCreate);
 
-        // When
+        // Act
         Round actualRound = roundService.createRound(roundToCreate);
 
-        // Then
+        // Assert
         assertEquals(roundToCreate, actualRound);
         verify(roundServiceRepository).save(roundToCreate);
 //       TODO: MOCKDATA
@@ -137,17 +162,17 @@ class RoundServiceImplTest {
 
     @Test
     void updateRound_withValidIdAndRound_shouldReturnUpdatedRound() {
-        // Given
+        // Assert
         UUID id = sampleRound.getId();
         Round updatedRound = createSampleRound();
         updatedRound.setName("Updated Round Name");
         when(roundServiceRepository.findById(id)).thenReturn(Optional.of(sampleRound));
         when(roundServiceRepository.save(any(Round.class))).thenReturn(updatedRound);
 
-        // When
+        // Act
         Round actualRound = roundService.updateRound(id, updatedRound);
 
-        // Then
+        // Assert
         assertEquals(updatedRound, actualRound);
         verify(roundServiceRepository).findById(id);
         verify(roundServiceRepository).save(any(Round.class));
@@ -155,12 +180,12 @@ class RoundServiceImplTest {
 
     @Test
     void updateRound_withInvalidId_shouldThrowRoundNotFoundException() {
-        // Given
+        // Assert
         UUID id = UUID.randomUUID();
         Round updatedRound = createSampleRound();
         when(roundServiceRepository.findById(id)).thenReturn(Optional.empty());
 
-        // When & Then
+        // Act & Assert
         assertThrows(RoundNotFoundException.class, () -> roundService.updateRound(id, updatedRound));
         verify(roundServiceRepository).findById(id);
         verify(roundServiceRepository, never()).save(any(Round.class));
@@ -168,37 +193,38 @@ class RoundServiceImplTest {
 
     @Test
     void deleteRoundById_shouldCallRepositoryMethod() {
-        // Given
+        // Assert
         UUID id = sampleRound.getId();
+        when(roundServiceRepository.existsById(id)).thenReturn(true);
 
-        // When
+        // Act
         roundService.deleteRoundById(id);
 
-        // Then
+        // Assert
         verify(roundServiceRepository).deleteById(id);
     }
 
     @Test
     void getBracketCountFromRoundName_shouldReturnCorrectCount() {
-        // Given
+        // Assert
         String roundName = "Round of 16";
 
-        // When
+        // Act
         int bracketCount = roundService.getBracketCountFromRoundName(roundName);
 
-        // Then
+        // Assert
         assertEquals(8, bracketCount);
     }
 
     @Test
     void getBracketCountFromRoundName_withInvalidName_shouldReturnZero() {
-        // Given
+        // Assert
         String roundName = "Final";
 
-        // When
+        // Act
         int bracketCount = roundService.getBracketCountFromRoundName(roundName);
 
-        // Then
+        // Assert
         assertEquals(0, bracketCount);
     }
 }

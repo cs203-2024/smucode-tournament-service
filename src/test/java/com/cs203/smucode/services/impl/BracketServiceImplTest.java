@@ -46,7 +46,7 @@ class BracketServiceImplTest {
     void findAllBracketsByRoundId() {
         UUID roundId = UUID.randomUUID();
         List<Bracket> expectedBrackets = Arrays.asList(new Bracket(), new Bracket());
-        when(bracketServiceRepository.findByRoundId(roundId)).thenReturn(expectedBrackets);
+        when(bracketServiceRepository.findByRoundId(roundId)).thenReturn(Optional.of(expectedBrackets));
 
         List<Bracket> result = bracketService.findAllBracketsByRoundId(roundId);
 
@@ -71,7 +71,7 @@ class BracketServiceImplTest {
         UUID roundId = UUID.randomUUID();
         int seqId = 1;
         Bracket expectedBracket = new Bracket();
-        when(bracketServiceRepository.findByRoundIdAndSeqId(roundId, seqId)).thenReturn(expectedBracket);
+        when(bracketServiceRepository.findByRoundIdAndSeqId(roundId, seqId)).thenReturn(Optional.of(expectedBracket));
 
         Bracket result = bracketService.findBracketByRoundIdAndSeqId(roundId, seqId);
 
@@ -144,11 +144,15 @@ class BracketServiceImplTest {
     }
 
     @Test
-    void deleteBracketById() {
+    void deleteBracketById_shouldCallRepositoryMethod() {
+        // Arrange
         UUID bracketId = UUID.randomUUID();
+        when(bracketServiceRepository.existsById(bracketId)).thenReturn(true);
 
+        // Act
         bracketService.deleteBracketById(bracketId);
 
+        // Assert
         verify(bracketServiceRepository).deleteById(bracketId);
     }
 }
