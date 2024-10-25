@@ -29,7 +29,7 @@ public class SecurityConfiguration {
         throws Exception {
         http.authorizeHttpRequests(
                 // need change this
-            auth -> auth.anyRequest().permitAll() // For tournament, any request must be authenticated
+            auth -> auth.anyRequest().authenticated() // For tournament, any request must be authenticated
         );
 
         http.sessionManagement(
