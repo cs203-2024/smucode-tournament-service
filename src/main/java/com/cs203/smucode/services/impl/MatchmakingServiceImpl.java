@@ -5,6 +5,7 @@ import com.cs203.smucode.dto.UserDTO;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
+import com.cs203.smucode.processors.UserServiceProcessor;
 import com.cs203.smucode.services.*;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -23,17 +24,17 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     private final TournamentService tournamentService;
     private final RoundService roundService;
     private final BracketService bracketService;
-    private final UserService userService;
+    private final UserServiceProcessor userServiceProcessor;
 
     @Autowired
     public MatchmakingServiceImpl(RoundService roundService,
                                   BracketService bracketService,
                                   TournamentService tournamentService,
-                                  UserService userService, NativeWebRequest nativeWebRequest) {
+                                  UserServiceProcessor userServiceProcessor) {
         this.roundService = roundService;
         this.bracketService = bracketService;
         this.tournamentService = tournamentService;
-        this.userService = userService;
+        this.userServiceProcessor = userServiceProcessor;
     }
 
 //    @Override
@@ -49,7 +50,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         //TODO: adjust accordingly when signup implementation is clear
         List<String> signupUsernames = tournament.getSignups().stream().toList();
 
-        List<UserDTO> signups = userService.getUsers(signupUsernames);
+        List<UserDTO> signups = userServiceProcessor.getUsers(signupUsernames);
 
         //Select participants according to the selection metric
         List<UserDTO> selectedPlayers = selectParticipants(signups, tournament.getCapacity(), "best");

@@ -1,10 +1,12 @@
 package com.cs203.smucode;
 
 import com.cs203.smucode.constants.Status;
+import com.cs203.smucode.consumers.UserServiceConsumer;
 import com.cs203.smucode.dto.UserDTO;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
+import com.cs203.smucode.processors.UserServiceProcessor;
 import com.cs203.smucode.services.*;
 import com.cs203.smucode.services.impl.MatchmakingServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,10 +27,10 @@ import static org.mockito.Mockito.lenient;
 public class MatchmakingServiceImplTest {
 
     @Mock
-    private UserClient userClient;
+    private UserServiceConsumer userClient;
 
     @Mock
-    private UserService userService;
+    private UserServiceProcessor userService;
 
     @Mock
     private BracketService bracketService;
