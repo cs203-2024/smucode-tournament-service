@@ -1,13 +1,12 @@
-package com.cs203.smucode.services;
+package com.cs203.smucode.consumers;
 
 import com.cs203.smucode.dto.UserDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-//@FeignClient(name = "user-service", url = "${user.service.url}")
-@FeignClient(name = "user-service", url = "localhost:9000/api")
-public interface UserClient {
+@FeignClient(name = "user-service", url = "${user.service.url}")
+public interface UserServiceConsumer {
 
 //    boolean userExists(String username);
 
