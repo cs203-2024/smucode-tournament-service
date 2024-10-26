@@ -13,6 +13,12 @@ spring:
       uri: ${SPRING_CLOUD_CONFIG_URI:http://localhost:8888}
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:default}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:smucode-auth-service}
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:9000/api/auth/.well-known/jwks.json}
 
 eureka:
   client:
@@ -22,6 +28,6 @@ eureka:
     serviceUrl:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
 
-jwt:
-  public:
-    key:  gyat!@N!@N!
+user:
+  service:
+    url: ${USER_SERVICE_URL:http://localhost:8080/api/users}

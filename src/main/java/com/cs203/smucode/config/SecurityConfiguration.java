@@ -1,13 +1,6 @@
 package com.cs203.smucode.config;
 
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -15,8 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -38,7 +29,7 @@ public class SecurityConfiguration {
         throws Exception {
         http.authorizeHttpRequests(
                 // need change this
-            auth -> auth.anyRequest().permitAll() // For tournament, any request must be authenticated
+            auth -> auth.anyRequest().authenticated() // For tournament, any request must be authenticated
         );
 
         http.sessionManagement(
@@ -66,17 +57,5 @@ public class SecurityConfiguration {
             new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
-
-    @Bean
-    public JwtDecoder jwtDecoder(
-        @Value("${jwt.public.key}") String publicKeyString
-    ) throws InvalidKeySpecException, NoSuchAlgorithmException {
-        byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyString);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        RSAPublicKey rsaPublicKey = (RSAPublicKey) keyFactory.generatePublic(
-            new X509EncodedKeySpec(publicKeyBytes)
-        );
-        return NimbusJwtDecoder.withPublicKey(rsaPublicKey).build();
     }
 }

@@ -29,6 +29,12 @@ public class TournamentScheduler {
         List<Tournament> tournaments = tournamentService.findTournamentsBySignUpDeadline(now, Status.UPCOMING);
 
         for (Tournament tournament : tournaments) {
+
+            // Do not start tournament if tournament does not have enough signups
+            if (tournament.getParticipants().size() < tournament.getCapacity()) {
+                continue;
+            }
+
             matchmakingService.runMatchmaking(tournament);
         }
     }
