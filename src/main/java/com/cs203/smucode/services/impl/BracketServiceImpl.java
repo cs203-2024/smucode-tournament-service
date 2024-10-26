@@ -73,14 +73,6 @@ public class BracketServiceImpl implements BracketService {
         }
         tournamentServiceRepository.save(tournament);
 
-////        TODO: uncomment when connection established with user microservice
-////        for (UUID playerId : playerIds) {
-////            if (!userServiceClientImpl.userExists(playerId)) {
-////                throw new UserNotFoundException("User not found with id: " + playerId);
-////            }
-////        }
-//
-
 //        update bracket
         if (bracketToUpdate.getStatus() == Status.UPCOMING) { // set status to ongoing if previously upcoming
             bracketToUpdate.setStatus(Status.ONGOING);

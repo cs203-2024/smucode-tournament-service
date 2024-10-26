@@ -1,5 +1,6 @@
 package com.cs203.smucode.services.impl;
 
+import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.RoundNotFoundException;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
@@ -48,21 +49,18 @@ public class RoundServiceImpl implements RoundService {
         return roundServiceRepository.findByTournamentId(tournamentId).orElse(null);
     }
 
-    private List<String> mockUsers = List.of("user1", "user2", "user3", "user4");
-    private int index = 0;
-
     public Round createRound(Round round) {
         roundServiceRepository.save(round);
         int bracketCount = getBracketCountFromRoundName(round.getName());
+        // generate empty brackets
         try {
             for (int i = 0; i < bracketCount; i++) {
                 Bracket bracket = new Bracket();
                 bracket.setRound(round);
-//                TODO: mock data
-                bracket.setPlayer1(mockUsers.get(index));
-                index++;
-                bracket.setPlayer2(mockUsers.get(index));
-                index++;
+                bracket.setStatus(Status.UPCOMING);
+                // TODO: move this to be handled at DB level
+                bracket.setPlayer1Score(0);
+                bracket.setPlayer2Score(0);
                 bracketService.createBracket(bracket);
             }
         }
