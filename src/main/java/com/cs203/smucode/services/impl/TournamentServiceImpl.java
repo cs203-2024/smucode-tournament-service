@@ -159,27 +159,27 @@ public class TournamentServiceImpl implements TournamentService {
             throw new TournamentNotFoundException("Tournament with id " + id + " not found");
         }
 
-//        get current round
+        // Get current round
         Tournament tournament = tournamentOptional.get();
         String currRoundName = tournament.getCurrentRound();
         Round currRound = roundService.findRoundByTournamentIdAndName(id, currRoundName);
         UUID currRoundId = currRound.getId();
         int currRoundSeqId = currRound.getSeqId();
-//        update current round status
+        // Update current round status
         currRound.setStatus(Status.COMPLETED);
         roundService.updateRound(currRoundId, currRound);
 
-//        final round
+        // If final round
         if (currRoundName.equals("Round of 2")) {
-//            TODO: tournament complete logic
+            // TODO: tournament complete logic
             return tournament;
         }
 
-//        get next round
+        // Get next round
         Round nextRound = roundService.findRoundByTournamentIdAndSeqId(id, currRoundSeqId+1);
         UUID nextRoundId = nextRound.getId();
 
-//        move winners to respective brackets
+        // Move winners to respective brackets
         for (int i = 1; i <= nextRound.getBrackets().size(); i++) {
             Bracket newBracket = bracketService.findBracketByRoundIdAndSeqId(nextRoundId, i);
 
@@ -187,12 +187,6 @@ public class TournamentServiceImpl implements TournamentService {
             String player1 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2 - 1).getWinner();
             String player2 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2).getWinner();
 
-//            newBracket.setPlayers(new ArrayList<>(
-//                    List.of(
-//                            new PlayerInfo(player1, 0),
-//                            new PlayerInfo(player2, 0)
-//                    )
-//            ));
             newBracket.setPlayer1(player1);
             newBracket.setPlayer2(player2);
 

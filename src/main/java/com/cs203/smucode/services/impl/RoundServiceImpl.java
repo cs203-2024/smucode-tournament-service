@@ -7,6 +7,7 @@ import com.cs203.smucode.models.Round;
 import com.cs203.smucode.repositories.RoundServiceRepository;
 import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.RoundService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,25 +31,30 @@ public class RoundServiceImpl implements RoundService {
         this.bracketService = bracketService;
     }
 
+    @Transactional
     public Round findRoundById(UUID id) {
         return roundServiceRepository.findById(id).orElseThrow(() ->
                 new RoundNotFoundException("Round with id " + id + " not found"));
     }
 
+    @Transactional
     public Round findRoundByTournamentIdAndSeqId(UUID tournamentId, int seqId) {
         return roundServiceRepository.findByTournamentIdAndSeqId(tournamentId, seqId).orElseThrow(() ->
                 new RoundNotFoundException("Round with tournament id " + tournamentId + " and seq id " + seqId + " not found"));
     }
 
+    @Transactional
     public Round findRoundByTournamentIdAndName(UUID tournamentId, String name) {
         return roundServiceRepository.findByTournamentIdAndName(tournamentId, name).orElseThrow(() ->
                 new RoundNotFoundException("Round with tournament id " + tournamentId + " and name " + name + " not found"));
     }
 
+    @Transactional
     public List<Round> findAllRoundsByTournamentId(UUID tournamentId) {
         return roundServiceRepository.findByTournamentId(tournamentId).orElse(null);
     }
 
+    @Transactional
     public Round createRound(Round round) {
         roundServiceRepository.save(round);
         int bracketCount = getBracketCountFromRoundName(round.getName());
@@ -71,6 +77,7 @@ public class RoundServiceImpl implements RoundService {
         return round;
     }
 
+    @Transactional
     public Round updateRound(UUID id, Round round) {
         Optional<Round> roundOptional = roundServiceRepository.findById(id);
 
@@ -87,6 +94,7 @@ public class RoundServiceImpl implements RoundService {
         return roundServiceRepository.save(roundToUpdate);
     }
 
+    @Transactional
     public void deleteRoundById(UUID id) {
         if (!roundServiceRepository.existsById(id)) {
             throw new RoundNotFoundException("Round with id " + id + " not found");

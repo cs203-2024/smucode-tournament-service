@@ -64,14 +64,14 @@ public class BracketServiceImpl implements BracketService {
 
         Bracket bracketToUpdate = bracketOptional.get();
 
-//        update status of parent round
+        // Update status of parent round
         Round parentRound = bracketToUpdate.getRound();
         if (parentRound.getStatus() == Status.UPCOMING) {
             parentRound.setStatus(Status.ONGOING);
             roundServiceRepository.save(parentRound);
         }
 
-//        update tournament current round and status
+        // Update tournament current round and status
         Tournament tournament = parentRound.getTournament();
         tournament.setCurrentRound(parentRound.getName());
         if (tournament.getStatus() == Status.UPCOMING) {
@@ -79,7 +79,7 @@ public class BracketServiceImpl implements BracketService {
         }
         tournamentServiceRepository.save(tournament);
 
-//        update bracket
+        // Update bracket
         if (bracketToUpdate.getStatus() == Status.UPCOMING) { // set status to ongoing if previously upcoming
             bracketToUpdate.setStatus(Status.ONGOING);
         }
