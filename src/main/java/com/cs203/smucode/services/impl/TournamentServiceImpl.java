@@ -10,6 +10,7 @@ import com.cs203.smucode.repositories.TournamentServiceRepository;
 import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.RoundService;
 import com.cs203.smucode.services.TournamentService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,27 +33,38 @@ public class TournamentServiceImpl implements TournamentService {
         this.bracketService = bracketService;
     }
 
+    @Transactional
     public List<Tournament> findAllTournaments() {
         return tournamentServiceRepository.findAll();
     }
 
+    @Transactional
     public Tournament findTournamentById(UUID id) {
         return tournamentServiceRepository.findById(id).orElseThrow(() ->
                 new TournamentNotFoundException("Tournament with id " + id + " not found"));
     }
 
+    @Transactional
     public List<Tournament> findAllTournamentsByOrganiser(String organiser) {
         return tournamentServiceRepository.findByOrganiser(organiser).orElse(null);
     }
 
+    @Transactional
     public List<Tournament> findAllTournamentsByStatus(Status status) {
         return tournamentServiceRepository.findByStatus(status).orElse(null);
     }
 
+    @Transactional
     public List<Tournament> findAllTournamentsByParticipant(String participant) {
         return tournamentServiceRepository.findByParticipant(participant).orElse(null);
     }
 
+    @Transactional
+    public List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime, Status status) {
+        return tournamentServiceRepository.findBySignupEndDateBeforeAndStatus(dateTime, status).orElse(null);
+    }
+
+    @Transactional
     public Tournament createTournament(Tournament tournament) {
 
         // TODO: data insert validation
@@ -65,6 +77,7 @@ public class TournamentServiceImpl implements TournamentService {
         return tournament;
     }
 
+    @Transactional
     public Tournament updateTournament(UUID id, Tournament tournament) {
         Optional<Tournament> tournamentOptional = tournamentServiceRepository.findById(id);
 
@@ -100,6 +113,7 @@ public class TournamentServiceImpl implements TournamentService {
         return tournamentServiceRepository.save(tournamentToUpdate);
     }
 
+    @Transactional
     public Tournament addTournamentSignup(UUID id, String signup) {
         Optional<Tournament> tournamentOptional = tournamentServiceRepository.findById(id);
 
@@ -115,6 +129,7 @@ public class TournamentServiceImpl implements TournamentService {
         return tournamentServiceRepository.save(tournament);
     }
 
+    @Transactional
     public Tournament deleteTournamentSignup(UUID id, String signup) {
         Optional<Tournament> tournamentOptional = tournamentServiceRepository.findById(id);
 
@@ -135,6 +150,7 @@ public class TournamentServiceImpl implements TournamentService {
         return tournamentServiceRepository.save(tournament);
     }
 
+    @Transactional
 //    progress tournament (when round ends)
     public Tournament updateTournamentProgress(UUID id) {
         Optional<Tournament> tournamentOptional = tournamentServiceRepository.findById(id);
@@ -191,15 +207,12 @@ public class TournamentServiceImpl implements TournamentService {
 
     }
 
+    @Transactional
     public void deleteTournamentById(UUID id) {
         if (!tournamentServiceRepository.existsById(id)) {
             throw new TournamentNotFoundException("Tournament with id " + id + " not found");
         }
         tournamentServiceRepository.deleteById(id); }
-
-    public List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime, Status status) {
-        return tournamentServiceRepository.findBySignupEndDateBeforeAndStatus(dateTime, status).orElse(null);
-    }
 
 //    helper classes
     List<Round> createRounds(Tournament tournament) {

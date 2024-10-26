@@ -9,6 +9,7 @@ import com.cs203.smucode.repositories.BracketServiceRepository;
 import com.cs203.smucode.repositories.RoundServiceRepository;
 import com.cs203.smucode.repositories.TournamentServiceRepository;
 import com.cs203.smucode.services.BracketService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,23 +33,28 @@ public class BracketServiceImpl implements BracketService {
         this.tournamentServiceRepository = tournamentServiceRepository;
     }
 
+    @Transactional
     public List<Bracket> findAllBracketsByRoundId(UUID roundId) {
         return bracketServiceRepository.findByRoundId(roundId).orElse(null);
     }
 
+    @Transactional
     public Bracket findBracketById(UUID id) {
         return bracketServiceRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public Bracket findBracketByRoundIdAndSeqId(UUID id, int seqId) {
         return bracketServiceRepository.findByRoundIdAndSeqId(id, seqId).orElseThrow(() ->
                 new BracketNotFoundException("Bracket with id " + id + " not found"));
     }
 
+    @Transactional
     public Bracket createBracket(Bracket bracket) {
         return bracketServiceRepository.save(bracket);
     }
 
+    @Transactional
     public Bracket updateBracket(UUID id, Bracket bracket) {
         Optional<Bracket> bracketOptional = bracketServiceRepository.findById(id);
 
@@ -96,6 +102,7 @@ public class BracketServiceImpl implements BracketService {
         return bracket;
     }
 
+    @Transactional
     public void deleteBracketById(UUID id) {
         if (!bracketServiceRepository.existsById(id)) {
             throw new BracketNotFoundException("Bracket with id " + id + " not found");
