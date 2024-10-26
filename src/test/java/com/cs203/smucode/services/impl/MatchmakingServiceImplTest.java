@@ -112,13 +112,10 @@ public class MatchmakingServiceImplTest {
     public void testRunMatchmaking_withPreCreatedRounds() {
 
         // Arrange
-//        when(roundService.findRoundByTournamentIdAndSeqId(tournament.getId(), 1))
         when(roundService.findRoundByTournamentIdAndSeqId(any(UUID.class), eq(1)))
                 .thenReturn(tournament.getRounds().get(0));
-//        when(bracketService.findBracketByRoundIdAndSeqId(tournament.getRounds().get(0).getId(), 1))
         when(bracketService.findBracketByRoundIdAndSeqId(any(UUID.class), eq(1)))
                 .thenReturn(tournament.getRounds().get(0).getBrackets().get(0));
-//        when(bracketService.findBracketByRoundIdAndSeqId(tournament.getRounds().get(0).getId(), 2))
         when(bracketService.findBracketByRoundIdAndSeqId(any(UUID.class), eq(2)))
                 .thenReturn(tournament.getRounds().get(0).getBrackets().get(1));
 
