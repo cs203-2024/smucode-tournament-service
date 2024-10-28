@@ -2,6 +2,8 @@ package com.cs203.smucode.processors;
 
 import com.cs203.smucode.consumers.UserServiceConsumer;
 import com.cs203.smucode.dto.UserDTO;
+import com.cs203.smucode.exceptions.UserNotFoundException;
+import feign.FeignException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +23,12 @@ public class UserServiceProcessor {
     public List<UserDTO> getUsers(List<String> usernames) {
         List<UserDTO> userDTOs = new ArrayList<>();
         for (String username : usernames) {
-            userDTOs.add(userServiceConsumer.getUserById(username));
+            try {
+                userDTOs.add(userServiceConsumer.getUserById(username));
+            }
+            catch (FeignException e) {
+                throw new UserNotFoundException("User with username: " + username + " not found");
+            }
         }
         return userDTOs;
     }

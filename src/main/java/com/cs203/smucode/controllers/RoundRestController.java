@@ -48,13 +48,6 @@ public class RoundRestController {
         return roundDTO;
     }
 
-    @Operation(summary = "End round - populate next round brackets")
-    @PutMapping("/{roundId}/end")
-    public RoundDTO endRound(@PathVariable UUID roundId) {
-        Round round = roundService.endRound(roundId);
-        return roundMapper.roundToRoundDTO(round);
-    }
-
     @Operation(summary = "Delete existing round by round ID")
     @DeleteMapping("/{roundId}")
     public void deleteRound(@PathVariable UUID roundId) {

@@ -1,6 +1,7 @@
 package com.cs203.smucode.services.impl;
 
 import com.cs203.smucode.constants.Status;
+import com.cs203.smucode.exceptions.RoundNotFoundException;
 import com.cs203.smucode.exceptions.TournamentNotFoundException;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.PlayerInfo;
@@ -28,11 +29,6 @@ public class TournamentServiceImpl implements TournamentService {
                                  RoundService roundService) {
         this.tournamentServiceRepository = tournamentServiceRepository;
         this.roundService = roundService;
-    }
-
-    @Transactional
-    public List<Tournament> findAllTournaments() {
-        return tournamentServiceRepository.findAll();
     }
 
     @Transactional
@@ -118,14 +114,9 @@ public class TournamentServiceImpl implements TournamentService {
         tournamentToUpdate.setStatus(tournament.getStatus());
         tournamentToUpdate.setSignupStartDate(tournament.getSignupStartDate());
         tournamentToUpdate.setSignupEndDate(tournament.getSignupEndDate());
-//            tournamentToUpdate.setSignupStatus(tournament.getSignupStatus());
         tournamentToUpdate.setBand(tournament.getBand());
         tournamentToUpdate.setSignups(tournament.getSignups());
         tournamentToUpdate.setCurrentRound(tournament.getCurrentRound());
-
-//            Set<String> signups = tournamentToUpdate.getSignups();
-//            signups.addAll(tournament.getSignups());
-//            tournamentToUpdate.setSignups(signups);
 
         return tournamentServiceRepository.save(tournamentToUpdate);
     }
@@ -165,6 +156,43 @@ public class TournamentServiceImpl implements TournamentService {
         tournament.setSignups(existingSignups);
 
         return tournamentServiceRepository.save(tournament);
+    }
+
+    @Transactional
+    public Tournament endRound(UUID roundId) {
+
+        Round currRound = roundService.findRoundById(roundId);
+
+        UUID currRoundId = currRound.getId();
+        int currRoundSeqId = currRound.getSeqId();
+        Tournament parentTournament = currRound.getTournament();
+        UUID parentTournamentId = currRound.getTournament().getId();
+
+        // Update current round status
+        currRound.setStatus(Status.COMPLETED);
+        roundService.updateRound(currRoundId, currRound);
+
+        // If final round
+        if (currRound.getName().equals("Round of 2")) {
+            // TODO: tournament complete logic
+            parentTournament.setStatus(Status.COMPLETED); // Set tournament status to completed
+            updateTournament(parentTournamentId, parentTournament);
+            return parentTournament;
+        }
+
+        // Get next round
+        Round nextRound = roundService.findRoundByTournamentIdAndSeqId(parentTournamentId, currRoundSeqId+1);
+        UUID nextRoundId = nextRound.getId();
+
+        // Move winners to respective brackets
+        roundService.populateNextRound(roundId, nextRoundId);
+
+        // Update tournament "currRound" field
+        parentTournament.setCurrentRound(nextRound.getName());
+        updateTournament(parentTournamentId, parentTournament);
+
+        return parentTournament;
+
     }
 
     @Transactional
