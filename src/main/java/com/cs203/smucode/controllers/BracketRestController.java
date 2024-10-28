@@ -1,7 +1,7 @@
 package com.cs203.smucode.controllers;
 
 import com.cs203.smucode.dto.BracketDTO;
-import com.cs203.smucode.dto.UpdateBracketDTO;
+import com.cs203.smucode.dto.UpdateBracketScoreDTO;
 import com.cs203.smucode.mappers.BracketMapper;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.services.BracketService;
@@ -55,24 +55,31 @@ public class BracketRestController {
         return bracketDTO;
     }
 
-    @Operation(summary = "Update bracket by bracket ID")
-    @PutMapping("{bracketId}")
-    public BracketDTO updateBracket(@PathVariable UUID bracketId, @Valid @RequestBody UpdateBracketDTO bracketDTO) {
-        Bracket bracket = bracketMapper.updateBracketDTOToBracket(bracketDTO);
-        bracket = bracketService.updateBracket(bracketId, bracket);
-//        TODO: separate api?
-//        bracketService.updateBracketPlayers(id, bracketDTO.getPlayerIds());
-        return bracketMapper.bracketToBracketDTO(bracket);
-    }
-
-//    @PutMapping("/{bracketId}/updateScore")
-//    public BracketDTO updateBracketScore(@PathVariable UUID bracketId, @Valid @RequestBody UpdateBracketDTO bracketDTO) {
-//        Bracket bracket = bracketMapper.bracketScoreDTOToBracketScore(bracketDTO);
-//        bracketService.updateBracketScore(bracketId, bracket);
+//    @Operation(summary = "Update bracket by bracket ID")
+//    @PutMapping("{bracketId}")
+//    public BracketDTO updateBracket(@PathVariable UUID bracketId, @Valid @RequestBody UpdateBracketScoreDTO bracketDTO) {
+//        Bracket bracket = bracketMapper.UpdateBracketScoreDTOToBracket(bracketDTO);
+//        bracket = bracketService.updateBracket(bracketId, bracket);
+////        TODO: separate api?
+////        bracketService.updateBracketPlayers(id, bracketDTO.getPlayerIds());
+//        return bracketMapper.bracketToBracketDTO(bracket);
 //    }
 
-//    @PutMapping
-//    public BracketDTO endBracket(@PathVariable UUID id) {}
+    @Operation(summary = "Update bracket score")
+    @PutMapping("/{bracketId}")
+    public BracketDTO updateBracketScore(@PathVariable UUID bracketId, @Valid @RequestBody UpdateBracketScoreDTO bracketDTO) {
+        Bracket bracketScore = bracketMapper.updateBracketScoreDTOToBracket(bracketDTO);
+        Bracket newBracket = bracketService.updateBracket(bracketId, bracketScore);
+        return bracketMapper.bracketToBracketDTO(newBracket);
+    }
+
+    @Operation(summary = "End bracket - set winner of bracket")
+    @PutMapping
+    public BracketDTO endBracket(@PathVariable UUID id) {
+        Bracket bracket = bracketService.findBracketById(id);
+        bracketService.endBracket(id);
+        return bracketMapper.bracketToBracketDTO(bracket);
+    }
 
     @Operation(summary = "Delete existing bracket by bracket ID")
     @DeleteMapping("{bracketId}")

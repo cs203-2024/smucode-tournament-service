@@ -103,18 +103,24 @@ public class TournamentRestController {
 //    POST mapping "/signup" to create new signup
     @Operation(summary = "Create new tournament sign up for user")
     @PostMapping("/{tournamentId}/signup")
-    public DetailedTournamentDTO addTournamentSignups(@PathVariable UUID tournamentId, @RequestParam String user) {
+    public DetailedTournamentDTO addTournamentSignups(@PathVariable UUID tournamentId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+
         Tournament tournament = tournamentService.findTournamentById(tournamentId);
-        tournamentService.addTournamentSignup(tournamentId, user);
+        tournamentService.addTournamentSignup(tournamentId, username);
         return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
     }
 
     //    DELETE mapping "/signup" to delete signup
     @Operation(summary = "Delete existing tournament sign up for user")
     @DeleteMapping("/{tournamentId}/signup")
-    public DetailedTournamentDTO deleteTournamentSignups(@PathVariable UUID tournamentId, @RequestParam String user) {
+    public DetailedTournamentDTO deleteTournamentSignups(@PathVariable UUID tournamentId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+
         Tournament tournament = tournamentService.findTournamentById(tournamentId);
-        tournamentService.deleteTournamentSignup(tournamentId, user);
+        tournamentService.deleteTournamentSignup(tournamentId, username);
         return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
     }
 
