@@ -1,14 +1,21 @@
 package com.cs203.smucode.controllers;
 
+import com.cs203.smucode.constants.OAuth2Constants;
 import com.cs203.smucode.constants.Status;
+import com.cs203.smucode.constants.UserRole;
 import com.cs203.smucode.dto.*;
 import com.cs203.smucode.mappers.TournamentMapper;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.TournamentService;
+import com.cs203.smucode.utils.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -17,6 +24,7 @@ import java.util.*;
 @RequestMapping("/tournaments")
 public class TournamentRestController {
 
+    private static Logger logger = LoggerFactory.getLogger(TournamentRestController.class);
     private TournamentService tournamentService;
     private TournamentMapper tournamentMapper;
 
@@ -30,14 +38,17 @@ public class TournamentRestController {
 //    expose "/" and return list of tournaments
     @Operation(summary = "Get all tournaments")
     @GetMapping()
-    public List<? extends TournamentCardDTO> getAllTournaments(@RequestParam String username) {
-//        TODO: if admin
-        if (username.equals("admin")) {
+    public List<? extends TournamentCardDTO> getAllTournaments() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String role = JWTUtil.getClaim(authentication, OAuth2Constants.SCOPE);
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+
+        // Admin
+        if (UserRole.ADMIN.getAuthority().equals(role)) {
             List<Tournament> tournaments = tournamentService.findAllTournamentsByOrganiser(username);
             return tournamentMapper.tournamentsToAdminTournamentCardDTOs(tournaments);
         }
-
-//        TODO: if user
+        // User
         Set<Tournament> tournaments = new HashSet<>();
         tournaments.addAll(tournamentService.findAllTournamentsByStatus(Status.UPCOMING));
         tournaments.addAll(tournamentService.findAllTournamentsByParticipant(username));
