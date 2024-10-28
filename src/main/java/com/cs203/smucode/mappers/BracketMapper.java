@@ -1,7 +1,7 @@
 package com.cs203.smucode.mappers;
 
 import com.cs203.smucode.dto.BracketDTO;
-import com.cs203.smucode.dto.UpdateBracketDTO;
+import com.cs203.smucode.dto.UpdateBracketScoreDTO;
 import com.cs203.smucode.dto.UserBracketDTO;
 import com.cs203.smucode.models.Bracket;
 import org.mapstruct.Mapper;
@@ -30,13 +30,13 @@ public interface BracketMapper {
     List<Bracket> bracketDTOsToBrackets(List<BracketDTO> bracketDTOs);
 
 //    update bracket DTO
-    UpdateBracketDTO bracketToUpdateBracketDTO(Bracket bracket);
+    UpdateBracketScoreDTO bracketToUpdateBracketScoreDTO(Bracket bracket);
 
-    List<UpdateBracketDTO> bracketToUpdateBracketDTOs(List<Bracket> brackets);
+    List<UpdateBracketScoreDTO> bracketToUpdateBracketScoreDTOs(List<Bracket> brackets);
 
-    Bracket updateBracketDTOToBracket(UpdateBracketDTO bracketDTO);
+    Bracket updateBracketScoreDTOToBracket(UpdateBracketScoreDTO bracketDTO);
 
-    List<Bracket> bracketScoreDTOsToBrackets(List<UpdateBracketDTO> bracketDTOs);
+    List<Bracket> bracketScoreDTOsToBrackets(List<UpdateBracketScoreDTO> bracketDTOs);
 
 //    helper functions
 //    TODO: refactor when user client set up
