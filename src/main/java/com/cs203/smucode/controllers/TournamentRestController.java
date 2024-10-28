@@ -57,7 +57,9 @@ public class TournamentRestController {
 
     //    endpoint to get eligible tournaments for (user) explore page
     @GetMapping("/explore")
-    public List<UserTournamentCardDTO> getAllEligibleTournaments(@RequestParam String username) {
+    public List<UserTournamentCardDTO> getAllEligibleTournaments() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
         List<Tournament> eligibleTournaments = tournamentService.findAllEligibleTournamentsForUser(username);
         return tournamentMapper.tournamentsToUserTournamentCardDTOs(eligibleTournaments, username);
     }

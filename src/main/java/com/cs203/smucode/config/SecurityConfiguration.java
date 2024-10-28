@@ -29,7 +29,9 @@ public class SecurityConfiguration {
         throws Exception {
         http.authorizeHttpRequests(
                 // need change this
-            auth -> auth.anyRequest().authenticated() // For tournament, any request must be authenticated
+            auth -> auth.requestMatchers("/api/tournaments/explore")
+                    .hasAuthority("SCOPE_ROLE_USER")
+                    .anyRequest().authenticated() // For tournament, any request must be authenticated
         );
 
         http.sessionManagement(
