@@ -1,6 +1,5 @@
 package com.cs203.smucode.services;
 
-import com.cs203.smucode.dto.RoundDTO;
 import com.cs203.smucode.models.Round;
 
 import java.util.List;
@@ -20,7 +19,7 @@ public interface RoundService {
 
     Round updateRound(UUID id, Round round);
 
-    Round endRound(UUID id);
+    Round populateNextRound(UUID currRoundId, UUID nextRoundId);
 
     void deleteRoundById(UUID id);
 }

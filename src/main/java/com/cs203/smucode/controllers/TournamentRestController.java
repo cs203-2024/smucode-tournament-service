@@ -4,7 +4,9 @@ import com.cs203.smucode.constants.OAuth2Constants;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.constants.UserRole;
 import com.cs203.smucode.dto.*;
+import com.cs203.smucode.exceptions.UserNotFoundException;
 import com.cs203.smucode.mappers.TournamentMapper;
+import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.TournamentService;
 import com.cs203.smucode.utils.JWTUtil;
@@ -24,7 +26,6 @@ import java.util.*;
 @RequestMapping("/tournaments")
 public class TournamentRestController {
 
-    private static Logger logger = LoggerFactory.getLogger(TournamentRestController.class);
     private TournamentService tournamentService;
     private TournamentMapper tournamentMapper;
 
@@ -35,7 +36,6 @@ public class TournamentRestController {
         this.tournamentMapper = tournamentMapper;
     }
 
-//    expose "/" and return list of tournaments
     @Operation(summary = "Get all tournaments")
     @GetMapping()
     public List<? extends TournamentCardDTO> getAllTournaments() {
@@ -55,7 +55,7 @@ public class TournamentRestController {
         return tournamentMapper.tournamentsToUserTournamentCardDTOs(tournaments.stream().toList(), username);
     }
 
-    //    endpoint to get eligible tournaments for (user) explore page
+    @Operation(summary = "Get eligible tournaments for user")
     @GetMapping("/explore")
     public List<UserTournamentCardDTO> getAllEligibleTournaments() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -64,7 +64,6 @@ public class TournamentRestController {
         return tournamentMapper.tournamentsToUserTournamentCardDTOs(eligibleTournaments, username);
     }
 
-//    expose "/{id}" and return specified tournament
     @Operation(summary = "Get tournament by tournament ID")
     @GetMapping("/{tournamentId}")
     public TournamentDTO getTournamentById(@PathVariable UUID tournamentId) {
@@ -72,7 +71,6 @@ public class TournamentRestController {
         return tournamentMapper.tournamentToTournamentDTO(tournament);
     }
 
-//    endpoint for specified tournament's brackets
     @Operation(summary = "Get tournament brackets by tournament ID")
     @GetMapping("/{tournamentId}/brackets")
     public TournamentBracketsDTO getTournamentBracketsByTournamentId(@PathVariable UUID tournamentId) {
@@ -80,7 +78,6 @@ public class TournamentRestController {
         return tournamentMapper.tournamentToTournamentBracketsDTO(tournament);
     }
 
-//    POST mapping "/" to create new tournament
     @Operation(summary = "Create new tournament")
     @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(HttpStatus.CREATED)
@@ -91,7 +88,6 @@ public class TournamentRestController {
         return tournamentDTO;
     }
 
-//    PUT mapping "/{id}" to update tournament
     @Operation(summary = "Update tournament by tournament ID")
     @PutMapping("/{tournamentId}")
     public DetailedTournamentDTO updateTournament(@PathVariable UUID tournamentId, @Valid @RequestBody DetailedTournamentDTO tournamentDTO) {
@@ -100,7 +96,6 @@ public class TournamentRestController {
         return tournamentDTO;
     }
 
-//    POST mapping "/signup" to create new signup
     @Operation(summary = "Create new tournament sign up for user")
     @PostMapping("/{tournamentId}/signup")
     public DetailedTournamentDTO addTournamentSignups(@PathVariable UUID tournamentId) {
@@ -112,7 +107,6 @@ public class TournamentRestController {
         return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
     }
 
-    //    DELETE mapping "/signup" to delete signup
     @Operation(summary = "Delete existing tournament sign up for user")
     @DeleteMapping("/{tournamentId}/signup")
     public DetailedTournamentDTO deleteTournamentSignups(@PathVariable UUID tournamentId) {
@@ -124,7 +118,20 @@ public class TournamentRestController {
         return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
     }
 
-//    DELETE mapping "/{id}" to delete tournament
+    @Operation(summary = "End current bracket and set winner")
+    @PutMapping("/bracket/{bracketId}/end")
+    public TournamentDTO endBracket(@PathVariable UUID bracketId) {
+        Tournament tournament = tournamentService.endBracket(bracketId);
+        return tournamentMapper.tournamentToTournamentDTO(tournament);
+    }
+
+    @Operation(summary = "End current round and populate next round brackets")
+    @PutMapping("/round/{roundId}/end")
+    public TournamentDTO endRound(@PathVariable UUID roundId) {
+        Tournament tournament = tournamentService.endRound(roundId);
+        return tournamentMapper.tournamentToTournamentDTO(tournament);
+    }
+
     @Operation(summary = "Delete existing tournament by tournament ID")
     @DeleteMapping("/{tournamentId}")
     public void deleteTournamentById(@PathVariable UUID tournamentId) { tournamentService.deleteTournamentById(tournamentId); }

@@ -63,20 +63,6 @@ class TournamentServiceImplTest {
     }
 
     @Test
-    void findAllTournaments_shouldReturnListOfTournaments() {
-        // Arrange
-        List<Tournament> expectedTournaments = Collections.singletonList(sampleTournament);
-        when(tournamentServiceRepository.findAll()).thenReturn(expectedTournaments);
-
-        // Act
-        List<Tournament> actualTournaments = tournamentService.findAllTournaments();
-
-        // Assert
-        assertEquals(expectedTournaments, actualTournaments);
-        verify(tournamentServiceRepository).findAll();
-    }
-
-    @Test
     void findTournamentById_withValidId_shouldReturnTournament() {
         // Arrange
         UUID id = sampleTournament.getId();

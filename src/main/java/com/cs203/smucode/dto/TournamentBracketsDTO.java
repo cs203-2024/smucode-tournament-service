@@ -12,6 +12,4 @@ public class TournamentBracketsDTO {
 
     private List<RoundDTO> rounds = new ArrayList<>();
 
-//    private Set<String> signups = new HashSet<>();
-
 }

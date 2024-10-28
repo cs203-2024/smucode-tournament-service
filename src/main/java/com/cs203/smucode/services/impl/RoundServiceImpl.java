@@ -11,6 +11,7 @@ import com.cs203.smucode.services.RoundService;
 import com.cs203.smucode.services.TournamentService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,15 +26,12 @@ public class RoundServiceImpl implements RoundService {
 
     private final RoundServiceRepository roundServiceRepository;
     private final BracketService bracketService;
-    private final TournamentService tournamentService;
 
     @Autowired
     public RoundServiceImpl(RoundServiceRepository roundServiceRepository,
-                            BracketService bracketService,
-                            TournamentService tournamentService) {
+                            BracketService bracketService) {
         this.roundServiceRepository = roundServiceRepository;
         this.bracketService = bracketService;
-        this.tournamentService = tournamentService;
     }
 
     @Transactional
@@ -100,38 +98,15 @@ public class RoundServiceImpl implements RoundService {
     }
 
     @Transactional
-    public Round endRound(UUID id) {
+    public Round populateNextRound(UUID currRoundId, UUID nextRoundId) {
+        Optional <Round> roundOptional = roundServiceRepository.findById(nextRoundId);
 
-        Optional<Round> currRoundOptional = roundServiceRepository.findById(id);
-
-        // Round should be valid
-        if (currRoundOptional.isEmpty()) {
-            throw new RoundNotFoundException("Round with id " + id + " not found");
+        if (roundOptional.isEmpty()) {
+            throw new RoundNotFoundException("Next round with id " + nextRoundId + " not found");
         }
 
-        Round currRound = currRoundOptional.get();
-        UUID currRoundId = currRound.getId();
-        int currRoundSeqId = currRound.getSeqId();
-        Tournament parentTournament = currRound.getTournament();
-        UUID parentTournamentId = currRound.getTournament().getId();
+        Round nextRound = roundOptional.get();
 
-        // Update current round status
-        currRound.setStatus(Status.COMPLETED);
-        roundServiceRepository.save(currRound);
-
-        // If final round
-        if (currRound.getName().equals("Round of 2")) {
-            // TODO: tournament complete logic
-            parentTournament.setStatus(Status.COMPLETED); // Set tournament status to completed
-            tournamentService.updateTournament(parentTournamentId, parentTournament);
-            return currRound;
-        }
-
-        // Get next round
-        Round nextRound = findRoundByTournamentIdAndSeqId(parentTournamentId, currRoundSeqId+1);
-        UUID nextRoundId = nextRound.getId();
-
-        // Move winners to respective brackets
         for (int i = 1; i <= nextRound.getBrackets().size(); i++) {
 
             Bracket oldBracket = bracketService.findBracketByRoundIdAndSeqId(nextRoundId, i);
@@ -147,10 +122,6 @@ public class RoundServiceImpl implements RoundService {
             bracketService.updateBracket(oldBracket.getId(), newBracket);
 
         }
-
-        // Update tournament "currRound" field
-        parentTournament.setCurrentRound(nextRound.getName());
-        tournamentService.updateTournament(parentTournamentId, parentTournament);
 
         return nextRound;
 

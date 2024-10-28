@@ -2,7 +2,7 @@ package com.cs203.smucode.mappers;
 
 import com.cs203.smucode.dto.BracketDTO;
 import com.cs203.smucode.dto.UpdateBracketScoreDTO;
-import com.cs203.smucode.dto.UserBracketDTO;
+import com.cs203.smucode.dto.BracketUserDTO;
 import com.cs203.smucode.models.Bracket;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -40,20 +40,20 @@ public interface BracketMapper {
 
 //    helper functions
 //    TODO: refactor when user client set up
-    default UserBracketDTO getPlayerDTO(Bracket bracket, int playerNumber) {
+    default BracketUserDTO getPlayerDTO(Bracket bracket, int playerNumber) {
         if (playerNumber == 1) {
-            UserBracketDTO userBracketDTO = new UserBracketDTO();
-            userBracketDTO.setUsername(bracket.getPlayer1());
+            BracketUserDTO bracketUserDTO = new BracketUserDTO();
+            bracketUserDTO.setUsername(bracket.getPlayer1());
 //        set user icon
-            userBracketDTO.setScore(bracket.getPlayer1Score());
-            return userBracketDTO;
+            bracketUserDTO.setScore(bracket.getPlayer1Score());
+            return bracketUserDTO;
         }
         if (playerNumber == 2) {
-            UserBracketDTO userBracketDTO = new UserBracketDTO();
-            userBracketDTO.setUsername(bracket.getPlayer2());
+            BracketUserDTO bracketUserDTO = new BracketUserDTO();
+            bracketUserDTO.setUsername(bracket.getPlayer2());
 //        set user icon
-            userBracketDTO.setScore(bracket.getPlayer2Score());
-            return userBracketDTO;
+            bracketUserDTO.setScore(bracket.getPlayer2Score());
+            return bracketUserDTO;
         }
 
         return null;
