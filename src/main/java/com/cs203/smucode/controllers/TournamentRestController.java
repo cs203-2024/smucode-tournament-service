@@ -3,10 +3,7 @@ package com.cs203.smucode.controllers;
 import com.cs203.smucode.constants.OAuth2Constants;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.constants.UserRole;
-import com.cs203.smucode.dto.DetailedTournamentDTO;
-import com.cs203.smucode.dto.TournamentBracketsDTO;
-import com.cs203.smucode.dto.TournamentCardDTO;
-import com.cs203.smucode.dto.TournamentDTO;
+import com.cs203.smucode.dto.*;
 import com.cs203.smucode.mappers.TournamentMapper;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.TournamentService;
@@ -58,6 +55,14 @@ public class TournamentRestController {
         return tournamentMapper.tournamentsToUserTournamentCardDTOs(tournaments.stream().toList(), username);
     }
 
+    //    endpoint to get eligible tournaments for (user) explore page
+    @GetMapping("/explore")
+    public List<UserTournamentCardDTO> getAllEligibleTournaments() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+        List<Tournament> eligibleTournaments = tournamentService.findAllEligibleTournamentsForUser(username);
+        return tournamentMapper.tournamentsToUserTournamentCardDTOs(eligibleTournaments, username);
+    }
 
 //    expose "/{id}" and return specified tournament
     @Operation(summary = "Get tournament by tournament ID")
@@ -111,17 +116,6 @@ public class TournamentRestController {
         Tournament tournament = tournamentService.findTournamentById(tournamentId);
         tournamentService.deleteTournamentSignup(tournamentId, user);
         return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
-    }
-
-//    TODO: can create more focused DTOs
-//    TODO: should these apis (updateBracketScore, endRound) be here or in round / bracket controller
-//    public TournamentDTO updateTournamentScore(@PathVariable UUID bracketId, @Valid @RequestBody) {}
-
-    @Operation(summary = "Update tournament progression - end round")
-    @PutMapping("/{tournamentId}/progress")
-    public TournamentDTO updateTournamentProgression(@PathVariable UUID tournamentId) {
-        Tournament tournament = tournamentService.updateTournamentProgress(tournamentId);
-        return tournamentMapper.tournamentToTournamentDTO(tournament);
     }
 
 //    DELETE mapping "/{id}" to delete tournament

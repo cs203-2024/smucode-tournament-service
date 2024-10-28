@@ -10,7 +10,7 @@ public interface UserServiceConsumer {
 
 //    boolean userExists(String username);
 
-    @GetMapping("/users/{userId}")
+    @GetMapping("/userId}")
     UserDTO getUserById(@PathVariable("userId") String username);
 
 //    TODO: future optimisation - instead of iterative GET requests

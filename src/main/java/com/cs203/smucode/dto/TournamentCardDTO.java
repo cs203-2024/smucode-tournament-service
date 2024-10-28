@@ -35,4 +35,10 @@ public class TournamentCardDTO {
 
     private LocalDateTime currentRoundEndDate;
 
+    private int timeWeight;
+
+    private int memWeight;
+
+    private int testCaseWeight;
+
 }

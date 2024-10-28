@@ -21,6 +21,12 @@ public interface TournamentService {
 
     List<Tournament> findAllTournamentsByParticipant(String participant);
 
+    List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime);
+
+    List<Tournament> findAllTournamentsByRegistrant(String registrant);
+
+    List<Tournament> findAllEligibleTournamentsForUser(String username);
+
     Tournament createTournament(Tournament tournament);
 
     Tournament updateTournament(UUID id, Tournament tournament);
@@ -29,9 +35,5 @@ public interface TournamentService {
 
     Tournament deleteTournamentSignup(UUID id, String signups);
 
-    Tournament updateTournamentProgress(UUID id);
-
     void deleteTournamentById(UUID id);
-
-    List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime, Status status);
 }

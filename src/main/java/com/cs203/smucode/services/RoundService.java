@@ -20,5 +20,7 @@ public interface RoundService {
 
     Round updateRound(UUID id, Round round);
 
+    Round endRound(UUID id);
+
     void deleteRoundById(UUID id);
 }
