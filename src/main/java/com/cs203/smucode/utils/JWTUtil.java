@@ -8,6 +8,10 @@ import java.util.Map;
 
 public class JWTUtil {
 
+    private JWTUtil() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static String getClaim(Authentication authentication, String key) {
         if (authentication == null) {
             throw new IllegalArgumentException("Authentication cannot be null");
