@@ -33,7 +33,10 @@ public class SecurityConfiguration {
                             "/api/tournaments/*/signup")
                     .hasAuthority("SCOPE_ROLE_USER")
 
-                    .anyRequest().authenticated() // For tournament, any request must be authenticated
+                    .requestMatchers("/api/tournaments/create")
+                    .hasAuthority("SCOPE_ROLE_ADMIN")
+
+                    .anyRequest().permitAll()
         );
 
         http.sessionManagement(

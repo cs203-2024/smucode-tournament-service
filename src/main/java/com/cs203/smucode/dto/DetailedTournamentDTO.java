@@ -45,8 +45,6 @@ public class DetailedTournamentDTO {
 
     private String icon;
 
-    private String organiser;
-
     private String currentRound;
 
     private Set<String> signups;
