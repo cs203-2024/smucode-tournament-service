@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class) // Use MockitoExtension for JUnit 5
-public class MatchmakingServiceImplTest {
+class MatchmakingServiceImplTest {
 
     @Mock
     private UserServiceConsumer userClient;
@@ -47,7 +47,7 @@ public class MatchmakingServiceImplTest {
     private UserDTO user1, user2, user3, user4;
 
     @BeforeEach
-    public void setUp() {
+     void setUp() {
         // Set up a tournament with rounds and brackets pre-created
         tournament = new Tournament();
         tournament.setId(UUID.randomUUID());
@@ -109,7 +109,7 @@ public class MatchmakingServiceImplTest {
     }
 
     @Test
-    public void testRunMatchmaking_withPreCreatedRounds() {
+     void testRunMatchmaking_withPreCreatedRounds() {
 
         // Arrange
         when(roundService.findRoundByTournamentIdAndSeqId(any(UUID.class), eq(1)))
@@ -128,7 +128,7 @@ public class MatchmakingServiceImplTest {
     }
 
     @Test
-    public void testPairPlayers() {
+     void testPairPlayers() {
         // Arrange: List of players to pair
         List<UserDTO> players = Arrays.asList(user1, user2, user3, user4);
 

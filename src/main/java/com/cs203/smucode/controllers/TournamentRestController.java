@@ -118,17 +118,6 @@ public class TournamentRestController {
         return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
     }
 
-//    TODO: can create more focused DTOs
-//    TODO: should these apis (updateBracketScore, endRound) be here or in round / bracket controller
-//    public TournamentDTO updateTournamentScore(@PathVariable UUID bracketId, @Valid @RequestBody) {}
-
-//    @Operation(summary = "Update tournament progression - end round")
-//    @PutMapping("/{tournamentId}/progress")
-//    public TournamentDTO updateTournamentProgression(@PathVariable UUID tournamentId) {
-//        Tournament tournament = tournamentService.updateTournamentProgress(tournamentId);
-//        return tournamentMapper.tournamentToTournamentDTO(tournament);
-//    }
-
 //    DELETE mapping "/{id}" to delete tournament
     @Operation(summary = "Delete existing tournament by tournament ID")
     @DeleteMapping("/{tournamentId}")

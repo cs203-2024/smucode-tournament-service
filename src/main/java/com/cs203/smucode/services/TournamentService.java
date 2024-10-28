@@ -35,7 +35,5 @@ public interface TournamentService {
 
     Tournament deleteTournamentSignup(UUID id, String signups);
 
-//    Tournament updateTournamentProgress(UUID id);
-
     void deleteTournamentById(UUID id);
 }

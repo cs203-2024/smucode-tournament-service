@@ -36,7 +36,7 @@ public class TournamentScheduler {
 
         for (Tournament tournament : tournaments) {
 
-            logger.info("current tournament: {}", tournament.toString());
+            logger.info("current tournament: {}", tournament);
 
             // Do not start tournament if tournament does not have enough signups
             if (tournament.getSignups().size() < tournament.getCapacity()) {
