@@ -21,23 +21,20 @@ public class BracketRestController {
 
     private BracketService bracketService;
     private BracketMapper bracketMapper;
-//    private final UserServiceClientImpl userServiceClientImpl;
 
     @Autowired
     public BracketRestController(BracketService bracketService,
                                  BracketMapper bracketMapper) {
-//                                 UserServiceClientImpl userServiceClientImpl) {
         this.bracketService = bracketService;
         this.bracketMapper = bracketMapper;
-//        this.userServiceClientImpl = userServiceClientImpl;
     }
 
-    @Operation(summary = "Get all brackets associated to round")
-    @GetMapping("/round/{roundId}")
-    public List<BracketDTO> getAllBracketsByRoundId(@PathVariable UUID roundId) {
-        List<Bracket> brackets = bracketService.findAllBracketsByRoundId(roundId);
-        return bracketMapper.bracketsToBracketDTOs(brackets);
-    }
+//    @Operation(summary = "Get all brackets associated to round")
+//    @GetMapping("/round/{roundId}")
+//    public List<BracketDTO> getAllBracketsByRoundId(@PathVariable UUID roundId) {
+//        List<Bracket> brackets = bracketService.findAllBracketsByRoundId(roundId);
+//        return bracketMapper.bracketsToBracketDTOs(brackets);
+//    }
 
     @Operation(summary = "Get bracket by bracket ID")
     @GetMapping("/{bracketId}")
@@ -46,14 +43,14 @@ public class BracketRestController {
         return bracketMapper.bracketToBracketDTO(bracket);
     }
 
-    @Operation(summary = "Create bracket")
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping()
-    public BracketDTO createBracket(@Valid @RequestBody BracketDTO bracketDTO) {
-        Bracket bracket = bracketMapper.bracketDTOToBracket(bracketDTO);
-        bracketService.createBracket(bracket);
-        return bracketDTO;
-    }
+//    @Operation(summary = "Create bracket")
+//    @ResponseStatus(HttpStatus.CREATED)
+//    @PostMapping()
+//    public BracketDTO createBracket(@Valid @RequestBody BracketDTO bracketDTO) {
+//        Bracket bracket = bracketMapper.bracketDTOToBracket(bracketDTO);
+//        bracketService.createBracket(bracket);
+//        return bracketDTO;
+//    }
 
 //    @Operation(summary = "Update bracket by bracket ID")
 //    @PutMapping("{bracketId}")
@@ -73,17 +70,9 @@ public class BracketRestController {
         return bracketMapper.bracketToBracketDTO(newBracket);
     }
 
-    @Operation(summary = "End bracket - set winner of bracket")
-    @PutMapping
-    public BracketDTO endBracket(@PathVariable UUID id) {
-        Bracket bracket = bracketService.findBracketById(id);
-        bracketService.endBracket(id);
-        return bracketMapper.bracketToBracketDTO(bracket);
-    }
-
-    @Operation(summary = "Delete existing bracket by bracket ID")
-    @DeleteMapping("{bracketId}")
-    public void deleteBracket(@PathVariable UUID bracketId) {
-        bracketService.deleteBracketById(bracketId);
-    }
+//    @Operation(summary = "Delete existing bracket by bracket ID")
+//    @DeleteMapping("{bracketId}")
+//    public void deleteBracket(@PathVariable UUID bracketId) {
+//        bracketService.deleteBracketById(bracketId);
+//    }
 }

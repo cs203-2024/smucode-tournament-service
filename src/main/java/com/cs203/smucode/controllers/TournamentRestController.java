@@ -4,6 +4,7 @@ import com.cs203.smucode.constants.OAuth2Constants;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.constants.UserRole;
 import com.cs203.smucode.dto.*;
+import com.cs203.smucode.exceptions.UserNotFoundException;
 import com.cs203.smucode.mappers.TournamentMapper;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
@@ -25,7 +26,6 @@ import java.util.*;
 @RequestMapping("/tournaments")
 public class TournamentRestController {
 
-    private static Logger logger = LoggerFactory.getLogger(TournamentRestController.class);
     private TournamentService tournamentService;
     private TournamentMapper tournamentMapper;
 
@@ -55,6 +55,7 @@ public class TournamentRestController {
         return tournamentMapper.tournamentsToUserTournamentCardDTOs(tournaments.stream().toList(), username);
     }
 
+    @Operation(summary = "Get eligible tournaments for user")
     @GetMapping("/explore")
     public List<UserTournamentCardDTO> getAllEligibleTournaments() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -115,6 +116,13 @@ public class TournamentRestController {
         Tournament tournament = tournamentService.findTournamentById(tournamentId);
         tournamentService.deleteTournamentSignup(tournamentId, username);
         return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
+    }
+
+    @Operation(summary = "End current bracket and set winner")
+    @PutMapping("/bracket/{bracketId}/end")
+    public TournamentDTO endBracket(@PathVariable UUID bracketId) {
+        Tournament tournament = tournamentService.endBracket(bracketId);
+        return tournamentMapper.tournamentToTournamentDTO(tournament);
     }
 
     @Operation(summary = "End current round and populate next round brackets")

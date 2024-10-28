@@ -23,12 +23,15 @@ import java.util.stream.Collectors;
 public class TournamentServiceImpl implements TournamentService {
     private final TournamentServiceRepository tournamentServiceRepository;
     private final RoundService roundService;
+    private final BracketService bracketService;
 
     @Autowired
     public TournamentServiceImpl(TournamentServiceRepository tournamentServiceRepository,
-                                 RoundService roundService) {
+                                 RoundService roundService,
+                                 BracketService bracketService) {
         this.tournamentServiceRepository = tournamentServiceRepository;
         this.roundService = roundService;
+        this.bracketService = bracketService;
     }
 
     @Transactional
@@ -50,11 +53,6 @@ public class TournamentServiceImpl implements TournamentService {
     @Transactional
     public List<Tournament> findAllTournamentsByParticipant(String participant) {
         return tournamentServiceRepository.findByParticipant(participant).orElse(null);
-    }
-
-    @Transactional
-    public List<Tournament> findAllTournamentsByRegistrant(String registrant) {
-        return tournamentServiceRepository.findByRegistrant(registrant).orElse(null);
     }
 
     @Transactional
@@ -156,6 +154,12 @@ public class TournamentServiceImpl implements TournamentService {
         tournament.setSignups(existingSignups);
 
         return tournamentServiceRepository.save(tournament);
+    }
+
+    @Transactional
+    public Tournament endBracket(UUID bracketId) {
+        Bracket bracket = bracketService.endBracket(bracketId);
+        return bracket.getRound().getTournament();
     }
 
     @Transactional
