@@ -94,6 +94,23 @@ public class BracketServiceImpl implements BracketService {
         return bracket;
     }
 
+    // Set winner of bracket
+    @Transactional
+    public Bracket endBracket(UUID id) {
+        Optional<Bracket> bracketOptional = bracketServiceRepository.findById(id);
+
+        if (bracketOptional.isEmpty()) {
+            throw new BracketNotFoundException("Bracket with id " + id + " not found");
+        }
+
+        Bracket bracket = bracketOptional.get();
+        String winner = bracket.getPlayer1Score() > bracket.getPlayer2Score() ? bracket.getPlayer1() : bracket.getPlayer2();
+        bracket.setWinner(winner);
+        bracket.setStatus(Status.COMPLETED);
+
+        return bracketServiceRepository.save(bracket);
+    }
+
     @Transactional
     public void deleteBracketById(UUID id) {
         if (!bracketServiceRepository.existsById(id)) {

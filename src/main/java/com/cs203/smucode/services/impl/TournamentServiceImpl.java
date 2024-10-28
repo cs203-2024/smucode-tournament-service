@@ -60,8 +60,28 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Transactional
-    public List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime, Status status) {
-        return tournamentServiceRepository.findBySignupEndDateBeforeAndStatus(dateTime, status).orElse(null);
+    public List<Tournament> findAllTournamentsByRegistrant(String registrant) {
+        return tournamentServiceRepository.findByRegistrant(registrant).orElse(null);
+    }
+
+    @Transactional
+    public List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime) {
+        return tournamentServiceRepository.findBySignupEndDateBeforeAndStatus(dateTime, Status.UPCOMING).orElse(null);
+    }
+
+    @Transactional
+    public List<Tournament> findAllEligibleTournamentsForUser(String username) {
+
+        // show tournaments which signups have not closed and have not been signed up by user
+        List<Tournament> openTournaments = findTournamentsBySignUpDeadline(LocalDateTime.now());
+        List<Tournament> eligibleTournaments = new ArrayList<>();
+        for (Tournament tournament : openTournaments) {
+            if (!tournament.getSignups().contains(username)) {
+                eligibleTournaments.add(tournament);
+            }
+        }
+
+        return eligibleTournaments;
     }
 
     @Transactional
@@ -150,56 +170,56 @@ public class TournamentServiceImpl implements TournamentService {
         return tournamentServiceRepository.save(tournament);
     }
 
-    @Transactional
-//    progress tournament (when round ends)
-    public Tournament updateTournamentProgress(UUID id) {
-        Optional<Tournament> tournamentOptional = tournamentServiceRepository.findById(id);
-
-        if (tournamentOptional.isEmpty()) {
-            throw new TournamentNotFoundException("Tournament with id " + id + " not found");
-        }
-
-        // Get current round
-        Tournament tournament = tournamentOptional.get();
-        String currRoundName = tournament.getCurrentRound();
-        Round currRound = roundService.findRoundByTournamentIdAndName(id, currRoundName);
-        UUID currRoundId = currRound.getId();
-        int currRoundSeqId = currRound.getSeqId();
-        // Update current round status
-        currRound.setStatus(Status.COMPLETED);
-        roundService.updateRound(currRoundId, currRound);
-
-        // If final round
-        if (currRoundName.equals("Round of 2")) {
-            // TODO: tournament complete logic
-            return tournament;
-        }
-
-        // Get next round
-        Round nextRound = roundService.findRoundByTournamentIdAndSeqId(id, currRoundSeqId+1);
-        UUID nextRoundId = nextRound.getId();
-
-        // Move winners to respective brackets
-        for (int i = 1; i <= nextRound.getBrackets().size(); i++) {
-            Bracket newBracket = bracketService.findBracketByRoundIdAndSeqId(nextRoundId, i);
-
-            // TODO: round progression validation (whether previous round has finished - null winner)
-            String player1 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2 - 1).getWinner();
-            String player2 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2).getWinner();
-
-            newBracket.setPlayer1(player1);
-            newBracket.setPlayer2(player2);
-
-            bracketService.updateBracket(newBracket.getId(), newBracket);
-
-        }
-
-        tournament.setCurrentRound(nextRound.getName());
-        tournamentServiceRepository.save(tournament);
-
-        return tournament;
-
-    }
+//    @Transactional
+////    progress tournament (when round ends)
+//    public Tournament updateTournamentProgress(UUID id) {
+//        Optional<Tournament> tournamentOptional = tournamentServiceRepository.findById(id);
+//
+//        if (tournamentOptional.isEmpty()) {
+//            throw new TournamentNotFoundException("Tournament with id " + id + " not found");
+//        }
+//
+//        // Get current round
+//        Tournament tournament = tournamentOptional.get();
+//        String currRoundName = tournament.getCurrentRound();
+//        Round currRound = roundService.findRoundByTournamentIdAndName(id, currRoundName);
+//        UUID currRoundId = currRound.getId();
+//        int currRoundSeqId = currRound.getSeqId();
+//        // Update current round status
+//        currRound.setStatus(Status.COMPLETED);
+//        roundService.updateRound(currRoundId, currRound);
+//
+//        // If final round
+//        if (currRoundName.equals("Round of 2")) {
+//            // TODO: tournament complete logic
+//            return tournament;
+//        }
+//
+//        // Get next round
+//        Round nextRound = roundService.findRoundByTournamentIdAndSeqId(id, currRoundSeqId+1);
+//        UUID nextRoundId = nextRound.getId();
+//
+//        // Move winners to respective brackets
+//        for (int i = 1; i <= nextRound.getBrackets().size(); i++) {
+//            Bracket newBracket = bracketService.findBracketByRoundIdAndSeqId(nextRoundId, i);
+//
+//            // TODO: round progression validation (whether previous round has finished - null winner)
+//            String player1 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2 - 1).getWinner();
+//            String player2 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2).getWinner();
+//
+//            newBracket.setPlayer1(player1);
+//            newBracket.setPlayer2(player2);
+//
+//            bracketService.updateBracket(newBracket.getId(), newBracket);
+//
+//        }
+//
+//        tournament.setCurrentRound(nextRound.getName());
+//        tournamentServiceRepository.save(tournament);
+//
+//        return tournament;
+//
+//    }
 
     @Transactional
     public void deleteTournamentById(UUID id) {

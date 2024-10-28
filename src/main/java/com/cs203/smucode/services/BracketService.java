@@ -18,6 +18,8 @@ public interface BracketService {
 
     Bracket updateBracket(UUID id, Bracket bracket);
 
+    Bracket endBracket(UUID id);
+
 //    Bracket updateBracketPlayers(UUID bracketId, List<UUID> playerIds);
 
     void deleteBracketById(UUID id);

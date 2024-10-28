@@ -4,9 +4,11 @@ import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.RoundNotFoundException;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
+import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.RoundServiceRepository;
 import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.RoundService;
+import com.cs203.smucode.services.TournamentService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,12 +25,15 @@ public class RoundServiceImpl implements RoundService {
 
     private final RoundServiceRepository roundServiceRepository;
     private final BracketService bracketService;
+    private final TournamentService tournamentService;
 
     @Autowired
     public RoundServiceImpl(RoundServiceRepository roundServiceRepository,
-                            BracketService bracketService) {
+                            BracketService bracketService,
+                            TournamentService tournamentService) {
         this.roundServiceRepository = roundServiceRepository;
         this.bracketService = bracketService;
+        this.tournamentService = tournamentService;
     }
 
     @Transactional
@@ -92,6 +97,63 @@ public class RoundServiceImpl implements RoundService {
         roundToUpdate.setStatus(round.getStatus());
 
         return roundServiceRepository.save(roundToUpdate);
+    }
+
+    @Transactional
+    public Round endRound(UUID id) {
+
+        Optional<Round> currRoundOptional = roundServiceRepository.findById(id);
+
+        // Round should be valid
+        if (currRoundOptional.isEmpty()) {
+            throw new RoundNotFoundException("Round with id " + id + " not found");
+        }
+
+        Round currRound = currRoundOptional.get();
+        UUID currRoundId = currRound.getId();
+        int currRoundSeqId = currRound.getSeqId();
+        Tournament parentTournament = currRound.getTournament();
+        UUID parentTournamentId = currRound.getTournament().getId();
+
+        // Update current round status
+        currRound.setStatus(Status.COMPLETED);
+        roundServiceRepository.save(currRound);
+
+        // If final round
+        if (currRound.getName().equals("Round of 2")) {
+            // TODO: tournament complete logic
+            parentTournament.setStatus(Status.COMPLETED); // Set tournament status to completed
+            tournamentService.updateTournament(parentTournamentId, parentTournament);
+            return currRound;
+        }
+
+        // Get next round
+        Round nextRound = findRoundByTournamentIdAndSeqId(parentTournamentId, currRoundSeqId+1);
+        UUID nextRoundId = nextRound.getId();
+
+        // Move winners to respective brackets
+        for (int i = 1; i <= nextRound.getBrackets().size(); i++) {
+
+            Bracket oldBracket = bracketService.findBracketByRoundIdAndSeqId(nextRoundId, i);
+            Bracket newBracket = new Bracket();
+
+            // TODO: round progression validation (whether previous round has finished - null winner)
+            String player1 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2 - 1).getWinner();
+            String player2 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2).getWinner();
+
+            newBracket.setPlayer1(player1);
+            newBracket.setPlayer2(player2);
+
+            bracketService.updateBracket(oldBracket.getId(), newBracket);
+
+        }
+
+        // Update tournament "currRound" field
+        parentTournament.setCurrentRound(nextRound.getName());
+        tournamentService.updateTournament(parentTournamentId, parentTournament);
+
+        return nextRound;
+
     }
 
     @Transactional
