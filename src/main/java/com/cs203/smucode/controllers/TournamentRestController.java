@@ -4,16 +4,12 @@ import com.cs203.smucode.constants.OAuth2Constants;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.constants.UserRole;
 import com.cs203.smucode.dto.*;
-import com.cs203.smucode.exceptions.UserNotFoundException;
 import com.cs203.smucode.mappers.TournamentMapper;
-import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.TournamentService;
 import com.cs203.smucode.utils.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -83,7 +79,11 @@ public class TournamentRestController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/create")
     public DetailedTournamentDTO createTournament(@Valid @RequestBody DetailedTournamentDTO tournamentDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+
         Tournament tournament = tournamentMapper.detailedTournamentDTOToTournament(tournamentDTO);
+        tournament.setOrganiser(username); // Set organiser as admin who submitted request
         tournamentService.createTournament(tournament);
         return tournamentDTO;
     }
