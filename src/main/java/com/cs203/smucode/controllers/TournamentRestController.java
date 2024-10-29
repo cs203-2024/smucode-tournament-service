@@ -58,7 +58,6 @@ public class TournamentRestController {
         String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
 
         List<Tournament> eligibleTournaments = tournamentService.findAllEligibleTournamentsForUser(username);
-        System.out.println(eligibleTournaments);
         return tournamentMapper.tournamentsToUserTournamentCardDTOs(eligibleTournaments, username);
     }
 
