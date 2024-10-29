@@ -119,6 +119,7 @@ public class TournamentServiceImpl implements TournamentService {
         tournamentToUpdate.setSignupEndDate(tournament.getSignupEndDate());
         tournamentToUpdate.setBand(tournament.getBand());
         tournamentToUpdate.setSignups(tournament.getSignups());
+        tournamentToUpdate.setParticipants(tournament.getParticipants());
         tournamentToUpdate.setCurrentRound(tournament.getCurrentRound());
 
         return tournamentServiceRepository.save(tournamentToUpdate);

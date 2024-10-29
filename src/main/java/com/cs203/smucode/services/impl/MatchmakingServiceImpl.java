@@ -36,7 +36,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         this.userServiceHandler = userServiceHandler;
     }
 
-//    @Override
+    @Override
     @Transactional
     public void runMatchmaking(Tournament tournament) {
 

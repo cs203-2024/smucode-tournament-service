@@ -56,7 +56,9 @@ public class TournamentRestController {
     public List<UserTournamentCardDTO> getAllEligibleTournaments() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+
         List<Tournament> eligibleTournaments = tournamentService.findAllEligibleTournamentsForUser(username);
+        System.out.println(eligibleTournaments);
         return tournamentMapper.tournamentsToUserTournamentCardDTOs(eligibleTournaments, username);
     }
 
@@ -83,6 +85,12 @@ public class TournamentRestController {
     public TournamentBracketsDTO getTournamentBracketsByTournamentId(@PathVariable UUID tournamentId) {
         Tournament tournament = tournamentService.findTournamentById(tournamentId);
         return tournamentMapper.tournamentToTournamentBracketsDTO(tournament);
+    }
+
+    @GetMapping("/{tournamentId}/participants")
+    public Set<String> getTournamentParticipants(@PathVariable UUID tournamentId) {
+        Tournament tournament = tournamentService.findTournamentById(tournamentId);
+        return tournament.getParticipants();
     }
 
     @Operation(summary = "Create new tournament")
@@ -142,14 +150,14 @@ public class TournamentRestController {
     @PutMapping("/bracket/{bracketId}/end")
     public TournamentDTO endBracket(@PathVariable UUID bracketId) {
         Tournament tournament = tournamentService.endBracket(bracketId);
-        return tournamentMapper.tournamentToTournamentDTO(tournament);
+        return tournamentMapper.tournamentToAdminTournamentDTO(tournament);
     }
 
     @Operation(summary = "End current round and populate next round brackets")
     @PutMapping("/round/{roundId}/end")
     public TournamentDTO endRound(@PathVariable UUID roundId) {
         Tournament tournament = tournamentService.endRound(roundId);
-        return tournamentMapper.tournamentToTournamentDTO(tournament);
+        return tournamentMapper.tournamentToAdminTournamentDTO(tournament);
     }
 
     @Operation(summary = "Delete existing tournament by tournament ID")
