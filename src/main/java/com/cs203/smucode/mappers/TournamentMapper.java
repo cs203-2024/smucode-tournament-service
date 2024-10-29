@@ -39,12 +39,6 @@ public interface TournamentMapper {
 
 //    TournamentDTO
     @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
-    TournamentDTO tournamentToTournamentDTO(Tournament tournament);
-    Tournament tournamentDTOToTournament(TournamentDTO tournamentDTO);
-    List<TournamentDTO> tournamentsToTournamentDTOs(List<Tournament> tournaments);
-    List<Tournament> tournamentDTOsToTournaments(List<TournamentDTO> tournamentDTOs);
-
-    @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
     @Mapping(target = "signupStatus", expression = "java(getSignupStatus(tournament))")
     AdminTournamentDTO tournamentToAdminTournamentDTO(Tournament tournament);
     Tournament adminTournamentDTOToTournament(AdminTournamentDTO adminTournamentDTO);

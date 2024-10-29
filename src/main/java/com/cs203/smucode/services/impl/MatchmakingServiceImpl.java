@@ -36,7 +36,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         this.userServiceHandler = userServiceHandler;
     }
 
-//    @Override
+    @Override
     @Transactional
     public void runMatchmaking(Tournament tournament) {
 
@@ -52,6 +52,9 @@ public class MatchmakingServiceImpl implements MatchmakingService {
 
         //Select participants according to the selection metric
         List<UserDTO> selectedPlayers = selectParticipants(signups, tournament.getCapacity(), "best");
+
+        //Add selected players into tournament participant list
+        tournament.setParticipants(selectedPlayers.stream().map(UserDTO::username).collect(Collectors.toSet()));
 
         //Pair the selected players into brackets (order of brackets matters)
         List<Bracket> bracketPairs = pairPlayers(selectedPlayers, true);
