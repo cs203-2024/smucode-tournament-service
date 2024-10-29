@@ -1,6 +1,9 @@
 package com.cs203.smucode.config;
 
 import java.util.List;
+
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.PUT;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -36,7 +39,10 @@ public class SecurityConfiguration {
                     .requestMatchers("/api/tournaments/create")
                     .hasAuthority("SCOPE_ROLE_ADMIN")
 
-                    .anyRequest().permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/tournaments/{tournamentId}")
+                    .hasAuthority("SCOPE_ROLE_ADMIN")
+
+                    .anyRequest().authenticated()
         );
 
         http.sessionManagement(

@@ -1,4 +1,4 @@
-package com.cs203.smucode.processors;
+package com.cs203.smucode.handlers;
 
 import com.cs203.smucode.consumers.UserServiceConsumer;
 import com.cs203.smucode.dto.UserDTO;
@@ -19,12 +19,12 @@ import java.util.List;
  */
 
 @Service
-public class UserServiceProcessor {
+public class UserServiceHandler {
 
     private final UserServiceConsumer userServiceConsumer;
 
     @Autowired
-    public UserServiceProcessor(UserServiceConsumer userServiceConsumer) {
+    public UserServiceHandler(UserServiceConsumer userServiceConsumer) {
         this.userServiceConsumer = userServiceConsumer;
     }
 
