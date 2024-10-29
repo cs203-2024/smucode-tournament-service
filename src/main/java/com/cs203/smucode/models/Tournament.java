@@ -83,12 +83,13 @@ public class Tournament {
     @Column(name = "current_round")
     private String currentRound;
 
+//    TODO: clean this up
     @ToString.Exclude
-    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Round> rounds;
 
 //    @ToString.Exclude
-    @ElementCollection(fetch = FetchType.EAGER) // TODO: not sure if this is the best way to solve lazy initialise
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "tournament_signups",
             joinColumns = @JoinColumn(name = "tournament_id")
