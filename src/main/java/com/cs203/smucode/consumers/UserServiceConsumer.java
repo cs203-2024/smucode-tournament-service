@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "user-service", url = "${user.service.url}")
 public interface UserServiceConsumer {
 
-    @GetMapping("/userId}")
-    UserDTO getUserById(@PathVariable("userId") String username);
+    @GetMapping("/profile/{username}")
+    UserDTO getUserById(@PathVariable String username);
 
 //    TODO: future optimisation - instead of iterative GET requests
 }
