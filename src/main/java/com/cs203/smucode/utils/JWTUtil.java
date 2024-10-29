@@ -6,6 +6,14 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 
 import java.util.Map;
 
+/**
+ * @author gav
+ * @version 1.0
+ * @since 2024-10-28
+ *
+ * This class is used to abstract user information from JWT.
+ */
+
 public class JWTUtil {
 
     private JWTUtil() {

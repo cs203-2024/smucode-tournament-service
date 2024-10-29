@@ -10,6 +10,14 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author gav
+ * @version 1.0
+ * @since 2024-10-25
+ *
+ * This class is used to handle consumed information from user microservice.
+ */
+
 @Service
 public class UserServiceProcessor {
 

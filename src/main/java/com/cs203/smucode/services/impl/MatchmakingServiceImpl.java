@@ -46,7 +46,6 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         }
 
         //Get the signups for the tourney
-        //TODO: adjust accordingly when signup implementation is clear
         List<String> signupUsernames = tournament.getSignups().stream().toList();
 
         List<UserDTO> signups = userServiceProcessor.getUsers(signupUsernames);

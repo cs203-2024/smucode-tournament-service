@@ -9,6 +9,14 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
+/**
+ * @author jered
+ * @version 1.0
+ * @since 2024-09-04
+ *
+ * This class is used to map Brackets to its Data Transfer Objects (DTOs).
+ */
+
 @Mapper(componentModel = "spring")
 public interface BracketMapper {
 

@@ -13,6 +13,14 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * @author jeremaine
+ * @version 1.0
+ * @since 2024-09-20
+ *
+ * This class is used to manage tournament events.
+ */
+
 @Component
 public class TournamentScheduler {
 
@@ -47,15 +55,6 @@ public class TournamentScheduler {
 
             matchmakingService.runMatchmaking(tournament);
         }
-
-//        Tournament tournament = tournamentService.findTournamentById(UUID.fromString("e2454bc0-58ac-4a81-81c4-544d159cc8b6"));
-//        if (tournament.getSignups().size() < tournament.getCapacity()) {
-//            logger.info("Tounrnament signups: {}", tournament.getSignups());
-//            logger.info("Tournament with id {} does not have enough signups", tournament.getId());
-//            logger.info("Required: {}, Has: {}", tournament.getCapacity(), tournament.getSignups().size());
-//            return;
-//        }
-//        matchmakingService.runMatchmaking(tournament);
 
     }
 }

@@ -1,18 +1,28 @@
 package com.cs203.smucode.mappers;
 
+import com.cs203.smucode.constants.SignupStatus;
 import com.cs203.smucode.dto.*;
 import com.cs203.smucode.models.Tournament;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+
+/**
+ * @author jered
+ * @version 1.0
+ * @since 2024-09-04
+ *
+ * This class is used to map tournament to its Data Transfer Objects (DTOs).
+ */
 
 @Mapper(componentModel="spring", uses={RoundMapper.class})
 public interface TournamentMapper {
 
 //    TournamentCardDTO
+    @Mapping(target = "signupStatus", expression = "java(getSignupStatus(tournament))")
     @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
     AdminTournamentCardDTO tournamentToAdminTournamentCardDTO(Tournament tournament);
     Tournament AdminTournamentCardDTOToTournament(AdminTournamentCardDTO adminTournamentCardDTO);
@@ -67,5 +77,10 @@ public interface TournamentMapper {
             dtos.add(tournamentToUserTournamentCardDTO(tournament, username));
         }
         return dtos;
+    }
+
+    default String getSignupStatus(Tournament tournament) {
+        return LocalDateTime.now().isBefore(tournament.getSignupEndDate()) ?
+                SignupStatus.OPEN.toString() : SignupStatus.CLOSED.toString();
     }
 }

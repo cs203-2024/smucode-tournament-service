@@ -44,6 +44,7 @@ public class TournamentRestController {
             List<Tournament> tournaments = tournamentService.findAllTournamentsByOrganiser(username);
             return tournamentMapper.tournamentsToAdminTournamentCardDTOs(tournaments);
         }
+
         // User
         Set<Tournament> tournaments = new HashSet<>();
         tournaments.addAll(tournamentService.findAllTournamentsByStatus(Status.UPCOMING));
