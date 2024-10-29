@@ -51,6 +51,11 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Transactional
+    public List<Tournament> findAllTournamentsByRegistrant(String registrant) {
+        return tournamentServiceRepository.findByRegistrant(registrant).orElse(null);
+    }
+
+    @Transactional
     public List<Tournament> findAllTournamentsByParticipant(String participant) {
         return tournamentServiceRepository.findByParticipant(participant).orElse(null);
     }

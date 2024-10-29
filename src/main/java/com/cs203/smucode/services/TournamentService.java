@@ -17,6 +17,8 @@ public interface TournamentService {
 
     List<Tournament> findAllTournamentsByStatus(Status status);
 
+    List<Tournament> findAllTournamentsByRegistrant(String registrant);
+
     List<Tournament> findAllTournamentsByParticipant(String participant);
 
     List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime);

@@ -33,24 +33,22 @@ public class TournamentRestController {
         this.tournamentMapper = tournamentMapper;
     }
 
-    @Operation(summary = "Get all tournaments")
+    @Operation(summary = "Get all of user's tournaments")
     @GetMapping()
     public List<? extends TournamentCardDTO> getAllTournaments() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String role = JWTUtil.getClaim(authentication, OAuth2Constants.SCOPE);
         String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
 
-        // Admin
+        // Admin - tournaments that they created
         if (UserRole.ADMIN.getAuthority().equals(role)) {
             List<Tournament> tournaments = tournamentService.findAllTournamentsByOrganiser(username);
             return tournamentMapper.tournamentsToAdminTournamentCardDTOs(tournaments);
         }
 
-        // User
-        Set<Tournament> tournaments = new HashSet<>();
-        tournaments.addAll(tournamentService.findAllTournamentsByStatus(Status.UPCOMING));
-        tournaments.addAll(tournamentService.findAllTournamentsByParticipant(username));
-        return tournamentMapper.tournamentsToUserTournamentCardDTOs(tournaments.stream().toList(), username);
+        // User - tournaments that they are signed up / participating in
+        List<Tournament> tournaments = tournamentService.findAllTournamentsByRegistrant(username);
+        return tournamentMapper.tournamentsToUserTournamentCardDTOs(tournaments, username);
     }
 
     @Operation(summary = "Get eligible tournaments for user")
