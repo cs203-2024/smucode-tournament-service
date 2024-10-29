@@ -25,7 +25,7 @@ public class TournamentCardDTO {
 
     private LocalDateTime signupEndDate;
 
-//    private String signupStatus;
+    private String signupStatus;
 
     private String status;
 
@@ -34,5 +34,11 @@ public class TournamentCardDTO {
     private String currentRound;
 
     private LocalDateTime currentRoundEndDate;
+
+    private int timeWeight;
+
+    private int memWeight;
+
+    private int testCaseWeight;
 
 }

@@ -11,9 +11,10 @@ public enum Band {
         return name().toLowerCase(); // Converts enum value to lowercase when persisting
     }
 
-    // Static method to convert a string (database value) to the corresponding enum value
+
+
     public static Band fromValue(String value) {
-        return Band.valueOf(value.toUpperCase());
+        return Band.valueOf(value.toUpperCase()); // Convert a string (database value) to the corresponding enum value
     }
 }
 

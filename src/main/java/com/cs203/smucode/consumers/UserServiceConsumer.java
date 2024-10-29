@@ -5,14 +5,19 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+/**
+ * @author jered
+ * @version 1.0
+ * @since 2024-10-14
+ *
+ * This class is used to consume API endpoints exposed by user microservice.
+ */
+
 @FeignClient(name = "user-service", url = "${user.service.url}")
 public interface UserServiceConsumer {
 
-//    boolean userExists(String username);
-
-    @GetMapping("/users/{userId}")
-    UserDTO getUserById(@PathVariable("userId") String username);
+    @GetMapping("/profile/{username}")
+    UserDTO getUserById(@PathVariable String username);
 
 //    TODO: future optimisation - instead of iterative GET requests
-//    List<UserDTO> getUsers(List<String> usernames);
 }

@@ -5,14 +5,13 @@ import com.cs203.smucode.dto.UserDTO;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
-import com.cs203.smucode.processors.UserServiceProcessor;
+import com.cs203.smucode.handlers.UserServiceHandler;
 import com.cs203.smucode.services.*;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.NativeWebRequest;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,17 +23,17 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     private final TournamentService tournamentService;
     private final RoundService roundService;
     private final BracketService bracketService;
-    private final UserServiceProcessor userServiceProcessor;
+    private final UserServiceHandler userServiceHandler;
 
     @Autowired
     public MatchmakingServiceImpl(RoundService roundService,
                                   BracketService bracketService,
                                   TournamentService tournamentService,
-                                  UserServiceProcessor userServiceProcessor) {
+                                  UserServiceHandler userServiceHandler) {
         this.roundService = roundService;
         this.bracketService = bracketService;
         this.tournamentService = tournamentService;
-        this.userServiceProcessor = userServiceProcessor;
+        this.userServiceHandler = userServiceHandler;
     }
 
 //    @Override
@@ -47,10 +46,9 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         }
 
         //Get the signups for the tourney
-        //TODO: adjust accordingly when signup implementation is clear
         List<String> signupUsernames = tournament.getSignups().stream().toList();
 
-        List<UserDTO> signups = userServiceProcessor.getUsers(signupUsernames);
+        List<UserDTO> signups = userServiceHandler.getUsers(signupUsernames);
 
         //Select participants according to the selection metric
         List<UserDTO> selectedPlayers = selectParticipants(signups, tournament.getCapacity(), "best");

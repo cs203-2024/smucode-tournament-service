@@ -22,6 +22,9 @@ public interface TournamentServiceRepository extends JpaRepository<Tournament, U
 
     Optional<List<Tournament>> findByStatus(Status status);
 
+    @Query("SELECT t FROM Tournament t JOIN t.signups r WHERE r = :registrant")
+    Optional<List<Tournament>> findByRegistrant(@Param("registrant") String registrant);
+
     @Query("SELECT t FROM Tournament t JOIN t.participants p WHERE p = :participant")
     Optional<List<Tournament>> findByParticipant(@Param("participant") String participant);
 

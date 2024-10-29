@@ -1,13 +1,21 @@
 package com.cs203.smucode.mappers;
 
 import com.cs203.smucode.dto.BracketDTO;
-import com.cs203.smucode.dto.UpdateBracketDTO;
-import com.cs203.smucode.dto.UserBracketDTO;
+import com.cs203.smucode.dto.UpdateBracketScoreDTO;
+import com.cs203.smucode.dto.BracketUserDTO;
 import com.cs203.smucode.models.Bracket;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
+
+/**
+ * @author jered
+ * @version 1.0
+ * @since 2024-09-04
+ *
+ * This class is used to map Brackets to its Data Transfer Objects (DTOs).
+ */
 
 @Mapper(componentModel = "spring")
 public interface BracketMapper {
@@ -30,30 +38,30 @@ public interface BracketMapper {
     List<Bracket> bracketDTOsToBrackets(List<BracketDTO> bracketDTOs);
 
 //    update bracket DTO
-    UpdateBracketDTO bracketToUpdateBracketDTO(Bracket bracket);
+    UpdateBracketScoreDTO bracketToUpdateBracketScoreDTO(Bracket bracket);
 
-    List<UpdateBracketDTO> bracketToUpdateBracketDTOs(List<Bracket> brackets);
+    List<UpdateBracketScoreDTO> bracketToUpdateBracketScoreDTOs(List<Bracket> brackets);
 
-    Bracket updateBracketDTOToBracket(UpdateBracketDTO bracketDTO);
+    Bracket updateBracketScoreDTOToBracket(UpdateBracketScoreDTO bracketDTO);
 
-    List<Bracket> bracketScoreDTOsToBrackets(List<UpdateBracketDTO> bracketDTOs);
+    List<Bracket> bracketScoreDTOsToBrackets(List<UpdateBracketScoreDTO> bracketDTOs);
 
 //    helper functions
 //    TODO: refactor when user client set up
-    default UserBracketDTO getPlayerDTO(Bracket bracket, int playerNumber) {
+    default BracketUserDTO getPlayerDTO(Bracket bracket, int playerNumber) {
         if (playerNumber == 1) {
-            UserBracketDTO userBracketDTO = new UserBracketDTO();
-            userBracketDTO.setUsername(bracket.getPlayer1());
+            BracketUserDTO bracketUserDTO = new BracketUserDTO();
+            bracketUserDTO.setUsername(bracket.getPlayer1());
 //        set user icon
-            userBracketDTO.setScore(bracket.getPlayer1Score());
-            return userBracketDTO;
+            bracketUserDTO.setScore(bracket.getPlayer1Score());
+            return bracketUserDTO;
         }
         if (playerNumber == 2) {
-            UserBracketDTO userBracketDTO = new UserBracketDTO();
-            userBracketDTO.setUsername(bracket.getPlayer2());
+            BracketUserDTO bracketUserDTO = new BracketUserDTO();
+            bracketUserDTO.setUsername(bracket.getPlayer2());
 //        set user icon
-            userBracketDTO.setScore(bracket.getPlayer2Score());
-            return userBracketDTO;
+            bracketUserDTO.setScore(bracket.getPlayer2Score());
+            return bracketUserDTO;
         }
 
         return null;

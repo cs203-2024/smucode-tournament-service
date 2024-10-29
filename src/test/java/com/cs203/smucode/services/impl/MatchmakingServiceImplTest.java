@@ -1,4 +1,4 @@
-package com.cs203.smucode;
+package com.cs203.smucode.services.impl;
 
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.consumers.UserServiceConsumer;
@@ -6,9 +6,8 @@ import com.cs203.smucode.dto.UserDTO;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
-import com.cs203.smucode.processors.UserServiceProcessor;
+import com.cs203.smucode.handlers.UserServiceHandler;
 import com.cs203.smucode.services.*;
-import com.cs203.smucode.services.impl.MatchmakingServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,13 +23,13 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class) // Use MockitoExtension for JUnit 5
-public class MatchmakingServiceImplTest {
+class MatchmakingServiceImplTest {
 
     @Mock
     private UserServiceConsumer userClient;
 
     @Mock
-    private UserServiceProcessor userService;
+    private UserServiceHandler userService;
 
     @Mock
     private BracketService bracketService;
@@ -48,7 +47,7 @@ public class MatchmakingServiceImplTest {
     private UserDTO user1, user2, user3, user4;
 
     @BeforeEach
-    public void setUp() {
+     void setUp() {
         // Set up a tournament with rounds and brackets pre-created
         tournament = new Tournament();
         tournament.setId(UUID.randomUUID());
@@ -76,6 +75,7 @@ public class MatchmakingServiceImplTest {
         List<Bracket> round1Brackets = new ArrayList<>();
         for (int i = 0; i < numberOfBrackets; i++) {
             Bracket newBracket = new Bracket();
+            newBracket.setId(UUID.randomUUID());
             newBracket.setSeqId(i+1);
             round1Brackets.add(newBracket);
         }
@@ -85,6 +85,7 @@ public class MatchmakingServiceImplTest {
         List<Bracket> round2Brackets = new ArrayList<>();
         for (int i = 0; i < numberOfBrackets; i++) {
             Bracket newBracket = new Bracket();
+            newBracket.setId(UUID.randomUUID());
             newBracket.setSeqId(i+1);
             round2Brackets.add(newBracket);
         }
@@ -107,30 +108,27 @@ public class MatchmakingServiceImplTest {
         lenient().when(userService.getUsers(anyList())).thenReturn(Arrays.asList(user1, user2, user3, user4));
     }
 
-//    @Test
-//    public void testRunMatchmaking_withPreCreatedRounds() {
-//
-//        // Arrange
-////        when(roundService.findRoundByTournamentIdAndSeqId(tournament.getId(), 1))
-//        when(roundService.findRoundByTournamentIdAndSeqId(any(UUID.class), eq(1)))
-//                .thenReturn(tournament.getRounds().get(0));
-////        when(bracketService.findBracketByRoundIdAndSeqId(tournament.getRounds().get(0).getId(), 1))
-//        when(bracketService.findBracketByRoundIdAndSeqId(any(UUID.class), eq(1)))
-//                .thenReturn(tournament.getRounds().get(0).getBrackets().get(0));
-////        when(bracketService.findBracketByRoundIdAndSeqId(tournament.getRounds().get(0).getId(), 2))
-//        when(bracketService.findBracketByRoundIdAndSeqId(any(UUID.class), eq(2)))
-//                .thenReturn(tournament.getRounds().get(0).getBrackets().get(1));
-//
-//        // Act: Run the matchmaking process
-//        matchmakingService.runMatchmaking(tournament);
-//
-//        // Assert
-//        verify(bracketService, times(2)).updateBracket(any(UUID.class), any(Bracket.class)); // Verify that the brackets were created <><><>
-//        assertEquals(Status.ONGOING, tournament.getStatus()); // Assert that the tournament status was updated
-//    }
+    @Test
+     void testRunMatchmaking_withPreCreatedRounds() {
+
+        // Arrange
+        when(roundService.findRoundByTournamentIdAndSeqId(any(UUID.class), eq(1)))
+                .thenReturn(tournament.getRounds().get(0));
+        when(bracketService.findBracketByRoundIdAndSeqId(any(UUID.class), eq(1)))
+                .thenReturn(tournament.getRounds().get(0).getBrackets().get(0));
+        when(bracketService.findBracketByRoundIdAndSeqId(any(UUID.class), eq(2)))
+                .thenReturn(tournament.getRounds().get(0).getBrackets().get(1));
+
+        // Act: Run the matchmaking process
+        matchmakingService.runMatchmaking(tournament);
+
+        // Assert
+        verify(bracketService, times(2)).updateBracket(any(UUID.class), any(Bracket.class)); // Verify that the brackets were created <><><>
+        assertEquals(Status.ONGOING, tournament.getStatus()); // Assert that the tournament status was updated
+    }
 
     @Test
-    public void testPairPlayers() {
+     void testPairPlayers() {
         // Arrange: List of players to pair
         List<UserDTO> players = Arrays.asList(user1, user2, user3, user4);
 
@@ -148,3 +146,4 @@ public class MatchmakingServiceImplTest {
         assertEquals("player1", brackets.get(1).getPlayer2());
     }
 }
+

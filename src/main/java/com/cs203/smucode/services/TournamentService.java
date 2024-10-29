@@ -11,15 +11,19 @@ public interface TournamentService {
 //    reason for having mapping within controller and not service:
 //    services may use one another - would have to map everytime
 
-    List<Tournament> findAllTournaments();
-
     Tournament findTournamentById(UUID id);
 
     List<Tournament> findAllTournamentsByOrganiser(String organiser);
 
     List<Tournament> findAllTournamentsByStatus(Status status);
 
+    List<Tournament> findAllTournamentsByRegistrant(String registrant);
+
     List<Tournament> findAllTournamentsByParticipant(String participant);
+
+    List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime);
+
+    List<Tournament> findAllEligibleTournamentsForUser(String username);
 
     Tournament createTournament(Tournament tournament);
 
@@ -27,11 +31,11 @@ public interface TournamentService {
 
     Tournament addTournamentSignup(UUID id, String signups);
 
+    Tournament endBracket(UUID bracketId);
+
+    Tournament endRound(UUID roundId);
+
     Tournament deleteTournamentSignup(UUID id, String signups);
 
-    Tournament updateTournamentProgress(UUID id);
-
     void deleteTournamentById(UUID id);
-
-    List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime, Status status);
 }

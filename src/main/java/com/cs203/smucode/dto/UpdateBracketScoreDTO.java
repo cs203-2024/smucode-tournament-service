@@ -7,12 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class UpdateBracketDTO {
-
-//    private String status;
+public class UpdateBracketScoreDTO {
 
     private List<PlayerInfo> players = new ArrayList<>();
-
-    private String winner;
 
 }

@@ -9,6 +9,7 @@ public class UserTournamentCardDTO extends TournamentCardDTO {
 
     private boolean participated;
 
+//    TODO: implement placing derivation logic (eg. "Eliminated in Round of 16", "Champion", etc)
     private int placing;
 
 }

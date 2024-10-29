@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserBracketDTO {
+public class BracketUserDTO {
 
     private String username;
 
-    private String icon;
+    private String image;
 
     private int score;
 

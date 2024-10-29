@@ -1,17 +1,20 @@
 package com.cs203.smucode.controllers;
 
+import com.cs203.smucode.constants.OAuth2Constants;
 import com.cs203.smucode.constants.Status;
-import com.cs203.smucode.dto.DetailedTournamentDTO;
-import com.cs203.smucode.dto.TournamentBracketsDTO;
-import com.cs203.smucode.dto.TournamentCardDTO;
-import com.cs203.smucode.dto.TournamentDTO;
+import com.cs203.smucode.constants.UserRole;
+import com.cs203.smucode.dto.*;
+import com.cs203.smucode.exceptions.UnauthorizedResourceAccessException;
 import com.cs203.smucode.mappers.TournamentMapper;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.TournamentService;
+import com.cs203.smucode.utils.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -30,33 +33,51 @@ public class TournamentRestController {
         this.tournamentMapper = tournamentMapper;
     }
 
-//    expose "/" and return list of tournaments
-    @Operation(summary = "Get all tournaments")
+    @Operation(summary = "Get all of user's tournaments")
     @GetMapping()
-    public List<? extends TournamentCardDTO> getAllTournaments(@RequestParam String username) {
-//        TODO: if admin
-        if (username.equals("admin")) {
+    public List<? extends TournamentCardDTO> getAllTournaments() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String role = JWTUtil.getClaim(authentication, OAuth2Constants.SCOPE);
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+
+        // Admin - tournaments that they created
+        if (UserRole.ADMIN.getAuthority().equals(role)) {
             List<Tournament> tournaments = tournamentService.findAllTournamentsByOrganiser(username);
             return tournamentMapper.tournamentsToAdminTournamentCardDTOs(tournaments);
         }
 
-//        TODO: if user
-        Set<Tournament> tournaments = new HashSet<>();
-        tournaments.addAll(tournamentService.findAllTournamentsByStatus(Status.UPCOMING));
-        tournaments.addAll(tournamentService.findAllTournamentsByParticipant(username));
-        return tournamentMapper.tournamentsToUserTournamentCardDTOs(tournaments.stream().toList(), username);
+        // User - tournaments that they are signed up / participating in
+        List<Tournament> tournaments = tournamentService.findAllTournamentsByRegistrant(username);
+        return tournamentMapper.tournamentsToUserTournamentCardDTOs(tournaments, username);
     }
 
+    @Operation(summary = "Get eligible tournaments for user")
+    @GetMapping("/explore")
+    public List<UserTournamentCardDTO> getAllEligibleTournaments() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+        List<Tournament> eligibleTournaments = tournamentService.findAllEligibleTournamentsForUser(username);
+        return tournamentMapper.tournamentsToUserTournamentCardDTOs(eligibleTournaments, username);
+    }
 
-//    expose "/{id}" and return specified tournament
-    @Operation(summary = "Get tournament by tournament ID")
+    @Operation(summary = "Get tournament overview by tournament ID")
     @GetMapping("/{tournamentId}")
     public TournamentDTO getTournamentById(@PathVariable UUID tournamentId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String role = JWTUtil.getClaim(authentication, OAuth2Constants.SCOPE);
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+
+        // Admin
+        if (UserRole.ADMIN.getAuthority().equals(role)) {
+            Tournament tournament = tournamentService.findTournamentById(tournamentId);
+            return tournamentMapper.tournamentToAdminTournamentDTO(tournament);
+        }
+
+        // User
         Tournament tournament = tournamentService.findTournamentById(tournamentId);
-        return tournamentMapper.tournamentToTournamentDTO(tournament);
+        return tournamentMapper.tournamentToUserTournamentDTO(tournament, username);
     }
 
-//    endpoint for specified tournament's brackets
     @Operation(summary = "Get tournament brackets by tournament ID")
     @GetMapping("/{tournamentId}/brackets")
     public TournamentBracketsDTO getTournamentBracketsByTournamentId(@PathVariable UUID tournamentId) {
@@ -64,56 +85,73 @@ public class TournamentRestController {
         return tournamentMapper.tournamentToTournamentBracketsDTO(tournament);
     }
 
-//    POST mapping "/" to create new tournament
     @Operation(summary = "Create new tournament")
-    @CrossOrigin(origins = "http://localhost:3000")
-    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/create")
     public DetailedTournamentDTO createTournament(@Valid @RequestBody DetailedTournamentDTO tournamentDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+
         Tournament tournament = tournamentMapper.detailedTournamentDTOToTournament(tournamentDTO);
+        tournament.setOrganiser(username); // Set organiser as admin who submitted request
         tournamentService.createTournament(tournament);
         return tournamentDTO;
     }
 
-//    PUT mapping "/{id}" to update tournament
     @Operation(summary = "Update tournament by tournament ID")
     @PutMapping("/{tournamentId}")
-    public DetailedTournamentDTO updateTournament(@PathVariable UUID tournamentId, @Valid @RequestBody DetailedTournamentDTO tournamentDTO) {
+    public DetailedTournamentDTO updateTournament(@PathVariable UUID tournamentId,
+                                                  @Valid @RequestBody DetailedTournamentDTO tournamentDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+
+        // Authorisation check: only organiser should be able to update tournament
+        if (!username.equals(tournamentService.findTournamentById(tournamentId).getOrganiser())) {
+            throw new UnauthorizedResourceAccessException(
+                    String.format("User %s is not authorized to update tournament %s", username, tournamentId)
+            );
+        }
+
         Tournament tournament = tournamentMapper.detailedTournamentDTOToTournament(tournamentDTO);
         tournamentService.updateTournament(tournamentId, tournament);
         return tournamentDTO;
     }
 
-//    POST mapping "/signup" to create new signup
     @Operation(summary = "Create new tournament sign up for user")
     @PostMapping("/{tournamentId}/signup")
-    public DetailedTournamentDTO addTournamentSignups(@PathVariable UUID tournamentId, @RequestParam String user) {
+    public DetailedTournamentDTO addTournamentSignups(@PathVariable UUID tournamentId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+
         Tournament tournament = tournamentService.findTournamentById(tournamentId);
-        tournamentService.addTournamentSignup(tournamentId, user);
+        tournamentService.addTournamentSignup(tournamentId, username);
         return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
     }
 
-    //    DELETE mapping "/signup" to delete signup
     @Operation(summary = "Delete existing tournament sign up for user")
     @DeleteMapping("/{tournamentId}/signup")
-    public DetailedTournamentDTO deleteTournamentSignups(@PathVariable UUID tournamentId, @RequestParam String user) {
+    public DetailedTournamentDTO deleteTournamentSignups(@PathVariable UUID tournamentId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+
         Tournament tournament = tournamentService.findTournamentById(tournamentId);
-        tournamentService.deleteTournamentSignup(tournamentId, user);
+        tournamentService.deleteTournamentSignup(tournamentId, username);
         return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
     }
 
-//    TODO: can create more focused DTOs
-//    TODO: should these apis (updateBracketScore, endRound) be here or in round / bracket controller
-//    public TournamentDTO updateTournamentScore(@PathVariable UUID bracketId, @Valid @RequestBody) {}
-
-    @Operation(summary = "Update tournament progression - end round")
-    @PutMapping("/{tournamentId}/progress")
-    public TournamentDTO updateTournamentProgression(@PathVariable UUID tournamentId) {
-        Tournament tournament = tournamentService.updateTournamentProgress(tournamentId);
+    @Operation(summary = "End current bracket and set winner")
+    @PutMapping("/bracket/{bracketId}/end")
+    public TournamentDTO endBracket(@PathVariable UUID bracketId) {
+        Tournament tournament = tournamentService.endBracket(bracketId);
         return tournamentMapper.tournamentToTournamentDTO(tournament);
     }
 
-//    DELETE mapping "/{id}" to delete tournament
+    @Operation(summary = "End current round and populate next round brackets")
+    @PutMapping("/round/{roundId}/end")
+    public TournamentDTO endRound(@PathVariable UUID roundId) {
+        Tournament tournament = tournamentService.endRound(roundId);
+        return tournamentMapper.tournamentToTournamentDTO(tournament);
+    }
+
     @Operation(summary = "Delete existing tournament by tournament ID")
     @DeleteMapping("/{tournamentId}")
     public void deleteTournamentById(@PathVariable UUID tournamentId) { tournamentService.deleteTournamentById(tournamentId); }

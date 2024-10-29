@@ -1,10 +1,6 @@
 package com.cs203.smucode.dto;
 
-import com.cs203.smucode.models.PlayerInfo;
 import lombok.Data;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 public class BracketDTO {
@@ -15,11 +11,9 @@ public class BracketDTO {
 
     private String status;
 
-    private UserBracketDTO player1;
+    private BracketUserDTO player1;
 
-    private UserBracketDTO player2;
-
-//    private List<PlayerInfo> players = new ArrayList<>();
+    private BracketUserDTO player2;
 
     private String winner;
 

@@ -27,12 +27,13 @@ public class RoundRestController {
         this.roundMapper = roundMapper;
     }
 
-    @Operation(summary = "Get all rounds associated to tournament")
-    @GetMapping("/tournament/{tournamentId}")
-    public List<RoundDTO> getAllRoundsByTournamentId(@PathVariable UUID tournamentId) {
-        List<Round> rounds = roundService.findAllRoundsByTournamentId(tournamentId);
-        return roundMapper.roundsToRoundDTOs(rounds);
-    }
+//    @Operation(summary = "Get all rounds associated to tournament")
+//    @GetMapping("/tournament/{tournamentId}")
+//    public List<RoundDTO> getAllRoundsByTournamentId(@PathVariable UUID tournamentId) {
+//        List<Round> rounds = roundService.findAllRoundsByTournamentId(tournamentId);
+//        return roundMapper.roundsToRoundDTOs(rounds);
+//    }
+
     @Operation(summary = "Get round by round ID")
     @GetMapping("/{roundId}")
     public RoundDTO getRoundById(@PathVariable UUID roundId) {
@@ -40,25 +41,17 @@ public class RoundRestController {
         return roundMapper.roundToRoundDTO(round);
     }
 
-//    @ResponseStatus(HttpStatus.CREATED)
-//    @PostMapping("/")
-//    public RoundDTO createRound(@Valid @RequestBody RoundDTO roundDTO) {
+//    @Operation(summary = "Update round by round ID")
+//    @PutMapping("/{roundId}")
+//    public RoundDTO updateRound(@PathVariable UUID roundId, @Valid @RequestBody RoundDTO roundDTO) {
 //        Round round = roundMapper.roundDTOToRound(roundDTO);
-//        roundService.createRound(round);
+//        roundService.updateRound(roundId, round);
 //        return roundDTO;
 //    }
 
-    @PutMapping("/{roundId}")
-    @Operation(summary = "Update round by round ID")
-    public RoundDTO updateRound(@PathVariable UUID roundId, @Valid @RequestBody RoundDTO roundDTO) {
-        Round round = roundMapper.roundDTOToRound(roundDTO);
-        roundService.updateRound(roundId, round);
-        return roundDTO;
-    }
-
-    @DeleteMapping("/{roundId}")
-    @Operation(summary = "Delete existing round by round ID")
-    public void deleteRound(@PathVariable UUID roundId) {
-        roundService.deleteRoundById(roundId);
-    }
+//    @Operation(summary = "Delete existing round by round ID")
+//    @DeleteMapping("/{roundId}")
+//    public void deleteRound(@PathVariable UUID roundId) {
+//        roundService.deleteRoundById(roundId);
+//    }
 }

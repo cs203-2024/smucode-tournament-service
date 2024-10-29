@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * @author gav
@@ -37,9 +38,6 @@ public class Tournament {
 
     @Column(columnDefinition = "TEXT")
     private String description; // e.g "Trees", "LinkedList", "Recursion"
-
-//    TODO: change to enum
-//    private String status; // e.g "active", "inactive", "suspended",
 
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
@@ -78,10 +76,6 @@ public class Tournament {
     @Column(name = "signup_end_date", nullable = false)
     private LocalDateTime signupEndDate;
 
-//    @Convert(converter = SignupStatusConverter.class)
-//    @Column(name = "signup_status", nullable = false)
-//    private SignupStatus signupStatus;
-
     @Convert(converter = BandConverter.class)
     @Column(name = "band")
     private Band band;
@@ -89,10 +83,12 @@ public class Tournament {
     @Column(name = "current_round")
     private String currentRound;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Round> rounds;
 
-    @ElementCollection
+//    @ToString.Exclude
+    @ElementCollection(fetch = FetchType.EAGER) // TODO: not sure if this is the best way to solve lazy initialise
     @CollectionTable(
             name = "tournament_signups",
             joinColumns = @JoinColumn(name = "tournament_id")
@@ -100,7 +96,8 @@ public class Tournament {
     @Column(name = "signup")
     private Set<String> signups = new HashSet<>();
 
-    @ElementCollection
+//    @ToString.Exclude
+    @ElementCollection (fetch = FetchType.EAGER)
     @CollectionTable(
             name = "tournament_participants",
             joinColumns = @JoinColumn(name = "tournament_id")

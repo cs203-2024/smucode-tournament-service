@@ -1,12 +1,17 @@
 package com.cs203.smucode.services.impl;
 
+import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.RoundNotFoundException;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
+import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.RoundServiceRepository;
 import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.RoundService;
+import com.cs203.smucode.services.TournamentService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,40 +34,42 @@ public class RoundServiceImpl implements RoundService {
         this.bracketService = bracketService;
     }
 
+    @Transactional
     public Round findRoundById(UUID id) {
         return roundServiceRepository.findById(id).orElseThrow(() ->
                 new RoundNotFoundException("Round with id " + id + " not found"));
     }
 
+    @Transactional
     public Round findRoundByTournamentIdAndSeqId(UUID tournamentId, int seqId) {
         return roundServiceRepository.findByTournamentIdAndSeqId(tournamentId, seqId).orElseThrow(() ->
                 new RoundNotFoundException("Round with tournament id " + tournamentId + " and seq id " + seqId + " not found"));
     }
 
+    @Transactional
     public Round findRoundByTournamentIdAndName(UUID tournamentId, String name) {
         return roundServiceRepository.findByTournamentIdAndName(tournamentId, name).orElseThrow(() ->
                 new RoundNotFoundException("Round with tournament id " + tournamentId + " and name " + name + " not found"));
     }
 
+    @Transactional
     public List<Round> findAllRoundsByTournamentId(UUID tournamentId) {
         return roundServiceRepository.findByTournamentId(tournamentId).orElse(null);
     }
 
-    private List<String> mockUsers = List.of("user1", "user2", "user3", "user4");
-    private int index = 0;
-
+    @Transactional
     public Round createRound(Round round) {
         roundServiceRepository.save(round);
         int bracketCount = getBracketCountFromRoundName(round.getName());
+        // generate empty brackets
         try {
             for (int i = 0; i < bracketCount; i++) {
                 Bracket bracket = new Bracket();
                 bracket.setRound(round);
-//                TODO: mock data
-                bracket.setPlayer1(mockUsers.get(index));
-                index++;
-                bracket.setPlayer2(mockUsers.get(index));
-                index++;
+                bracket.setStatus(Status.UPCOMING);
+                // TODO: move this to be handled at DB level
+                bracket.setPlayer1Score(0);
+                bracket.setPlayer2Score(0);
                 bracketService.createBracket(bracket);
             }
         }
@@ -73,6 +80,7 @@ public class RoundServiceImpl implements RoundService {
         return round;
     }
 
+    @Transactional
     public Round updateRound(UUID id, Round round) {
         Optional<Round> roundOptional = roundServiceRepository.findById(id);
 
@@ -89,6 +97,37 @@ public class RoundServiceImpl implements RoundService {
         return roundServiceRepository.save(roundToUpdate);
     }
 
+    @Transactional
+    public Round populateNextRound(UUID currRoundId, UUID nextRoundId) {
+        Optional <Round> roundOptional = roundServiceRepository.findById(nextRoundId);
+
+        if (roundOptional.isEmpty()) {
+            throw new RoundNotFoundException("Next round with id " + nextRoundId + " not found");
+        }
+
+        Round nextRound = roundOptional.get();
+
+        for (int i = 1; i <= nextRound.getBrackets().size(); i++) {
+
+            Bracket oldBracket = bracketService.findBracketByRoundIdAndSeqId(nextRoundId, i);
+            Bracket newBracket = new Bracket();
+
+            // TODO: round progression validation (whether previous round has finished - null winner)
+            String player1 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2 - 1).getWinner();
+            String player2 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2).getWinner();
+
+            newBracket.setPlayer1(player1);
+            newBracket.setPlayer2(player2);
+
+            bracketService.updateBracket(oldBracket.getId(), newBracket);
+
+        }
+
+        return nextRound;
+
+    }
+
+    @Transactional
     public void deleteRoundById(UUID id) {
         if (!roundServiceRepository.existsById(id)) {
             throw new RoundNotFoundException("Round with id " + id + " not found");
