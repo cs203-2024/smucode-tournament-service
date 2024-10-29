@@ -6,7 +6,7 @@ import com.cs203.smucode.dto.UserDTO;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
-import com.cs203.smucode.processors.UserServiceProcessor;
+import com.cs203.smucode.handlers.UserServiceHandler;
 import com.cs203.smucode.services.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ class MatchmakingServiceImplTest {
     private UserServiceConsumer userClient;
 
     @Mock
-    private UserServiceProcessor userService;
+    private UserServiceHandler userService;
 
     @Mock
     private BracketService bracketService;

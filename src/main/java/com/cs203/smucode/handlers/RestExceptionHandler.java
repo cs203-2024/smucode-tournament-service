@@ -1,9 +1,9 @@
-package com.cs203.smucode.exceptions;
+package com.cs203.smucode.handlers;
 
+import com.cs203.smucode.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -42,6 +42,14 @@ public class RestExceptionHandler {
         body.put("error", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(UnauthorizedResourceAccessException.class)
+    protected ResponseEntity<Object> handleUnauthorizedResourceAccessException(UnauthorizedResourceAccessException ex) {
+        Map<String, String> body = new HashMap<>();
+        body.put("error", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+    }
+
 
     @ExceptionHandler(TournamentNotFoundException.class)
     protected ResponseEntity<Object> handleTournamentNotFoundException(TournamentNotFoundException ex) {
