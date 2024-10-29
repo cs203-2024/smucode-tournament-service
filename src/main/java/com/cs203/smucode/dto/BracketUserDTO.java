@@ -11,7 +11,7 @@ public class BracketUserDTO {
 
     private String username;
 
-    private String icon;
+    private String image;
 
     private int score;
 
