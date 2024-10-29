@@ -25,7 +25,7 @@ public interface TournamentMapper {
     @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
     @Mapping(target = "signupStatus", expression = "java(getSignupStatus(tournament))")
     AdminTournamentCardDTO tournamentToAdminTournamentCardDTO(Tournament tournament);
-    Tournament AdminTournamentCardDTOToTournament(AdminTournamentCardDTO adminTournamentCardDTO);
+    Tournament adminTournamentCardDTOToTournament(AdminTournamentCardDTO adminTournamentCardDTO);
     List<AdminTournamentCardDTO> tournamentsToAdminTournamentCardDTOs(List<Tournament> tournaments);
     List<Tournament> adminTournamentCardDTOsToTournaments(List<AdminTournamentCardDTO> adminTournamentCardDTOs);
 
@@ -33,7 +33,7 @@ public interface TournamentMapper {
     @Mapping(target = "signedUp", ignore = true) // We will set signedUp manually
     @Mapping(target = "participated", ignore = true) // We will set participated manually
     UserTournamentCardDTO mapTournamentToUserTournamentCardDTO(Tournament tournament);
-    Tournament UserTournamentCardDTOToTournament(UserTournamentCardDTO userTournamentCardDTO);
+    Tournament userTournamentCardDTOToTournament(UserTournamentCardDTO userTournamentCardDTO);
     List<UserTournamentCardDTO> mapTournamentsToUserTournamentCardDTOs(List<Tournament> tournaments);
     List<Tournament> userTournamentCardDTOsToTournaments(List<UserTournamentCardDTO> userTournamentCardDTOs);
 
@@ -47,14 +47,14 @@ public interface TournamentMapper {
     @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
     @Mapping(target = "signupStatus", expression = "java(getSignupStatus(tournament))")
     AdminTournamentDTO tournamentToAdminTournamentDTO(Tournament tournament);
-    Tournament AdminTournamentDTOToTournament(AdminTournamentDTO adminTournamentDTO);
+    Tournament adminTournamentDTOToTournament(AdminTournamentDTO adminTournamentDTO);
     List<AdminTournamentDTO> tournamentsToAdminTournamentDTOs(List<Tournament> tournaments);
     List<Tournament> adminTournamentDTOsToTournaments(List<AdminTournamentDTO> adminTournamentDTOs);
 
     @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
     @Mapping(target = "signedUp", ignore = true) // We will set signedUp manually
     UserTournamentDTO mapTournamentToUserTournamentDTO(Tournament tournament);
-    Tournament UserTournamentDTOToTournament(UserTournamentDTO userTournamentDTO);
+    Tournament userTournamentDTOToTournament(UserTournamentDTO userTournamentDTO);
     List<UserTournamentDTO> mapTournamentsToUserTournamentDTOs(List<Tournament> tournaments);
     List<Tournament> userTournamentDTOsToTournaments(List<UserTournamentDTO> userTournamentCardDTOs);
 
