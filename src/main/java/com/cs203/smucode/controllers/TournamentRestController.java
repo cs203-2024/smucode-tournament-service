@@ -62,11 +62,22 @@ public class TournamentRestController {
         return tournamentMapper.tournamentsToUserTournamentCardDTOs(eligibleTournaments, username);
     }
 
-    @Operation(summary = "Get tournament by tournament ID")
+    @Operation(summary = "Get tournament overview by tournament ID")
     @GetMapping("/{tournamentId}")
     public TournamentDTO getTournamentById(@PathVariable UUID tournamentId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String role = JWTUtil.getClaim(authentication, OAuth2Constants.SCOPE);
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+
+        // Admin
+        if (UserRole.ADMIN.getAuthority().equals(role)) {
+            Tournament tournament = tournamentService.findTournamentById(tournamentId);
+            return tournamentMapper.tournamentToAdminTournamentDTO(tournament);
+        }
+
+        // User
         Tournament tournament = tournamentService.findTournamentById(tournamentId);
-        return tournamentMapper.tournamentToTournamentDTO(tournament);
+        return tournamentMapper.tournamentToUserTournamentDTO(tournament, username);
     }
 
     @Operation(summary = "Get tournament brackets by tournament ID")
