@@ -41,13 +41,13 @@ public class RoundRestController {
         return roundMapper.roundToRoundDTO(round);
     }
 
-//    @Operation(summary = "Update round by round ID")
-//    @PutMapping("/{roundId}")
-//    public RoundDTO updateRound(@PathVariable UUID roundId, @Valid @RequestBody RoundDTO roundDTO) {
-//        Round round = roundMapper.roundDTOToRound(roundDTO);
-//        roundService.updateRound(roundId, round);
-//        return roundDTO;
-//    }
+    @Operation(summary = "Update round by round ID")
+    @PutMapping("/{roundId}")
+    public RoundDTO updateRound(@PathVariable UUID roundId, @Valid @RequestBody RoundDTO roundDTO) {
+        Round newRoundInfo = roundMapper.roundDTOToRound(roundDTO);
+        Round round = roundService.updateRound(roundId, newRoundInfo);
+        return roundMapper.roundToRoundDTO(round);
+    }
 
 //    @Operation(summary = "Delete existing round by round ID")
 //    @DeleteMapping("/{roundId}")
