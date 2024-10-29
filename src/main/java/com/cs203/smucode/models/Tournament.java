@@ -39,9 +39,6 @@ public class Tournament {
     @Column(columnDefinition = "TEXT")
     private String description; // e.g "Trees", "LinkedList", "Recursion"
 
-//    TODO: change to enum
-//    private String status; // e.g "active", "inactive", "suspended",
-
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
 

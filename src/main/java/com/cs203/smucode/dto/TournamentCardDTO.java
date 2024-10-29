@@ -25,8 +25,7 @@ public class TournamentCardDTO {
 
     private LocalDateTime signupEndDate;
 
-//    TODO: implement signupStatus derivation logic
-//    private String signupStatus;
+    private String signupStatus;
 
     private String status;
 

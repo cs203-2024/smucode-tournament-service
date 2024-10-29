@@ -11,6 +11,14 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author : jered
+ * @version : 1.0
+ * @since : 2024-09-04
+ *
+ * This class is used to handle exceptions thrown in the tournament microservice.
+ */
+
 @RestControllerAdvice
 public class RestExceptionHandler {
 
