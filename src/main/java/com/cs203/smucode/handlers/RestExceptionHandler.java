@@ -28,7 +28,7 @@ public class RestExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 HttpStatus.BAD_REQUEST.value(),
-                "Access Denied",
+                "Invalid request",
                 ex.getMessage(),
                 LocalDateTime.now()
         );
@@ -39,7 +39,7 @@ public class RestExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 HttpStatus.BAD_REQUEST.value(),
-                "Access Denied",
+                "Method argument type mismatch",
                 ex.getMessage(),
                 LocalDateTime.now()
         );
@@ -50,7 +50,7 @@ public class RestExceptionHandler {
     protected ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 HttpStatus.BAD_REQUEST.value(),
-                "Access Denied",
+                "Invalid argument",
                 ex.getMessage(),
                 LocalDateTime.now()
         );
@@ -73,7 +73,7 @@ public class RestExceptionHandler {
     protected ResponseEntity<Object> handleTournamentNotFoundException(TournamentNotFoundException ex) {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 HttpStatus.NOT_FOUND.value(),
-                "Access Denied",
+                "Tournament not found",
                 ex.getMessage(),
                 LocalDateTime.now()
         );
@@ -84,7 +84,7 @@ public class RestExceptionHandler {
     protected ResponseEntity<Object> handleRoundNotFoundException(RoundNotFoundException ex) {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 HttpStatus.NOT_FOUND.value(),
-                "Access Denied",
+                "Round not found",
                 ex.getMessage(),
                 LocalDateTime.now()
         );
@@ -95,7 +95,7 @@ public class RestExceptionHandler {
     protected ResponseEntity<Object> handleBracketNotFoundException(BracketNotFoundException ex) {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 HttpStatus.NOT_FOUND.value(),
-                "Access Denied",
+                "Bracket not found",
                 ex.getMessage(),
                 LocalDateTime.now()
         );
@@ -106,7 +106,7 @@ public class RestExceptionHandler {
     protected ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex) {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 HttpStatus.NOT_FOUND.value(),
-                "Access Denied",
+                "User not found",
                 ex.getMessage(),
                 LocalDateTime.now()
         );
