@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/brackets")
+@RequestMapping("/tournaments/brackets")
 public class BracketRestController {
 
     private BracketService bracketService;
