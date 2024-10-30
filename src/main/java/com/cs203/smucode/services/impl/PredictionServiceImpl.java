@@ -49,8 +49,7 @@ public class PredictionServiceImpl implements PredictionService {
             loadModel();
             logger.info("Prediction model loaded successfully");
         } catch (Exception e) {
-            logger.error("Failed to load prediction model", e);
-            throw new RuntimeException("Failed to initialize prediction service", e);
+            throw new RuntimeException("Failed to load prediction model", e);
         }
     }
 
@@ -83,10 +82,6 @@ public class PredictionServiceImpl implements PredictionService {
             double finalP1Prob = calculateBlendedProbability(player1, player2);
             double finalP2Prob = 1.0 - finalP1Prob;
 
-            logger.debug("Match prediction for {} vs {}: {:.1f}% - {:.1f}%",
-                    player1Username, player2Username,
-                    finalP1Prob * 100, finalP2Prob * 100);
-
             return new PredictionResult(
                     player1Username,
                     player2Username,
@@ -94,8 +89,7 @@ public class PredictionServiceImpl implements PredictionService {
                     finalP2Prob
             );
         } catch (Exception e) {
-            logger.error("Failed to predict match outcome", e);
-            throw new RuntimeException("Prediction failed", e);
+            throw new RuntimeException("Failed to predict match outcome", e);
         }
     }
 
