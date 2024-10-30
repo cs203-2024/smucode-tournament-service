@@ -21,7 +21,9 @@ public interface TournamentService {
 
     List<Tournament> findAllTournamentsByParticipant(String participant);
 
-    List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime);
+    List<Tournament> findTournamentsWithSignUpBefore(LocalDateTime dateTime);
+
+    List<Tournament> findTournamentsWithSignUpAfter(LocalDateTime dateTime);
 
     List<Tournament> findAllEligibleTournamentsForUser(String username);
 

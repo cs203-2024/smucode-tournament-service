@@ -31,8 +31,7 @@ public class TournamentScheduler {
     @Autowired
     public TournamentScheduler(
             TournamentService tournamentService,
-            MatchmakingService matchmakingService,
-            TournamentMapper tournamentMapper ) {
+            MatchmakingService matchmakingService) {
         this.tournamentService = tournamentService;
         this.matchmakingService = matchmakingService;
     }
@@ -40,16 +39,17 @@ public class TournamentScheduler {
     @Scheduled(cron = "0/30 * * * * ?") //Runs every 30 minutes
     public void scheduleMatchmaking() {
         LocalDateTime now = LocalDateTime.now();
-        List<Tournament> tournaments = tournamentService.findTournamentsBySignUpDeadline(now);
+        List<Tournament> tournaments = tournamentService.findTournamentsWithSignUpBefore(now);
+        logger.info("Tournaments to undergo matchmaking:  {}", tournaments.size());
 
         for (Tournament tournament : tournaments) {
 
-            logger.info("current tournament: {}", tournament);
+            logger.info("Current tournament undergoing matchmaking: {}", tournament);
 
             // Do not start tournament if tournament does not have enough signups
             if (tournament.getSignups().size() < tournament.getCapacity()) {
-                logger.info("Tournament with id {} does not have enough signups", tournament.getId());
-                logger.info("Required: {}, Has: {}", tournament.getCapacity(), tournament.getSignups().size());
+                logger.info("Tournament with id {} does not have enough signups - Required: {}, Has: {}",
+                        tournament.getId(), tournament.getCapacity(), tournament.getSignups());
                 continue;
             }
 

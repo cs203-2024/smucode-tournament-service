@@ -89,10 +89,11 @@ public class RoundServiceImpl implements RoundService {
         }
 
         Round roundToUpdate = roundOptional.get();
-        roundToUpdate.setName(round.getName());
-        roundToUpdate.setStartDate(round.getStartDate());
-        roundToUpdate.setEndDate(round.getEndDate());
-        roundToUpdate.setStatus(round.getStatus());
+
+        if (round.getName() != null) { roundToUpdate.setName(round.getName()); }
+        if (round.getStartDate() != null) { roundToUpdate.setStartDate(round.getStartDate()); }
+        if (round.getEndDate() != null) { roundToUpdate.setEndDate(round.getEndDate()); }
+        if (round.getStatus() != null) { roundToUpdate.setStatus(round.getStatus()); }
 
         return roundServiceRepository.save(roundToUpdate);
     }

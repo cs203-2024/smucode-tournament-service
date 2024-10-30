@@ -25,7 +25,7 @@ public class TournamentCardDTO {
 
     private LocalDateTime signupEndDate;
 
-    private String signupStatus;
+    private boolean signupsOpen;
 
     private String status;
 

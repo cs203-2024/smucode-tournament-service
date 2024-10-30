@@ -30,4 +30,6 @@ public interface TournamentServiceRepository extends JpaRepository<Tournament, U
 
     Optional<List<Tournament>> findBySignupEndDateBeforeAndStatus(LocalDateTime dateTime, Status status);
 
+    Optional<List<Tournament>> findBySignupEndDateAfterAndStatus(LocalDateTime dateTime, Status status);
+
 }

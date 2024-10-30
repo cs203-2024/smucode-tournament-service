@@ -1,10 +1,8 @@
 package com.cs203.smucode.services.impl;
 
 import com.cs203.smucode.constants.Status;
-import com.cs203.smucode.exceptions.RoundNotFoundException;
 import com.cs203.smucode.exceptions.TournamentNotFoundException;
 import com.cs203.smucode.models.Bracket;
-import com.cs203.smucode.models.PlayerInfo;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.TournamentServiceRepository;
@@ -12,15 +10,17 @@ import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.RoundService;
 import com.cs203.smucode.services.TournamentService;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class TournamentServiceImpl implements TournamentService {
+    private static final Logger logger = LoggerFactory.getLogger(TournamentServiceImpl.class);
     private final TournamentServiceRepository tournamentServiceRepository;
     private final RoundService roundService;
     private final BracketService bracketService;
@@ -61,15 +61,21 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Transactional
-    public List<Tournament> findTournamentsBySignUpDeadline(LocalDateTime dateTime) {
+    public List<Tournament> findTournamentsWithSignUpBefore(LocalDateTime dateTime) {
         return tournamentServiceRepository.findBySignupEndDateBeforeAndStatus(dateTime, Status.UPCOMING).orElse(null);
+    }
+
+    @Transactional
+    public List<Tournament> findTournamentsWithSignUpAfter(LocalDateTime dateTime) {
+        return tournamentServiceRepository.findBySignupEndDateAfterAndStatus(dateTime, Status.UPCOMING).orElse(null);
     }
 
     @Transactional
     public List<Tournament> findAllEligibleTournamentsForUser(String username) {
 
         // show tournaments which signups have not closed and have not been signed up by user
-        List<Tournament> openTournaments = findTournamentsBySignUpDeadline(LocalDateTime.now());
+        List<Tournament> openTournaments = findTournamentsWithSignUpAfter(LocalDateTime.now());
+        logger.info("open tournaments: {}", openTournaments);
         List<Tournament> eligibleTournaments = new ArrayList<>();
         for (Tournament tournament : openTournaments) {
             if (!tournament.getSignups().contains(username)) {
@@ -77,6 +83,7 @@ public class TournamentServiceImpl implements TournamentService {
             }
         }
 
+        logger.info("eligible tournaments: {}", eligibleTournaments);
         return eligibleTournaments;
     }
 
@@ -119,6 +126,7 @@ public class TournamentServiceImpl implements TournamentService {
         tournamentToUpdate.setSignupEndDate(tournament.getSignupEndDate());
         tournamentToUpdate.setBand(tournament.getBand());
         tournamentToUpdate.setSignups(tournament.getSignups());
+        tournamentToUpdate.setParticipants(tournament.getParticipants());
         tournamentToUpdate.setCurrentRound(tournament.getCurrentRound());
 
         return tournamentServiceRepository.save(tournamentToUpdate);
