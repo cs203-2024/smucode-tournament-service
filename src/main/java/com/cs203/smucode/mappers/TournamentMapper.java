@@ -23,13 +23,14 @@ public interface TournamentMapper {
 
 //    TournamentCardDTO
     @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
-    @Mapping(target = "signupStatus", expression = "java(getSignupStatus(tournament))")
+    @Mapping(target = "signupsOpen", expression = "java(getSignupsOpen(tournament))")
     AdminTournamentCardDTO tournamentToAdminTournamentCardDTO(Tournament tournament);
     Tournament adminTournamentCardDTOToTournament(AdminTournamentCardDTO adminTournamentCardDTO);
     List<AdminTournamentCardDTO> tournamentsToAdminTournamentCardDTOs(List<Tournament> tournaments);
     List<Tournament> adminTournamentCardDTOsToTournaments(List<AdminTournamentCardDTO> adminTournamentCardDTOs);
 
     @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
+    @Mapping(target = "signupsOpen", expression = "java(getSignupsOpen(tournament))")
     @Mapping(target = "signedUp", ignore = true) // We will set signedUp manually
     @Mapping(target = "participated", ignore = true) // We will set participated manually
     UserTournamentCardDTO mapTournamentToUserTournamentCardDTO(Tournament tournament);
@@ -39,13 +40,14 @@ public interface TournamentMapper {
 
 //    TournamentDTO
     @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
-    @Mapping(target = "signupStatus", expression = "java(getSignupStatus(tournament))")
+    @Mapping(target = "signupsOpen", expression = "java(getSignupsOpen(tournament))")
     AdminTournamentDTO tournamentToAdminTournamentDTO(Tournament tournament);
     Tournament adminTournamentDTOToTournament(AdminTournamentDTO adminTournamentDTO);
     List<AdminTournamentDTO> tournamentsToAdminTournamentDTOs(List<Tournament> tournaments);
     List<Tournament> adminTournamentDTOsToTournaments(List<AdminTournamentDTO> adminTournamentDTOs);
 
     @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
+    @Mapping(target = "signupsOpen", expression = "java(getSignupsOpen(tournament))")
     @Mapping(target = "signedUp", ignore = true) // We will set signedUp manually
     UserTournamentDTO mapTournamentToUserTournamentDTO(Tournament tournament);
     Tournament userTournamentDTOToTournament(UserTournamentDTO userTournamentDTO);
@@ -108,8 +110,7 @@ public interface TournamentMapper {
     }
 
     // Derive signup status
-    default String getSignupStatus(Tournament tournament) {
-        return LocalDateTime.now().isBefore(tournament.getSignupEndDate()) ?
-                SignupStatus.OPEN.toString() : SignupStatus.CLOSED.toString();
+    default boolean getSignupsOpen(Tournament tournament) {
+        return LocalDateTime.now().isBefore(tournament.getSignupEndDate());
     }
 }
