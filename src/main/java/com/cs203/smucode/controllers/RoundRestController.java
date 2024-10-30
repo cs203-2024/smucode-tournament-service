@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/rounds")
+@RequestMapping("tournaments/rounds")
 public class RoundRestController {
 
     private RoundService roundService;
