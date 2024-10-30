@@ -2,6 +2,8 @@ package com.cs203.smucode.services.impl;
 
 import com.cs203.smucode.dto.UserDTO;
 import com.cs203.smucode.consumers.UserServiceConsumer;
+import com.cs203.smucode.exceptions.PredictionFailedException;
+import com.cs203.smucode.exceptions.PredictionModelNotFoundException;
 import com.cs203.smucode.models.PredictionResult;
 import com.cs203.smucode.services.PredictionService;
 import jakarta.annotation.PostConstruct;
@@ -49,7 +51,7 @@ public class PredictionServiceImpl implements PredictionService {
             loadModel();
             logger.info("Prediction model loaded successfully");
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load prediction model", e);
+            throw new PredictionModelNotFoundException("Failed to load prediction model");
         }
     }
 
@@ -89,7 +91,7 @@ public class PredictionServiceImpl implements PredictionService {
                     finalP2Prob
             );
         } catch (Exception e) {
-            throw new RuntimeException("Failed to predict match outcome", e);
+            throw new PredictionFailedException("Failed to predict match outcome");
         }
     }
 
