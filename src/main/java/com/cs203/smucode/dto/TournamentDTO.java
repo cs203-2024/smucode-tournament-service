@@ -31,7 +31,7 @@ public class TournamentDTO {
 
     private LocalDateTime signupEndDate;
 
-    private String signupStatus;
+    private boolean signupsOpen;
 
     private String status;
 
