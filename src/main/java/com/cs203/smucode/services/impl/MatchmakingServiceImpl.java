@@ -3,6 +3,7 @@ package com.cs203.smucode.services.impl;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.dto.UserDTO;
 import com.cs203.smucode.models.Bracket;
+import com.cs203.smucode.models.PredictionResult;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.handlers.UserServiceHandler;
@@ -24,16 +25,19 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     private final RoundService roundService;
     private final BracketService bracketService;
     private final UserServiceHandler userServiceHandler;
+    private final PredictionService predictionService;
 
     @Autowired
     public MatchmakingServiceImpl(RoundService roundService,
                                   BracketService bracketService,
                                   TournamentService tournamentService,
-                                  UserServiceHandler userServiceHandler) {
+                                  UserServiceHandler userServiceHandler,
+                                  PredictionService predictionService) {
         this.roundService = roundService;
         this.bracketService = bracketService;
         this.tournamentService = tournamentService;
         this.userServiceHandler = userServiceHandler;
+        this.predictionService = predictionService;
     }
 
     @Override
@@ -124,10 +128,18 @@ public class MatchmakingServiceImpl implements MatchmakingService {
             UserDTO player1 = fixedSeeds.get(i);
             UserDTO player2 = variableSeeds.get(i);
 
+            //Get match prediction
+            PredictionResult prediction = predictionService.predictMatch(
+                    player1.username(),
+                    player2.username()
+            );
+
             //Create a new bracket
             Bracket bracket = new Bracket();
             bracket.setPlayer1(player1.username());
             bracket.setPlayer2(player2.username());
+            bracket.setPlayer1WinProbability(prediction.getPlayer1WinProbability());
+            bracket.setPlayer2WinProbability(prediction.getPlayer2WinProbability());
 
             //Add the bracket to the list
             brackets.add(bracket);
@@ -159,6 +171,8 @@ public class MatchmakingServiceImpl implements MatchmakingService {
             bracketToUpdate.setStatus(Status.ONGOING); // change bracket status to ongoing
             bracketToUpdate.setPlayer1(newBracket.getPlayer1());
             bracketToUpdate.setPlayer2(newBracket.getPlayer2());
+            bracketToUpdate.setPlayer1WinProbability(newBracket.getPlayer1WinProbability());
+            bracketToUpdate.setPlayer2WinProbability(newBracket.getPlayer2WinProbability());
             logger.info("updated bracket : {}", bracketToUpdate);
 
             bracketService.updateBracket(bracketToUpdate.getId(), bracketToUpdate);

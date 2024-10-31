@@ -33,12 +33,17 @@ public class Bracket {
     @Column(name = "player1_score", nullable = false)
     private int player1Score;
 
+    @Column(name = "player1_win_probability")
+    private Double player1WinProbability;
+
     @Column(name = "player2")
     private String player2;
 
     @Column(name = "player2_score", nullable = false)
     private int player2Score;
 
+    @Column(name = "player2_win_probability")
+    private Double player2WinProbability;
 //    @ManyToOne
 //    @JoinColumn(name = "winner")
     @Column(name = "winner")
