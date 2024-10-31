@@ -13,7 +13,8 @@ import java.io.Serializable;
 @Embeddable
 public class PlayerInfo implements Serializable {
 
-    private String playerId;
+    private String id;
+
     private int score;
 
 }
