@@ -5,6 +5,8 @@ import com.cs203.smucode.dto.*;
 import com.cs203.smucode.models.Tournament;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import java.util.List;
 
 @Mapper(componentModel="spring", uses={RoundMapper.class})
 public interface TournamentMapper {
+    static final Logger logger = LoggerFactory.getLogger(TournamentMapper.class);
 
 //    TournamentCardDTO
     @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
@@ -111,6 +114,9 @@ public interface TournamentMapper {
 
     // Derive signup status
     default boolean getSignupsOpen(Tournament tournament) {
+        logger.info("current time: {}", LocalDateTime.now());
+        logger.info("signup end date: {}", tournament.getSignupEndDate());
+        logger.info("signups open?: {}", LocalDateTime.now().isBefore(tournament.getSignupEndDate()));
         return LocalDateTime.now().isBefore(tournament.getSignupEndDate());
     }
 }

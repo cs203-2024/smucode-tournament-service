@@ -141,6 +141,11 @@ public class TournamentServiceImpl implements TournamentService {
         }
 
         Tournament tournament = tournamentOptional.get();
+
+        if (LocalDateTime.now().isAfter(tournament.getSignupEndDate())) {
+            throw new IllegalStateException("Tournament with id " + id + " has already closed signups");
+        }
+
         Set<String> signups = tournament.getSignups();
         signups.add(signup);
         tournament.setSignups(signups);
