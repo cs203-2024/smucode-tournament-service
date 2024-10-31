@@ -1,6 +1,7 @@
 package com.cs203.smucode.services.impl;
 
 import com.cs203.smucode.constants.Status;
+import com.cs203.smucode.events.TournamentCreatedEvent;
 import com.cs203.smucode.exceptions.TournamentNotFoundException;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
@@ -13,7 +14,9 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -25,13 +28,21 @@ public class TournamentServiceImpl implements TournamentService {
     private final RoundService roundService;
     private final BracketService bracketService;
 
+    private final RestTemplate restTemplate;
+    private final String notificationServiceUrl;
+
     @Autowired
     public TournamentServiceImpl(TournamentServiceRepository tournamentServiceRepository,
                                  RoundService roundService,
-                                 BracketService bracketService) {
+                                 BracketService bracketService,
+                                 RestTemplate restTemplate,
+                                 @Value("${notification.service.url}") String notificationServiceUrl) {
         this.tournamentServiceRepository = tournamentServiceRepository;
         this.roundService = roundService;
         this.bracketService = bracketService;
+
+        this.restTemplate = restTemplate;
+        this.notificationServiceUrl = notificationServiceUrl;
     }
 
     @Transactional
@@ -96,6 +107,21 @@ public class TournamentServiceImpl implements TournamentService {
         tournamentServiceRepository.save(tournament);
 
         createRounds(tournament); // generate rounds
+
+        // Publish event
+        TournamentCreatedEvent event = new TournamentCreatedEvent(
+                tournament.getId(),
+                tournament.getOrganiser(),
+                tournament.getName(),
+                "tournament created",
+                "System"
+        );
+        restTemplate.postForObject(
+                notificationServiceUrl + "/notifications/",
+                event,
+                Void.class
+        );
+        logger.info("Published tournamentCreatedEvent for tournament: {}", tournament.getId());
 
         return tournament;
     }
