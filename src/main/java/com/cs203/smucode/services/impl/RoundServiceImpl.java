@@ -4,9 +4,11 @@ import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.RoundNotFoundException;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
+import com.cs203.smucode.models.PredictionResult;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.RoundServiceRepository;
 import com.cs203.smucode.services.BracketService;
+import com.cs203.smucode.services.PredictionService;
 import com.cs203.smucode.services.RoundService;
 import com.cs203.smucode.services.TournamentService;
 import jakarta.transaction.Transactional;
@@ -26,12 +28,16 @@ public class RoundServiceImpl implements RoundService {
 
     private final RoundServiceRepository roundServiceRepository;
     private final BracketService bracketService;
+    private final PredictionService predictionService;
+
 
     @Autowired
     public RoundServiceImpl(RoundServiceRepository roundServiceRepository,
-                            BracketService bracketService) {
+                            BracketService bracketService,
+                            PredictionService predictionService) {
         this.roundServiceRepository = roundServiceRepository;
         this.bracketService = bracketService;
+        this.predictionService = predictionService;
     }
 
     @Transactional
@@ -117,8 +123,16 @@ public class RoundServiceImpl implements RoundService {
             String player1 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2 - 1).getWinner();
             String player2 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2).getWinner();
 
-            newBracket.setPlayer1(player1);
-            newBracket.setPlayer2(player2);
+            // Include prediction
+            // TODO: handle byes? (player1 || player2 == null)
+            if (player1 != null && player2 != null) {
+                PredictionResult prediction = predictionService.predictMatch(player1, player2);
+                newBracket.setPlayer1(player1);
+                newBracket.setPlayer2(player2);
+                newBracket.setPlayer1WinProbability(prediction.getPlayer1WinProbability());
+                newBracket.setPlayer2WinProbability(prediction.getPlayer2WinProbability());
+                newBracket.setStatus(Status.ONGOING);
+            }
 
             bracketService.updateBracket(oldBracket.getId(), newBracket);
 
