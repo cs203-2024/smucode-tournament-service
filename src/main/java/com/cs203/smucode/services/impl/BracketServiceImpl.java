@@ -89,6 +89,8 @@ public class BracketServiceImpl implements BracketService {
         }
         bracketToUpdate.setPlayer1(bracket.getPlayer1());
         bracketToUpdate.setPlayer2(bracket.getPlayer2());
+        bracketToUpdate.setPlayer1Score(bracket.getPlayer1Score());
+        bracketToUpdate.setPlayer2Score(bracket.getPlayer2Score());
         bracketServiceRepository.save(bracketToUpdate);
 
         return bracket;
