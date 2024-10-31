@@ -38,13 +38,11 @@ public interface BracketMapper {
     List<Bracket> bracketDTOsToBrackets(List<BracketDTO> bracketDTOs);
 
 //    update bracket DTO
-    UpdateBracketScoreDTO bracketToUpdateBracketScoreDTO(Bracket bracket);
-
-    List<UpdateBracketScoreDTO> bracketToUpdateBracketScoreDTOs(List<Bracket> brackets);
-
+    @Mapping(target = "player1", expression = "java(getPlayerUsername(bracketDTO, 1))")
+    @Mapping(target = "player2", expression = "java(getPlayerUsername(bracketDTO, 2))")
+    @Mapping(target = "player1Score", expression = "java(getPlayerScore(bracketDTO, 1))")
+    @Mapping(target = "player2Score", expression = "java(getPlayerScore(bracketDTO, 2))")
     Bracket updateBracketScoreDTOToBracket(UpdateBracketScoreDTO bracketDTO);
-
-    List<Bracket> bracketScoreDTOsToBrackets(List<UpdateBracketScoreDTO> bracketDTOs);
 
 //    helper functions
 //    TODO: refactor when user client set up
@@ -78,6 +76,27 @@ public interface BracketMapper {
     }
 
     default int getPlayerScore(BracketDTO bracketDTO, int playerNumber) {
+        if (playerNumber == 1) {
+            return bracketDTO.getPlayer1().getScore();
+        }
+        if (playerNumber == 2) {
+            return bracketDTO.getPlayer2().getScore();
+        }
+        return 0;
+    }
+
+    // TODO: clean this up
+    default String getPlayerUsername(UpdateBracketScoreDTO bracketDTO, int playerNumber) {
+        if (playerNumber == 1) {
+            return bracketDTO.getPlayer1().getId();
+        }
+        if (playerNumber == 2) {
+            return bracketDTO.getPlayer2().getId();
+        }
+        return null;
+    }
+
+    default int getPlayerScore(UpdateBracketScoreDTO bracketDTO, int playerNumber) {
         if (playerNumber == 1) {
             return bracketDTO.getPlayer1().getScore();
         }

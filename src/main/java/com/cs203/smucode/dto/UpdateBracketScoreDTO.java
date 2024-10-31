@@ -9,6 +9,8 @@ import java.util.List;
 @Data
 public class UpdateBracketScoreDTO {
 
-    private List<PlayerInfo> players = new ArrayList<>();
+    private PlayerInfo player1;
+
+    private PlayerInfo player2;
 
 }
