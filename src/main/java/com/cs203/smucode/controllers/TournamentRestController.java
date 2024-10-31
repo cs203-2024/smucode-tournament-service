@@ -146,14 +146,14 @@ public class TournamentRestController {
     }
 
     @Operation(summary = "End current bracket and set winner")
-    @PutMapping("/bracket/{bracketId}/end")
+    @PutMapping("/brackets/{bracketId}/end")
     public TournamentDTO endBracket(@PathVariable UUID bracketId) {
         Tournament tournament = tournamentService.endBracket(bracketId);
         return tournamentMapper.tournamentToAdminTournamentDTO(tournament);
     }
 
     @Operation(summary = "End current round and populate next round brackets")
-    @PutMapping("/round/{roundId}/end")
+    @PutMapping("/rounds/{roundId}/end")
     public TournamentDTO endRound(@PathVariable UUID roundId) {
         Tournament tournament = tournamentService.endRound(roundId);
         return tournamentMapper.tournamentToAdminTournamentDTO(tournament);

@@ -8,6 +8,8 @@ import com.cs203.smucode.services.BracketService;
 //import com.cs203.smucode.services.impl.UserServiceClientImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +21,7 @@ import java.util.UUID;
 @RequestMapping("/tournaments/brackets")
 public class BracketRestController {
 
+    private static final Logger logger = LoggerFactory.getLogger(BracketRestController.class.getName());
     private BracketService bracketService;
     private BracketMapper bracketMapper;
 
@@ -66,7 +69,9 @@ public class BracketRestController {
     @PutMapping("/{bracketId}")
     public BracketDTO updateBracketScore(@PathVariable UUID bracketId, @Valid @RequestBody UpdateBracketScoreDTO bracketDTO) {
         Bracket bracketScore = bracketMapper.updateBracketScoreDTOToBracket(bracketDTO);
+        logger.info("bracket from bracket DTO: {}", bracketScore);
         Bracket newBracket = bracketService.updateBracket(bracketId, bracketScore);
+        logger.info("new bracket: {}", newBracket);
         return bracketMapper.bracketToBracketDTO(newBracket);
     }
 
