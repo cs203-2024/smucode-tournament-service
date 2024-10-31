@@ -1,6 +1,7 @@
 package com.cs203.smucode.services.impl;
 
 import com.cs203.smucode.exceptions.TournamentNotFoundException;
+import com.cs203.smucode.services.PredictionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -28,6 +29,8 @@ class RoundServiceImplTest {
 
     @Mock
     private BracketService bracketService;
+    @Mock
+    private PredictionService predictionService;
 
     @InjectMocks
     private RoundServiceImpl roundService;

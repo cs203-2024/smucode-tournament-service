@@ -4,6 +4,7 @@ import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.consumers.UserServiceConsumer;
 import com.cs203.smucode.dto.UserDTO;
 import com.cs203.smucode.models.Bracket;
+import com.cs203.smucode.models.PredictionResult;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.handlers.UserServiceHandler;
@@ -39,6 +40,9 @@ class MatchmakingServiceImplTest {
 
     @Mock
     private TournamentService tournamentService;
+
+    @Mock
+    private PredictionService predictionService;
 
     @InjectMocks
     private MatchmakingServiceImpl matchmakingService;
@@ -104,8 +108,9 @@ class MatchmakingServiceImplTest {
         user4 = new UserDTO("player4", "password4", "player4@example.com", "/images/player4.png", "ROLE_USER", 25.0, 8.33, 1400.0);
 
         // Mark the stubbing of the user service as lenient
-
         lenient().when(userService.getUsers(anyList())).thenReturn(Arrays.asList(user1, user2, user3, user4));
+        lenient().when(predictionService.predictMatch(anyString(), anyString()))
+                .thenReturn(new PredictionResult("", "", 0.5, 0.5));
     }
 
     @Test
