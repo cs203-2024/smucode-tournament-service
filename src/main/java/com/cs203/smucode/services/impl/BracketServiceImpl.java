@@ -19,7 +19,6 @@ import java.util.UUID;
 
 @Service
 public class BracketServiceImpl implements BracketService {
-
     private final BracketServiceRepository bracketServiceRepository;
     private final RoundServiceRepository roundServiceRepository;
     private final TournamentServiceRepository tournamentServiceRepository;
