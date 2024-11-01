@@ -1,17 +1,13 @@
 package com.cs203.smucode.mappers;
 
-import com.cs203.smucode.constants.SignupStatus;
 import com.cs203.smucode.consumers.UserServiceConsumer;
 import com.cs203.smucode.dto.*;
-import com.cs203.smucode.handlers.UserServiceHandler;
 import com.cs203.smucode.models.Tournament;
-import com.netflix.discovery.converters.Auto;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,48 +31,35 @@ public interface TournamentMapper {
     @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
     @Mapping(target = "signupsOpen", expression = "java(getSignupsOpen(tournament))")
     AdminTournamentCardDTO tournamentToAdminTournamentCardDTO(Tournament tournament);
-    Tournament adminTournamentCardDTOToTournament(AdminTournamentCardDTO adminTournamentCardDTO);
     List<AdminTournamentCardDTO> tournamentsToAdminTournamentCardDTOs(List<Tournament> tournaments);
-    List<Tournament> adminTournamentCardDTOsToTournaments(List<AdminTournamentCardDTO> adminTournamentCardDTOs);
 
     @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
     @Mapping(target = "signupsOpen", expression = "java(getSignupsOpen(tournament))")
     @Mapping(target = "signedUp", ignore = true) // We will set signedUp manually
     @Mapping(target = "participated", ignore = true) // We will set participated manually
     UserTournamentCardDTO mapTournamentToUserTournamentCardDTO(Tournament tournament);
-    Tournament userTournamentCardDTOToTournament(UserTournamentCardDTO userTournamentCardDTO);
-    List<UserTournamentCardDTO> mapTournamentsToUserTournamentCardDTOs(List<Tournament> tournaments);
-    List<Tournament> userTournamentCardDTOsToTournaments(List<UserTournamentCardDTO> userTournamentCardDTOs);
 
-//    TournamentDTO
+    // TournamentDTO
     @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
     @Mapping(target = "signupsOpen", expression = "java(getSignupsOpen(tournament))")
-    @Mapping(target = "participants", expression = "java(getParticipants(tournament, userServiceConsumer))")
-    AdminTournamentDTO tournamentToAdminTournamentDTO(Tournament tournament, @Context UserServiceConsumer userServiceConsumer);
-//    Tournament adminTournamentDTOToTournament(AdminTournamentDTO adminTournamentDTO);
-//    List<AdminTournamentDTO> tournamentsToAdminTournamentDTOs(List<Tournament> tournaments);
-//    List<Tournament> adminTournamentDTOsToTournaments(List<AdminTournamentDTO> adminTournamentDTOs);
+    AdminTournamentDTO tournamentToAdminTournamentDTO(Tournament tournament);
 
     @Mapping(target = "numberOfSignups", expression = "java(tournament.getSignups().size())")
     @Mapping(target = "signupsOpen", expression = "java(getSignupsOpen(tournament))")
     @Mapping(target = "signedUp", ignore = true) // We will set signedUp manually
-    @Mapping(target = "participants", expression = "java(getParticipants(tournament, userServiceConsumer))")
-    UserTournamentDTO mapTournamentToUserTournamentDTO(Tournament tournament, @Context UserServiceConsumer userServiceConsumer);
-//    Tournament userTournamentDTOToTournament(UserTournamentDTO userTournamentDTO);
-//    List<UserTournamentDTO> mapTournamentsToUserTournamentDTOs(List<Tournament> tournaments);
-//    List<Tournament> userTournamentDTOsToTournaments(List<UserTournamentDTO> userTournamentCardDTOs);
+    UserTournamentDTO mapTournamentToUserTournamentDTO(Tournament tournament);
 
-//    TournamentBracketsDTO
+    // TournamentBracketsDTO
     TournamentBracketsDTO tournamentToTournamentBracketsDTO(Tournament tournament);
-    Tournament tournamentBracketsDTOToTournament(TournamentBracketsDTO tournamentBracketsDTO);
-    List<TournamentBracketsDTO> tournamentsToTournamentBracketsDTOs(List<Tournament> tournaments);
-    List<Tournament> tournamentBracketDTOsToTournaments(List<TournamentBracketsDTO> tournamentBracketDTOs);
 
-//    DetailedTournamentDTO
+    // TournamentParticipantsDTO
+    @Mapping(target = "participants", expression = "java(getParticipants(tournament, userServiceConsumer))")
+    TournamentParticipantsDTO tournamentToTournamentParticipantsDTO(Tournament tournament,
+                                                                    @Context UserServiceConsumer userServiceConsumer);
+
+    // DetailedTournamentDTO
     DetailedTournamentDTO tournamentToDetailedTournamentDTO(Tournament tournament);
     Tournament detailedTournamentDTOToTournament(DetailedTournamentDTO detailedTournamentDTO);
-    List<DetailedTournamentDTO> tournamentsToDetailedTournamentDTOs(List<Tournament> tournaments);
-//    List<Tournament> tournamentDTOsToCreateTournaments(List<TournamentDTO> tournamentDTOs);
 
 //    helper functions
 
@@ -104,10 +87,9 @@ public interface TournamentMapper {
 
     // Custom method to handle multiple parameters - to derive signedUp and participated for UserTournamentDTO
     default UserTournamentDTO tournamentToUserTournamentDTO(Tournament tournament,
-                                                            String username,
-                                                            @Context UserServiceConsumer userServiceConsumer) {
+                                                            String username) {
         // Use the MapStruct-generated mapping method for the rest of the fields
-        UserTournamentDTO dto = mapTournamentToUserTournamentDTO(tournament, userServiceConsumer);
+        UserTournamentDTO dto = mapTournamentToUserTournamentDTO(tournament);
 
         // Manually set "signedUp" field
         dto.setSignedUp(tournament.getSignups().contains(username));
@@ -116,22 +98,21 @@ public interface TournamentMapper {
     }
 
     default List<UserTournamentDTO> tournamentsToUserTournamentDTOs(List<Tournament> tournaments,
-                                                                    String username,
-                                                                    @Context UserServiceConsumer userServiceConsumer) {
+                                                                    String username) {
         List<UserTournamentDTO> dtos = new ArrayList<>();
         for (Tournament tournament : tournaments) {
-            dtos.add(tournamentToUserTournamentDTO(tournament, username, userServiceConsumer));
+            dtos.add(tournamentToUserTournamentDTO(tournament, username));
         }
         return dtos;
     }
 
     // Get participant information
-    default Set<TournamentUserDTO> getParticipants(Tournament tournament,
-                                                  @Context UserServiceConsumer userServiceConsumer) {
+    default Set<ParticipantUserDTO> getParticipants(Tournament tournament,
+                                                    @Context UserServiceConsumer userServiceConsumer) {
         Set<String> participants = tournament.getParticipants();
-        Set<TournamentUserDTO> dtos = new HashSet<>();
+        Set<ParticipantUserDTO> dtos = new HashSet<>();
         for (String participant : participants) {
-            TournamentUserDTO dto = new TournamentUserDTO();
+            ParticipantUserDTO dto = new ParticipantUserDTO();
             dto.setUsername(participant);
             dto.setProfileImageUrl(userServiceConsumer.getUserById(participant).profileImageUrl());
             dtos.add(dto);
