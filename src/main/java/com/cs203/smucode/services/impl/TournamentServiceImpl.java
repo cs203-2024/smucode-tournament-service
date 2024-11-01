@@ -195,7 +195,7 @@ public class TournamentServiceImpl implements TournamentService {
         roundService.updateRound(currRoundId, currRound);
 
         // If final round
-        if (currRound.getName().equals("Round of 2")) {
+        if (currRound.getBrackets().size() == 1) {
             // TODO: tournament complete logic
             parentTournament.setStatus(Status.COMPLETED); // Set tournament status to completed
             updateTournament(parentTournamentId, parentTournament);
