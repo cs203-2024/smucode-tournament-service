@@ -21,7 +21,4 @@ public interface RoundMapper {
 
     Round roundDTOToRound(RoundDTO roundDTO);
 
-    List<RoundDTO> roundsToRoundDTOs(List<Round> rounds);
-
-    List<Round> roundDTOsToRounds(List<RoundDTO> roundDTOs);
 }
