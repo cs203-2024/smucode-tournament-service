@@ -3,6 +3,7 @@ package com.cs203.smucode.controllers;
 import com.cs203.smucode.constants.OAuth2Constants;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.constants.UserRole;
+import com.cs203.smucode.consumers.UserServiceConsumer;
 import com.cs203.smucode.dto.*;
 import com.cs203.smucode.exceptions.UnauthorizedResourceAccessException;
 import com.cs203.smucode.mappers.TournamentMapper;
@@ -25,12 +26,15 @@ public class TournamentRestController {
 
     private TournamentService tournamentService;
     private TournamentMapper tournamentMapper;
+    private UserServiceConsumer userServiceConsumer;
 
     @Autowired
     public TournamentRestController(TournamentService tournamentService,
-                                    TournamentMapper tournamentMapper) {
+                                    TournamentMapper tournamentMapper,
+                                    UserServiceConsumer userServiceConsumer) {
         this.tournamentService = tournamentService;
         this.tournamentMapper = tournamentMapper;
+        this.userServiceConsumer = userServiceConsumer;
     }
 
     @Operation(summary = "Get all of user's tournaments")
@@ -71,12 +75,12 @@ public class TournamentRestController {
         // Admin
         if (UserRole.ADMIN.getAuthority().equals(role)) {
             Tournament tournament = tournamentService.findTournamentById(tournamentId);
-            return tournamentMapper.tournamentToAdminTournamentDTO(tournament);
+            return tournamentMapper.tournamentToAdminTournamentDTO(tournament, userServiceConsumer);
         }
 
         // User
         Tournament tournament = tournamentService.findTournamentById(tournamentId);
-        return tournamentMapper.tournamentToUserTournamentDTO(tournament, username);
+        return tournamentMapper.tournamentToUserTournamentDTO(tournament, username, userServiceConsumer);
     }
 
     @Operation(summary = "Get tournament brackets by tournament ID")
@@ -87,9 +91,10 @@ public class TournamentRestController {
     }
 
     @GetMapping("/{tournamentId}/participants")
-    public Set<String> getTournamentParticipants(@PathVariable UUID tournamentId) {
+    public Set<TournamentUserDTO> getTournamentParticipants(@PathVariable UUID tournamentId) {
         Tournament tournament = tournamentService.findTournamentById(tournamentId);
-        return tournament.getParticipants();
+        AdminTournamentDTO dto = tournamentMapper.tournamentToAdminTournamentDTO(tournament, userServiceConsumer);
+        return dto.getParticipants();
     }
 
     @Operation(summary = "Create new tournament")
@@ -149,14 +154,14 @@ public class TournamentRestController {
     @PutMapping("/brackets/{bracketId}/end")
     public TournamentDTO endBracket(@PathVariable UUID bracketId) {
         Tournament tournament = tournamentService.endBracket(bracketId);
-        return tournamentMapper.tournamentToAdminTournamentDTO(tournament);
+        return tournamentMapper.tournamentToAdminTournamentDTO(tournament, userServiceConsumer);
     }
 
     @Operation(summary = "End current round and populate next round brackets")
     @PutMapping("/rounds/{roundId}/end")
     public TournamentDTO endRound(@PathVariable UUID roundId) {
         Tournament tournament = tournamentService.endRound(roundId);
-        return tournamentMapper.tournamentToAdminTournamentDTO(tournament);
+        return tournamentMapper.tournamentToAdminTournamentDTO(tournament, userServiceConsumer);
     }
 
     @Operation(summary = "Delete existing tournament by tournament ID")
