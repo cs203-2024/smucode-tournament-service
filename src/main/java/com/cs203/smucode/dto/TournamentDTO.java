@@ -44,4 +44,6 @@ public class TournamentDTO {
     private LocalDateTime currentRoundEndDate;
 
     private Set<String> signups = new HashSet<>();
+
+    private Set<TournamentUserDTO> participants = new HashSet<>();
 }
