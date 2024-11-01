@@ -87,6 +87,10 @@ public class RatingUpdateServiceImpl implements RatingUpdateService {
             Player<String> winnerPlayer = new Player<>(winner.username());
             Player<String> loserPlayer = new Player<>(loser.username());
 
+            // Update User Win/Loss
+            userServiceConsumer.updateUserWin(winner.username());
+            userServiceConsumer.updateUserLoss(loser.username());
+
             // Create Rating objects with current rating values
             Rating winnerRating = new Rating(winner.mu(), winner.sigma());
             Rating loserRating = new Rating(loser.mu(), loser.sigma());

@@ -25,5 +25,10 @@ public interface UserServiceConsumer {
     @PutMapping("/update-rating")
     void updateRating(@RequestBody UserRatingDTO ratingDTO);
 
+    @PutMapping("/update-win/{username}")
+    void updateUserWin(@PathVariable String username);
+
+    @PutMapping("/update-loss/{username}")
+    void updateUserLoss(@PathVariable String username);
 //    TODO: future optimisation - instead of iterative GET requests
 }
