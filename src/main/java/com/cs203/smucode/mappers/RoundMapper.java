@@ -4,8 +4,6 @@ import com.cs203.smucode.dto.RoundDTO;
 import com.cs203.smucode.models.Round;
 import org.mapstruct.Mapper;
 
-import java.util.List;
-
 /**
  * @author jered
  * @version 1.0

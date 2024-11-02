@@ -37,7 +37,9 @@ public interface TournamentService {
 
     Tournament endRound(UUID roundId);
 
-    Tournament deleteTournamentSignup(UUID id, String signups);
+    Tournament deleteTournamentSignup(UUID id, String signup);
+
+    Tournament deleteTournamentParticipant(UUID id, String participant);
 
     void deleteTournamentById(UUID id);
 }

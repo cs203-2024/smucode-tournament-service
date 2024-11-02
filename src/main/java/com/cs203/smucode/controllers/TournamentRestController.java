@@ -147,6 +147,16 @@ public class TournamentRestController {
         return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
     }
 
+    @PatchMapping("/{tournamentId}/leave")
+    public DetailedTournamentDTO leaveTournament(@PathVariable UUID tournamentId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
+
+        Tournament tournament = tournamentService.findTournamentById(tournamentId);
+        tournamentService.deleteTournamentParticipant(tournamentId, username);
+        return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
+    }
+
     @Operation(summary = "End current bracket and set winner")
     @PutMapping("/brackets/{bracketId}/end")
     public TournamentDTO endBracket(@PathVariable UUID bracketId) {
