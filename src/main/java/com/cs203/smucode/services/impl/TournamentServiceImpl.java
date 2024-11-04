@@ -174,6 +174,7 @@ public class TournamentServiceImpl implements TournamentService {
         return tournamentServiceRepository.save(tournament);
     }
 
+    @Transactional
     public Tournament deleteTournamentParticipant(UUID id, String participant) {
         Optional<Tournament> tournamentOptional = tournamentServiceRepository.findById(id);
 
@@ -189,7 +190,13 @@ public class TournamentServiceImpl implements TournamentService {
         }
 
         existingParticipants.remove(participant);
-        tournament.setSignups(existingParticipants);
+        // Remove from ongoing bracket
+        UUID currRound = roundService.
+                findRoundByTournamentIdAndName(tournament.getId(), tournament.getCurrentRound())
+                .getId();
+        logger.info("Removing player from tournament: {}", tournament.getId());
+        roundService.removePlayerFromOngoingRound(currRound, participant);
+        tournament.setParticipants(existingParticipants);
 
         return tournamentServiceRepository.save(tournament);
 

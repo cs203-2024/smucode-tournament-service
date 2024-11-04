@@ -9,6 +9,7 @@ import com.cs203.smucode.repositories.BracketServiceRepository;
 import com.cs203.smucode.repositories.RoundServiceRepository;
 import com.cs203.smucode.repositories.TournamentServiceRepository;
 import com.cs203.smucode.services.BracketService;
+import de.gesundkrank.jskills.Player;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,13 +41,22 @@ public class BracketServiceImpl implements BracketService {
 
     @Transactional
     public Bracket findBracketById(UUID id) {
-        return bracketServiceRepository.findById(id).orElse(null);
+        return bracketServiceRepository.findById(id).orElseThrow(() ->
+                new BracketNotFoundException("Bracket with id " + id + " not found"));
     }
 
     @Transactional
     public Bracket findBracketByRoundIdAndSeqId(UUID id, int seqId) {
         return bracketServiceRepository.findByRoundIdAndSeqId(id, seqId).orElseThrow(() ->
-                new BracketNotFoundException("Bracket with id " + id + " not found"));
+                new BracketNotFoundException("Bracket with round id " + id + " and seq id " + seqId + " not found"));
+    }
+
+    @Transactional
+    public Bracket findBracketByRoundIdAndPlayer(UUID roundId, String player) {
+        return bracketServiceRepository.findByRoundIdAndPlayer1OrPlayer2(roundId, player).orElseThrow(() ->
+                new BracketNotFoundException(
+                        "Bracket with round id " + roundId + " and player " + player + " not found"
+                ));
     }
 
     @Transactional
@@ -106,8 +116,16 @@ public class BracketServiceImpl implements BracketService {
         }
 
         Bracket bracket = bracketOptional.get();
-        String winner = bracket.getPlayer1Score() > bracket.getPlayer2Score() ? bracket.getPlayer1() : bracket.getPlayer2();
-        bracket.setWinner(winner);
+
+        // Round bye
+        if (bracket.getPlayer1() == null) { // Player 1 absent
+            bracket.setWinner(bracket.getPlayer2());
+        } else if (bracket.getPlayer2() == null) { // Player 2 absent
+            bracket.setWinner(bracket.getPlayer1());
+        } else { // Both players present (default)
+            String winner = bracket.getPlayer1Score() > bracket.getPlayer2Score() ? bracket.getPlayer1() : bracket.getPlayer2();
+            bracket.setWinner(winner);
+        }
         bracket.setStatus(Status.COMPLETED);
 
         return bracketServiceRepository.save(bracket);

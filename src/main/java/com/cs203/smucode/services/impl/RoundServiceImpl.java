@@ -2,6 +2,7 @@ package com.cs203.smucode.services.impl;
 
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.RoundNotFoundException;
+import com.cs203.smucode.exceptions.UserNotFoundException;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.PredictionResult;
@@ -12,6 +13,8 @@ import com.cs203.smucode.services.PredictionService;
 import com.cs203.smucode.services.RoundService;
 import com.cs203.smucode.services.TournamentService;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class RoundServiceImpl implements RoundService {
+
+    private static final Logger logger = LoggerFactory.getLogger(RoundServiceImpl.class);
 
     private final RoundServiceRepository roundServiceRepository;
     private final BracketService bracketService;
@@ -71,6 +76,7 @@ public class RoundServiceImpl implements RoundService {
         try {
             for (int i = 0; i < bracketCount; i++) {
                 Bracket bracket = new Bracket();
+                bracket.setTournament(round.getTournament());
                 bracket.setRound(round);
                 bracket.setStatus(Status.UPCOMING);
                 // TODO: move this to be handled at DB level
@@ -139,6 +145,28 @@ public class RoundServiceImpl implements RoundService {
         }
 
         return nextRound;
+
+    }
+
+    @Transactional
+    public Round removePlayerFromOngoingRound(UUID roundId, String username) {
+        logger.info("Removing player from round: {}", roundId);
+        Bracket bracketWithPlayer = bracketService.findBracketByRoundIdAndPlayer(roundId, username);
+        logger.info("Removing player from bracket: {}", bracketWithPlayer.getId());
+
+        // Set respective player field to null
+        if (bracketWithPlayer.getPlayer1().equals(username)) {
+            bracketWithPlayer.setPlayer1(null);
+            bracketWithPlayer.setPlayer1Score(0);
+        } else if (bracketWithPlayer.getPlayer2().equals(username)) {
+            bracketWithPlayer.setPlayer2(null);
+            bracketWithPlayer.setPlayer2Score(0);
+        } else {
+            throw new UserNotFoundException("User " + username + " not found in round " + roundId);
+        }
+
+        bracketService.updateBracket(bracketWithPlayer.getId(), bracketWithPlayer);
+        return findRoundById(roundId);
 
     }
 

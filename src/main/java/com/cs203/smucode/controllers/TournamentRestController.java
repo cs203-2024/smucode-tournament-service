@@ -7,6 +7,7 @@ import com.cs203.smucode.dto.*;
 import com.cs203.smucode.exceptions.UnauthorizedResourceAccessException;
 import com.cs203.smucode.mappers.TournamentMapper;
 import com.cs203.smucode.models.Tournament;
+import com.cs203.smucode.services.MatchmakingService;
 import com.cs203.smucode.services.TournamentService;
 import com.cs203.smucode.utils.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,9 +23,9 @@ import java.util.*;
 @RequestMapping("/tournaments")
 public class TournamentRestController {
 
-    private TournamentService tournamentService;
-    private TournamentMapper tournamentMapper;
-    private UserServiceConsumer userServiceConsumer;
+    private final TournamentService tournamentService;
+    private final TournamentMapper tournamentMapper;
+    private final UserServiceConsumer userServiceConsumer;
 
     @Autowired
     public TournamentRestController(TournamentService tournamentService,
@@ -157,6 +158,7 @@ public class TournamentRestController {
         return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
     }
 
+    // TODO: should this be in bracketRestController instead - remove need for bracketService dependency in tournamentService
     @Operation(summary = "End current bracket and set winner")
     @PutMapping("/brackets/{bracketId}/end")
     public TournamentDTO endBracket(@PathVariable UUID bracketId) {
