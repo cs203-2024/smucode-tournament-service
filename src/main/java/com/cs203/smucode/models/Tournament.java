@@ -88,6 +88,10 @@ public class Tournament {
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Round> rounds;
 
+    @ToString.Exclude
+    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<Bracket> brackets;
+
 //    @ToString.Exclude
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(

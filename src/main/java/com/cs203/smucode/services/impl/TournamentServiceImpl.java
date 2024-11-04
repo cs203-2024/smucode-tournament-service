@@ -175,6 +175,34 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Transactional
+    public Tournament deleteTournamentParticipant(UUID id, String participant) {
+        Optional<Tournament> tournamentOptional = tournamentServiceRepository.findById(id);
+
+        if (tournamentOptional.isEmpty()) {
+            throw new TournamentNotFoundException("Tournament with id " + id + " not found");
+        }
+
+        Tournament tournament = tournamentOptional.get();
+        Set<String> existingParticipants = tournament.getParticipants();
+
+        if (!existingParticipants.contains(participant)) {
+            throw new IllegalArgumentException("Tournament with id " + id + " does not have participant " + participant);
+        }
+
+        existingParticipants.remove(participant);
+        // Remove from ongoing bracket
+        UUID currRound = roundService.
+                findRoundByTournamentIdAndName(tournament.getId(), tournament.getCurrentRound())
+                .getId();
+        logger.info("Removing player from tournament: {}", tournament.getId());
+        roundService.removePlayerFromOngoingRound(currRound, participant);
+        tournament.setParticipants(existingParticipants);
+
+        return tournamentServiceRepository.save(tournament);
+
+    }
+
+    @Transactional
     public Tournament endBracket(UUID bracketId) {
         Bracket bracket = bracketService.endBracket(bracketId);
         return bracket.getRound().getTournament();

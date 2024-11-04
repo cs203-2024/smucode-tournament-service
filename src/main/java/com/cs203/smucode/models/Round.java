@@ -40,11 +40,8 @@ public class Round {
     @Column(name = "status", nullable = false)
     private Status status;
 
-    @OneToMany(mappedBy = "round", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "round", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Bracket> brackets;
-
-//    @Column(name = "tournament_id", nullable = false)
-//    private UUID tournamentId;
 
     @ToString.Exclude
     @ManyToOne

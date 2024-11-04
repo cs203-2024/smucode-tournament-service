@@ -54,4 +54,9 @@ public class Bracket {
     @JoinColumn(name = "round_id", nullable = false)
     private Round round;
 
+    @ToString.Exclude
+    @ManyToOne
+    @JoinColumn(name = "tournament_id", nullable = false)
+    private Tournament tournament;
+
 }

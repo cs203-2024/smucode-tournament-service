@@ -14,6 +14,8 @@ public interface BracketService {
 
     Bracket findBracketByRoundIdAndSeqId(UUID roundId, int seqId);
 
+    Bracket findBracketByRoundIdAndPlayer(UUID roundId, String username);
+
     Bracket createBracket(Bracket bracketDTO);
 
     Bracket updateBracket(UUID id, Bracket bracket);

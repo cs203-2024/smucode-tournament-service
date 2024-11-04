@@ -8,11 +8,18 @@ import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.handlers.UserServiceHandler;
 import com.cs203.smucode.services.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +33,9 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     private final BracketService bracketService;
     private final UserServiceHandler userServiceHandler;
     private final PredictionService predictionService;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     public MatchmakingServiceImpl(RoundService roundService,
@@ -44,7 +54,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     @Transactional
     public void runMatchmaking(Tournament tournament) {
 
-        // if tournament already started early return
+        // if tournament already started - early return
         if (tournament.getStatus() != Status.UPCOMING) {
             throw new IllegalStateException("Tournament already started");
         }
@@ -59,11 +69,17 @@ public class MatchmakingServiceImpl implements MatchmakingService {
 
         //Add selected players into tournament participant list
         tournament.setParticipants(selectedPlayers.stream().map(UserDTO::username).collect(Collectors.toSet()));
+        tournamentService.updateTournament(tournament.getId(), tournament);
+        entityManager.flush(); //Force flush to ensure participants are persisted before proceeding, while maintaining atomicity
 
         //Pair the selected players into brackets (order of brackets matters)
         List<Bracket> bracketPairs = pairPlayers(selectedPlayers, true);
 
         //Save the brackets
+        /**TODO: fix bug of brackets returning empty list after matchmaking
+         * due to CASCADE DELETE on brackets with tournament_participants
+         * delete happens due to entitymanager.flush - to set tournament_participants first before updating brackets
+         */
         updateBrackets(tournament, bracketPairs);
 
         tournament.setStatus(Status.ONGOING);

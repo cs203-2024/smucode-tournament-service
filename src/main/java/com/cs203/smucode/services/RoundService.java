@@ -21,5 +21,7 @@ public interface RoundService {
 
     Round populateNextRound(UUID currRoundId, UUID nextRoundId);
 
+    Round removePlayerFromOngoingRound(UUID roundId, String username);
+
     void deleteRoundById(UUID id);
 }
