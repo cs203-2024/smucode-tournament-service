@@ -45,7 +45,7 @@ public interface BracketMapper {
             bracketUserDTO.setUsername(bracket.getPlayer1());
 //        set user icon
             bracketUserDTO.setScore(bracket.getPlayer1Score());
-            bracketUserDTO.setPlayerWinProbability(bracket.getPlayer1WinProbability());
+            bracketUserDTO.setWinProbability(bracket.getPlayer1WinProbability());
             return bracketUserDTO;
         }
         if (playerNumber == 2) {
@@ -53,7 +53,7 @@ public interface BracketMapper {
             bracketUserDTO.setUsername(bracket.getPlayer2());
 //        set user icon
             bracketUserDTO.setScore(bracket.getPlayer2Score());
-            bracketUserDTO.setPlayerWinProbability(bracket.getPlayer2WinProbability());
+            bracketUserDTO.setWinProbability(bracket.getPlayer2WinProbability());
             return bracketUserDTO;
         }
 
@@ -100,6 +100,5 @@ public interface BracketMapper {
         }
         return 0;
     }
-
 
 }

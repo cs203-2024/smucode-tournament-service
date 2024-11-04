@@ -34,7 +34,7 @@ public class Bracket {
     private int player1Score;
 
     @Column(name = "player1_win_probability")
-    private Double player1WinProbability;
+    private Double player1WinProbability = 0.0;
 
     @Column(name = "player2")
     private String player2;
@@ -43,7 +43,7 @@ public class Bracket {
     private int player2Score;
 
     @Column(name = "player2_win_probability")
-    private Double player2WinProbability;
+    private Double player2WinProbability = 0.0;
 //    @ManyToOne
 //    @JoinColumn(name = "winner")
     @Column(name = "winner")

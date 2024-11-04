@@ -158,9 +158,11 @@ public class RoundServiceImpl implements RoundService {
         if (bracketWithPlayer.getPlayer1().equals(username)) {
             bracketWithPlayer.setPlayer1(null);
             bracketWithPlayer.setPlayer1Score(0);
+            bracketWithPlayer.setPlayer1WinProbability(0.0);
         } else if (bracketWithPlayer.getPlayer2().equals(username)) {
             bracketWithPlayer.setPlayer2(null);
             bracketWithPlayer.setPlayer2Score(0);
+            bracketWithPlayer.setPlayer2WinProbability(0.0);
         } else {
             throw new UserNotFoundException("User " + username + " not found in round " + roundId);
         }
