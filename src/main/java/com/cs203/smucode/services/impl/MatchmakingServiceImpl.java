@@ -70,7 +70,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         //Add selected players into tournament participant list
         tournament.setParticipants(selectedPlayers.stream().map(UserDTO::username).collect(Collectors.toSet()));
         tournamentService.updateTournament(tournament.getId(), tournament);
-        entityManager.flush(); //Force flush to ensure participants are persisted before proceeding, while maintaining atomicity
+//        entityManager.flush(); //Force flush to ensure participants are persisted before proceeding, while maintaining atomicity
 
         //Pair the selected players into brackets (order of brackets matters)
         List<Bracket> bracketPairs = pairPlayers(selectedPlayers, true);
