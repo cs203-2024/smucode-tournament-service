@@ -149,6 +149,38 @@ public class PredictionServiceImpl implements PredictionService {
     }
 
     /**
+     * Trains the model with a new match result
+     * @param player1Username First player's username
+     * @param player2Username Second player's username
+     * @param player1Won Whether player1 won the match
+     */
+    public void trainModelWithResult(String player1Username, String player2Username, boolean player1Won) {
+        try {
+            UserDTO player1 = userServiceConsumer.getUserById(player1Username);
+            UserDTO player2 = userServiceConsumer.getUserById(player2Username);
+
+            Instance inst = new DenseInstance(3);
+            inst.setDataset(dataset);
+
+            double skillDiff = (player1.mu() - player2.mu()) /
+                    Math.sqrt(Math.pow(player1.sigma(), 2) + Math.pow(player2.sigma(), 2));
+            double uncertaintyRatio = player1.sigma() / player2.sigma();
+
+            inst.setValue(0, skillDiff);
+            inst.setValue(1, uncertaintyRatio);
+            inst.setValue(2, player1Won ? 1 : 0); // Set the class value
+
+            // Update the model
+            model.updateClassifier(inst);
+
+            logger.info("Model trained with new match result: {} vs {} (winner: {})",
+                    player1Username, player2Username, player1Won ? player1Username : player2Username);
+        } catch (Exception e) {
+            logger.error("Failed to train model with new match result", e);
+        }
+    }
+
+    /**
      * Calculates win probability for 1v1 matches using the TrueSkill formula.
      * For 1v1 matches, this simplifies to:
      * - deltaMu = player1.mu - player2.mu
