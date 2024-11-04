@@ -15,4 +15,6 @@ public class BracketUserDTO {
 
     private int score;
 
+    private double playerWinProbability;
+
 }
