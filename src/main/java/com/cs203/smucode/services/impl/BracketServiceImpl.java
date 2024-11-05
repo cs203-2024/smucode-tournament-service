@@ -2,6 +2,7 @@ package com.cs203.smucode.services.impl;
 
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.BracketNotFoundException;
+import com.cs203.smucode.exceptions.UserNotFoundException;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
@@ -11,6 +12,8 @@ import com.cs203.smucode.repositories.TournamentServiceRepository;
 import com.cs203.smucode.services.BracketService;
 import de.gesundkrank.jskills.Player;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,8 @@ import java.util.UUID;
 
 @Service
 public class BracketServiceImpl implements BracketService {
+    private static final Logger logger = LoggerFactory.getLogger(BracketServiceImpl.class);
+
     private final BracketServiceRepository bracketServiceRepository;
     private final RoundServiceRepository roundServiceRepository;
     private final TournamentServiceRepository tournamentServiceRepository;
@@ -130,6 +135,19 @@ public class BracketServiceImpl implements BracketService {
         return bracketServiceRepository.save(bracket);
     }
 
+    public Bracket removePlayerFromBracket(Bracket bracket, String player) {
+        logger.info("Removing player from bracket: {}", bracket.getId());
+        if (bracket.getPlayer1().equals(player)) {
+            clearPlayer1(bracket);
+        } else if (bracket.getPlayer2().equals(player)) {
+            clearPlayer2(bracket);
+        } else {
+        throw new UserNotFoundException("User " + player + " not found in bracket " + bracket.getId());
+    }
+        return bracketServiceRepository.save(bracket);
+
+    }
+
     @Transactional
     public void deleteBracketById(UUID id) {
         if (!bracketServiceRepository.existsById(id)) {
@@ -137,4 +155,20 @@ public class BracketServiceImpl implements BracketService {
         }
         bracketServiceRepository.deleteById(id);
     }
+
+//    helper functions
+    private void clearPlayer1(Bracket bracket) {
+        bracket.setPlayer1(null);
+        bracket.setPlayer1Score(0);
+        bracket.setPlayer1WinProbability(0.0);
+        bracket.setPlayer2WinProbability(100.0);
+    }
+
+    private void clearPlayer2(Bracket bracket) {
+        bracket.setPlayer2(null);
+        bracket.setPlayer2Score(0);
+        bracket.setPlayer2WinProbability(0.0);
+        bracket.setPlayer1WinProbability(100.0);
+    }
+
 }

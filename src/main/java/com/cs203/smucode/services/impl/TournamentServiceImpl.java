@@ -189,12 +189,12 @@ public class TournamentServiceImpl implements TournamentService {
             throw new IllegalArgumentException("Tournament with id " + id + " does not have participant " + participant);
         }
 
+        logger.info("Removing player from tournament: {}", tournament.getId());
         existingParticipants.remove(participant);
         // Remove from ongoing bracket
         UUID currRound = roundService.
                 findRoundByTournamentIdAndName(tournament.getId(), tournament.getCurrentRound())
                 .getId();
-        logger.info("Removing player from tournament: {}", tournament.getId());
         roundService.removePlayerFromOngoingRound(currRound, participant);
         tournament.setParticipants(existingParticipants);
 

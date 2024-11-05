@@ -83,6 +83,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         updateBrackets(tournament, bracketPairs);
 
         tournament.setStatus(Status.ONGOING);
+        tournament.setCurrentRound("Round of " + tournament.getCapacity());
         tournamentService.updateTournament(tournament.getId(), tournament);
     }
 
