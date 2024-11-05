@@ -23,7 +23,7 @@ import java.util.UUID;
 
 @Service
 public class BracketServiceImpl implements BracketService {
-    private final static Logger logger = LoggerFactory.getLogger(BracketServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(BracketServiceImpl.class);
 
     private final BracketServiceRepository bracketServiceRepository;
     private final RoundServiceRepository roundServiceRepository;
