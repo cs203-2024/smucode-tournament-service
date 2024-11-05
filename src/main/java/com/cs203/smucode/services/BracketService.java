@@ -22,6 +22,8 @@ public interface BracketService {
 
     Bracket endBracket(UUID id);
 
+    Bracket removePlayerFromBracket(Bracket bracket, String playerId);
+
 //    Bracket updateBracketPlayers(UUID bracketId, List<UUID> playerIds);
 
     void deleteBracketById(UUID id);
