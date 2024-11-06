@@ -10,6 +10,7 @@ import com.cs203.smucode.repositories.BracketServiceRepository;
 import com.cs203.smucode.repositories.RoundServiceRepository;
 import com.cs203.smucode.repositories.TournamentServiceRepository;
 import com.cs203.smucode.services.BracketService;
+import com.cs203.smucode.services.RatingUpdateService;
 import de.gesundkrank.jskills.Player;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -29,13 +30,17 @@ public class BracketServiceImpl implements BracketService {
     private final RoundServiceRepository roundServiceRepository;
     private final TournamentServiceRepository tournamentServiceRepository;
 
+    private final RatingUpdateService ratingUpdateService;
+
     @Autowired
     public BracketServiceImpl(BracketServiceRepository bracketServiceRepository,
                               RoundServiceRepository roundServiceRepository,
-                              TournamentServiceRepository tournamentServiceRepository) {
+                              TournamentServiceRepository tournamentServiceRepository,
+                              RatingUpdateService ratingUpdateService) {
         this.bracketServiceRepository = bracketServiceRepository;
         this.roundServiceRepository = roundServiceRepository;
         this.tournamentServiceRepository = tournamentServiceRepository;
+        this.ratingUpdateService = ratingUpdateService;
     }
 
     @Transactional
@@ -129,6 +134,8 @@ public class BracketServiceImpl implements BracketService {
         } else { // Both players present (default)
             String winner = bracket.getPlayer1Score() > bracket.getPlayer2Score() ? bracket.getPlayer1() : bracket.getPlayer2();
             bracket.setWinner(winner);
+            //TODO: refactor this to handle bye cases; issue now is that for updating to happen, we need both players ("relative updating")
+            ratingUpdateService.updateRatings(bracket);
         }
         bracket.setStatus(Status.COMPLETED);
 
