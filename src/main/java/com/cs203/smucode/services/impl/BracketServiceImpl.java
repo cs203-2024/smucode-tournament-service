@@ -134,8 +134,9 @@ public class BracketServiceImpl implements BracketService {
         } else { // Both players present (default)
             String winner = bracket.getPlayer1Score() > bracket.getPlayer2Score() ? bracket.getPlayer1() : bracket.getPlayer2();
             bracket.setWinner(winner);
+            //TODO: refactor this to handle bye cases; issue now is that for updating to happen, we need both players ("relative updating")
+            ratingUpdateService.updateRatings(bracket);
         }
-        ratingUpdateService.updateRatings(bracket);
         bracket.setStatus(Status.COMPLETED);
 
         return bracketServiceRepository.save(bracket);
