@@ -150,5 +150,150 @@ class MatchmakingServiceImplTest {
         assertEquals("player2", brackets.get(1).getPlayer1());
         assertEquals("player1", brackets.get(1).getPlayer2());
     }
+
+    @Test
+    void selectParticipants_withWorstSelectionType_shouldSelectBottomPlayers() {
+        // Arrange
+        List<UserDTO> signups = Arrays.asList(
+                new UserDTO("player1", "pwd", "p1@test.com", "/img.png", "ROLE_USER", 25.0, 8.33, 1400.0),
+                new UserDTO("player2", "pwd", "p2@test.com", "/img.png", "ROLE_USER", 25.0, 8.33, 1300.0),
+                new UserDTO("player3", "pwd", "p3@test.com", "/img.png", "ROLE_USER", 25.0, 8.33, 1200.0),
+                new UserDTO("player4", "pwd", "p4@test.com", "/img.png", "ROLE_USER", 25.0, 8.33, 1100.0)
+        );
+
+        // Act
+        List<UserDTO> selectedPlayers = matchmakingService.selectParticipants(signups, 2, "worst");
+
+        // Assert
+        assertEquals(2, selectedPlayers.size());
+        assertEquals("player4", selectedPlayers.get(0).username());
+        assertEquals("player3", selectedPlayers.get(1).username());
+    }
+
+    @Test
+    void selectParticipants_withInvalidSelectionType_shouldThrowIllegalArgumentException() {
+        // Arrange
+        List<UserDTO> signups = Arrays.asList(
+                new UserDTO("player1", "pwd", "p1@test.com", "/img.png", "ROLE_USER", 25.0, 8.33, 1200.0),
+                new UserDTO("player2", "pwd", "p2@test.com", "/img.png", "ROLE_USER", 25.0, 8.33, 1100.0)
+        );
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () ->
+                matchmakingService.selectParticipants(signups, 2, "invalid"));
+    }
+
+    @Test
+    void updateBrackets_whenRoundsNotPreCreated_shouldThrowIllegalStateException() {
+        // Arrange
+        Tournament tournament = new Tournament();
+        tournament.setId(UUID.randomUUID());
+        tournament.setRounds(new ArrayList<>());
+        List<Bracket> bracketPairs = Arrays.asList(new Bracket(), new Bracket());
+
+        // Act & Assert
+        assertThrows(IllegalStateException.class, () ->
+                matchmakingService.updateBrackets(tournament, bracketPairs));
+    }
+
+    @Test
+    void updateBrackets_whenBracketsNotPreCreated_shouldThrowIllegalStateException() {
+        // Arrange
+        Tournament tournament = new Tournament();
+        tournament.setId(UUID.randomUUID());
+        Round round = new Round();
+        round.setBrackets(new ArrayList<>());
+        tournament.setRounds(Arrays.asList(round));
+        List<Bracket> bracketPairs = Arrays.asList(new Bracket(), new Bracket());
+
+        when(roundService.findRoundByTournamentIdAndSeqId(any(UUID.class), eq(1)))
+                .thenReturn(round);
+
+        // Act & Assert
+        assertThrows(IllegalStateException.class, () ->
+                matchmakingService.updateBrackets(tournament, bracketPairs));
+    }
+
+    @Test
+    void updateBrackets_whenBracketsNull_shouldThrowIllegalStateException() {
+        // Arrange
+        Tournament tournament = new Tournament();
+        tournament.setId(UUID.randomUUID());
+
+        Round round = new Round();
+        round.setId(UUID.randomUUID());
+        round.setSeqId(1);
+        round.setBrackets(null); // Explicitly set brackets to null
+        tournament.setRounds(Arrays.asList(round));
+
+        List<Bracket> bracketPairs = Arrays.asList(new Bracket(), new Bracket());
+
+        when(roundService.findRoundByTournamentIdAndSeqId(tournament.getId(), 1)).thenReturn(round);
+
+        // Act & Assert
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+                matchmakingService.updateBrackets(tournament, bracketPairs));
+        assertEquals("Brackets have not been pre-created in the tournament.", exception.getMessage());
+    }
+
+    @Test
+    void runMatchmaking_whenTournamentAlreadyStarted_shouldThrowIllegalStateException() {
+        // Arrange
+        Tournament tournament = new Tournament();
+        tournament.setStatus(Status.ONGOING);
+
+        // Act & Assert
+        assertThrows(IllegalStateException.class, () ->
+                matchmakingService.runMatchmaking(tournament));
+    }
+
+    @Test
+    void selectParticipants_withNeutralSelectionType_shouldSelectMiddlePlayers() {
+        // Arrange
+        List<UserDTO> signups = Arrays.asList(
+                new UserDTO("player1", "pwd", "p1@test.com", "/img.png", "ROLE_USER", 25.0, 8.33, 1400.0),
+                new UserDTO("player2", "pwd", "p2@test.com", "/img.png", "ROLE_USER", 25.0, 8.33, 1300.0),
+                new UserDTO("player3", "pwd", "p3@test.com", "/img.png", "ROLE_USER", 25.0, 8.33, 1200.0),
+                new UserDTO("player4", "pwd", "p4@test.com", "/img.png", "ROLE_USER", 25.0, 8.33, 1100.0)
+        );
+
+        // Act
+        List<UserDTO> selectedPlayers = matchmakingService.selectParticipants(signups, 2, "neutral");
+
+        // Assert
+        assertEquals(2, selectedPlayers.size());
+        // Since we're selecting from the middle, we should get players 2 and 3 (indices 1 and 2)
+        assertTrue(selectedPlayers.stream().anyMatch(p -> p.username().equals("player2")));
+        assertTrue(selectedPlayers.stream().anyMatch(p -> p.username().equals("player3")));
+    }
+
+    @Test
+    void pairPlayers_withShuffleEnabled_shouldProduceRandomPairings() {
+        // Arrange
+        List<UserDTO> players = Arrays.asList(
+                new UserDTO("player1", "pwd", "p1@test.com", "/img.png", "ROLE_USER", 25.0, 8.33, 1400.0),
+                new UserDTO("player2", "pwd", "p2@test.com", "/img.png", "ROLE_USER", 25.0, 8.33, 1300.0),
+                new UserDTO("player3", "pwd", "p3@test.com", "/img.png", "ROLE_USER", 25.0, 8.33, 1200.0),
+                new UserDTO("player4", "pwd", "p4@test.com", "/img.png", "ROLE_USER", 25.0, 8.33, 1100.0)
+        );
+
+        when(predictionService.predictMatch(anyString(), anyString()))
+                .thenReturn(new PredictionResult("", "", 0.5, 0.5));
+
+        // Act
+        List<Bracket> brackets = matchmakingService.pairPlayers(players, true);
+
+        // Assert
+        assertEquals(2, brackets.size());
+        verify(predictionService, times(2)).predictMatch(anyString(), anyString());
+
+        // Verify that players are assigned to brackets
+        Set<String> allPlayers = new HashSet<>();
+        for (Bracket bracket : brackets) {
+            allPlayers.add(bracket.getPlayer1());
+            allPlayers.add(bracket.getPlayer2());
+        }
+        assertEquals(4, allPlayers.size());
+    }
 }
 
