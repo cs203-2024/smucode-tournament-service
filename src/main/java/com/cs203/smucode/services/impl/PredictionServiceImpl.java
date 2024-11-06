@@ -61,7 +61,7 @@ public class PredictionServiceImpl implements PredictionService {
      *
      * @throws Exception if model files cannot be loaded
      */
-    private void loadModel() throws Exception {
+    public void loadModel() throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         model = (SGD) SerializationHelper.read(classLoader.getResourceAsStream(MODEL_PATH));
         dataset = (Instances) SerializationHelper.read(classLoader.getResourceAsStream(STRUCTURE_PATH));
@@ -106,7 +106,7 @@ public class PredictionServiceImpl implements PredictionService {
      * @return Final win probability for player1
      * @throws Exception if model prediction fails
      */
-    private double calculateBlendedProbability(UserDTO player1, UserDTO player2) throws Exception {
+    public double calculateBlendedProbability(UserDTO player1, UserDTO player2) throws Exception {
         Map<String, Double> modelProbs = getModelProbabilities(player1, player2);
         double tsProb = calculateTrueSkillProbability(player1, player2);
 
@@ -127,7 +127,7 @@ public class PredictionServiceImpl implements PredictionService {
      * @return Map containing win probabilities for both players
      * @throws Exception if model prediction fails
      */
-    private Map<String, Double> getModelProbabilities(UserDTO player1, UserDTO player2) throws Exception {
+    public Map<String, Double> getModelProbabilities(UserDTO player1, UserDTO player2) throws Exception {
         Instance inst = new DenseInstance(3);
         inst.setDataset(dataset);
 

@@ -2,6 +2,8 @@ package com.cs203.smucode.services.impl;
 
 import com.cs203.smucode.consumers.UserServiceConsumer;
 import com.cs203.smucode.dto.UserDTO;
+import com.cs203.smucode.exceptions.PredictionFailedException;
+import com.cs203.smucode.exceptions.PredictionModelNotFoundException;
 import com.cs203.smucode.models.PredictionResult;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.junit.jupiter.api.BeforeEach;
@@ -151,5 +153,113 @@ class PredictionServiceImplTest {
                 "Prediction should be bounded at 95% even for large skill differences");
         assertTrue(result.getPlayer2WinProbability() >= 0.05,
                 "Prediction should be bounded at 5% even for large skill differences");
+    }
+    @Test
+    void initialize_whenModelLoadingFails_shouldThrowPredictionModelNotFoundException() throws Exception {
+        // Arrange
+        PredictionServiceImpl predictionServiceSpy = spy(new PredictionServiceImpl(userServiceConsumer));
+        doThrow(new Exception("Model loading failed")).when(predictionServiceSpy).loadModel();
+
+        // Act & Assert
+        assertThrows(PredictionModelNotFoundException.class, predictionServiceSpy::initialize);
+    }
+
+    @Test
+    void predictMatch_whenUserServiceFails_shouldThrowPredictionFailedException() {
+        // Arrange
+        when(userServiceConsumer.getUserById("player1"))
+                .thenThrow(new RuntimeException("User service failed"));
+
+        // Act & Assert
+        assertThrows(PredictionFailedException.class, () ->
+                predictionService.predictMatch("player1", "player2"));
+    }
+
+    @Test
+    void trainModelWithResult_whenSuccessfulWinner1_shouldLogTrainingResult() {
+        // Arrange
+        String player1 = "winner";
+        String player2 = "loser";
+        UserDTO winner = new UserDTO(
+                player1, "pwd", "winner@test.com", "/img.png",
+                "ROLE_USER", 30.0, 7.0, 0.0
+        );
+        UserDTO loser = new UserDTO(
+                player2, "pwd", "loser@test.com", "/img.png",
+                "ROLE_USER", 20.0, 5.0, 0.0
+        );
+
+        when(userServiceConsumer.getUserById(player1)).thenReturn(winner);
+        when(userServiceConsumer.getUserById(player2)).thenReturn(loser);
+
+        // Act
+        predictionService.trainModelWithResult(player1, player2, true);
+
+        // Assert
+        verify(userServiceConsumer).getUserById(player1);
+        verify(userServiceConsumer).getUserById(player2);
+    }
+
+    @Test
+    void trainModelWithResult_whenSuccessfulWinner2_shouldLogTrainingResult() {
+        // Arrange
+        String player1 = "winner";
+        String player2 = "loser";
+        UserDTO winner = new UserDTO(
+                player1, "pwd", "winner@test.com", "/img.png",
+                "ROLE_USER", 30.0, 7.0, 0.0
+        );
+        UserDTO loser = new UserDTO(
+                player2, "pwd", "loser@test.com", "/img.png",
+                "ROLE_USER", 20.0, 5.0, 0.0
+        );
+
+        when(userServiceConsumer.getUserById(player2)).thenReturn(winner);
+        when(userServiceConsumer.getUserById(player1)).thenReturn(loser);
+
+        // Act
+        predictionService.trainModelWithResult(player1, player2, false);
+
+        // Assert
+        verify(userServiceConsumer).getUserById(player2);
+        verify(userServiceConsumer).getUserById(player1);
+    }
+
+    @Test
+    void trainModelWithResult_whenUserServiceFails_shouldLogError() {
+        // Arrange
+        when(userServiceConsumer.getUserById(anyString()))
+                .thenThrow(new RuntimeException("User service failed"));
+
+        // Act & Assert - should not throw exception, just log error
+        predictionService.trainModelWithResult("player1", "player2", true);
+    }
+
+    @Test
+    void predictMatch_whenTrueSkillProbabilityLessThanThreshold_shouldNotBlendWithModel() {
+        // Arrange
+        UserDTO player1 = new UserDTO(
+                "player1", "pwd", "p1@test.com", "/img.png",
+                "ROLE_USER", 26.0, 8.0, 0.0
+        );
+        UserDTO player2 = new UserDTO(
+                "player2", "pwd", "p2@test.com", "/img.png",
+                "ROLE_USER", 25.0, 8.0, 0.0
+        );
+
+        when(userServiceConsumer.getUserById("player1")).thenReturn(player1);
+        when(userServiceConsumer.getUserById("player2")).thenReturn(player2);
+
+        // Act
+        PredictionResult result = predictionService.predictMatch("player1", "player2");
+
+        // Assert
+        double deltaMu = player1.mu() - player2.mu();
+        double sumSigma = Math.pow(player1.sigma(), 2) + Math.pow(player2.sigma(), 2);
+        double denom = Math.sqrt(2 * (BETA * BETA) + sumSigma);
+        double expectedProb = NORMAL.cumulativeProbability(deltaMu / denom);
+
+        // When TrueSkill probability < 0.6, it should use pure TrueSkill probability
+        assertTrue(Math.abs(result.getPlayer1WinProbability() - expectedProb) < 0.0001);
     }
 }
