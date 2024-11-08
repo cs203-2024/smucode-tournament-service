@@ -2,25 +2,19 @@ package com.cs203.smucode.services.impl;
 
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.RoundNotFoundException;
-import com.cs203.smucode.exceptions.UserNotFoundException;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.PredictionResult;
-import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.RoundServiceRepository;
 import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.PredictionService;
 import com.cs203.smucode.services.RoundService;
-import com.cs203.smucode.services.TournamentService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -63,11 +57,11 @@ public class RoundServiceImpl implements RoundService {
                 new RoundNotFoundException("Round with tournament id " + tournamentId + " and name " + name + " not found"));
     }
 
-    @Transactional
-    public List<Round> findAllRoundsByTournamentId(UUID tournamentId) {
-        return roundServiceRepository.findByTournamentId(tournamentId).orElse(null);
-    }
-
+    /**
+     * Create round and its associated brackets
+     * @param round Round object to be created
+     * @return Round object created
+     */
     @Transactional
     public Round createRound(Round round) {
         roundServiceRepository.save(round);
@@ -110,6 +104,12 @@ public class RoundServiceImpl implements RoundService {
         return roundServiceRepository.save(roundToUpdate);
     }
 
+    /**
+     * Populate the next round with players (winners of current round)
+     * @param currRoundId Round id of current round (round that has just ended)
+     * @param nextRoundId Round id of next round (round to be started)
+     * @return Round object of next round
+     */
     @Transactional
     public Round populateNextRound(UUID currRoundId, UUID nextRoundId) {
         Optional <Round> roundOptional = roundServiceRepository.findById(nextRoundId);
@@ -125,20 +125,31 @@ public class RoundServiceImpl implements RoundService {
             Bracket oldBracket = bracketService.findBracketByRoundIdAndSeqId(nextRoundId, i);
             Bracket newBracket = new Bracket();
 
-            // TODO: round progression validation (whether previous round has finished - null winner)
+            Bracket currBracket1 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2 - 1);
+            Bracket currBracket2 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2);
+
+            if (currBracket1.getStatus() != Status.COMPLETED || currBracket2.getStatus() != Status.COMPLETED) {
+                throw new IllegalStateException("Current brackets are still ongoing");
+            }
+
+            // Get bracket winners of current round
             String player1 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2 - 1).getWinner();
             String player2 = bracketService.findBracketByRoundIdAndSeqId(currRoundId, i*2).getWinner();
 
-            // Include prediction
-            // TODO: handle byes? (player1 || player2 == null)
-            if (player1 != null && player2 != null) {
-                PredictionResult prediction = predictionService.predictMatch(player1, player2);
-                newBracket.setPlayer1(player1);
-                newBracket.setPlayer2(player2);
-                newBracket.setPlayer1WinProbability(prediction.getPlayer1WinProbability());
-                newBracket.setPlayer2WinProbability(prediction.getPlayer2WinProbability());
-                newBracket.setStatus(Status.ONGOING);
+            if (player1 == null || player2 == null) {
+                throw new IllegalStateException("Current brackets do not have a winner");
             }
+
+            // Set winners of current round as player of next round
+            PredictionResult prediction = predictionService.predictMatch(player1, player2);
+            newBracket.setPlayer1(player1);
+            newBracket.setPlayer2(player2);
+
+            // Include prediction
+            newBracket.setPlayer1WinProbability(prediction.getPlayer1WinProbability());
+            newBracket.setPlayer2WinProbability(prediction.getPlayer2WinProbability());
+
+            newBracket.setStatus(Status.ONGOING);
 
             bracketService.updateBracket(oldBracket.getId(), newBracket);
 
@@ -148,20 +159,18 @@ public class RoundServiceImpl implements RoundService {
 
     }
 
+    /**
+     * Remove player from (ongoing) round - premature leaving of tournament
+     * @param roundId Round id of ongoing round
+     * @param username Username of player to be removed
+     * @return Round object of ongoing round
+     */
     @Transactional
     public Round removePlayerFromOngoingRound(UUID roundId, String username) {
         logger.info("Removing player from round: {}", roundId);
         Bracket bracketWithPlayer = bracketService.findBracketByRoundIdAndPlayer(roundId, username);
         bracketService.removePlayerFromBracket(bracketWithPlayer, username);
         return findRoundById(roundId);
-    }
-
-    @Transactional
-    public void deleteRoundById(UUID id) {
-        if (!roundServiceRepository.existsById(id)) {
-            throw new RoundNotFoundException("Round with id " + id + " not found");
-        }
-        roundServiceRepository.deleteById(id);
     }
 
 //    helper functions

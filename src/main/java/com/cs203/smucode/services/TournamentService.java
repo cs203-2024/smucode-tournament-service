@@ -33,9 +33,7 @@ public interface TournamentService {
 
     Tournament addTournamentSignup(UUID id, String signups);
 
-    Tournament endBracket(UUID bracketId);
-
-    Tournament endRound(UUID roundId);
+    Tournament progressTournamentToNextRound(UUID roundId);
 
     Tournament deleteTournamentSignup(UUID id, String signup);
 

@@ -1,9 +1,11 @@
 package com.cs203.smucode.controllers;
 
 import com.cs203.smucode.dto.BracketDTO;
+import com.cs203.smucode.dto.TournamentDTO;
 import com.cs203.smucode.dto.UpdateBracketScoreDTO;
 import com.cs203.smucode.mappers.BracketMapper;
 import com.cs203.smucode.models.Bracket;
+import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.BracketService;
 //import com.cs203.smucode.services.impl.UserServiceClientImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -73,6 +75,13 @@ public class BracketRestController {
         Bracket newBracket = bracketService.updateBracket(bracketId, bracketScore);
         logger.info("new bracket: {}", newBracket);
         return bracketMapper.bracketToBracketDTO(newBracket);
+    }
+
+    @Operation(summary = "End current bracket and set winner")
+    @PutMapping("/{bracketId}/end")
+    public BracketDTO endBracket(@PathVariable UUID bracketId) {
+        Bracket bracket = bracketService.endBracket(bracketId);
+        return bracketMapper.bracketToBracketDTO(bracket);
     }
 
 //    @Operation(summary = "Delete existing bracket by bracket ID")
