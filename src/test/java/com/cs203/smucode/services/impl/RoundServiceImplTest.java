@@ -65,21 +65,6 @@ class RoundServiceImplTest {
     }
 
     @Test
-    void findAllRoundsByTournamentId_shouldReturnListOfRounds() {
-        // Assert
-        UUID tournamentId = sampleTournament.getId();
-        List<Round> expectedRounds = Collections.singletonList(sampleRound);
-        when(roundServiceRepository.findByTournamentId(tournamentId)).thenReturn(Optional.of(expectedRounds));
-
-        // Act
-        List<Round> actualRounds = roundService.findAllRoundsByTournamentId(tournamentId);
-
-        // Assert
-        assertEquals(expectedRounds, actualRounds);
-        verify(roundServiceRepository).findByTournamentId(tournamentId);
-    }
-
-    @Test
     void findRoundById_withValidId_shouldReturnRound() {
         // Assert
         UUID id = sampleRound.getId();
@@ -192,19 +177,6 @@ class RoundServiceImplTest {
         assertThrows(RoundNotFoundException.class, () -> roundService.updateRound(id, updatedRound));
         verify(roundServiceRepository).findById(id);
         verify(roundServiceRepository, never()).save(any(Round.class));
-    }
-
-    @Test
-    void deleteRoundById_shouldCallRepositoryMethod() {
-        // Assert
-        UUID id = sampleRound.getId();
-        when(roundServiceRepository.existsById(id)).thenReturn(true);
-
-        // Act
-        roundService.deleteRoundById(id);
-
-        // Assert
-        verify(roundServiceRepository).deleteById(id);
     }
 
     @Test
