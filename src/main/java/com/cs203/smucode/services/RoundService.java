@@ -2,12 +2,9 @@ package com.cs203.smucode.services;
 
 import com.cs203.smucode.models.Round;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface RoundService {
-
-    List<Round> findAllRoundsByTournamentId(UUID tournamentId);
 
     Round findRoundById(UUID id);
 
@@ -22,6 +19,4 @@ public interface RoundService {
     Round populateNextRound(UUID currRoundId, UUID nextRoundId);
 
     Round removePlayerFromOngoingRound(UUID roundId, String username);
-
-    void deleteRoundById(UUID id);
 }
