@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * This class is used to consume API endpoints exposed by user microservice.
  */
 
-@FeignClient(name = "user-service", url = "${user.service.url}")
+@FeignClient(name = "user-service", url = "${services.user.url}")
 public interface UserServiceConsumer {
 
     @GetMapping("/profile/{username}")
