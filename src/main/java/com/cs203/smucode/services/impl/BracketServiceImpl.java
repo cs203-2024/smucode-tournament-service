@@ -196,6 +196,7 @@ public class BracketServiceImpl implements BracketService {
             String winner = bracket.getPlayer1Score() > bracket.getPlayer2Score()
                     ? bracket.getPlayer1()
                     : bracket.getPlayer2();
+            bracket.setWinner(winner);
         }
     }
 
