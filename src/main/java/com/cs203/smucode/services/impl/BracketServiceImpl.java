@@ -106,10 +106,15 @@ public class BracketServiceImpl implements BracketService {
             bracketToUpdate.setWinner(bracket.getWinner()); // set status to completed if winner is passed
             bracketToUpdate.setStatus(Status.COMPLETED);
         }
+        // Update player
         bracketToUpdate.setPlayer1(bracket.getPlayer1());
         bracketToUpdate.setPlayer2(bracket.getPlayer2());
+        // Update player score
         bracketToUpdate.setPlayer1Score(bracket.getPlayer1Score());
         bracketToUpdate.setPlayer2Score(bracket.getPlayer2Score());
+        // Update player win probability
+        bracketToUpdate.setPlayer1WinProbability(bracket.getPlayer1WinProbability());
+        bracketToUpdate.setPlayer2WinProbability(bracket.getPlayer2WinProbability());
         bracketServiceRepository.save(bracketToUpdate);
 
         return bracket;
