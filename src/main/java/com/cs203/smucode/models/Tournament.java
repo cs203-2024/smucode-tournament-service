@@ -92,7 +92,10 @@ public class Tournament {
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Bracket> brackets;
 
-//    @ToString.Exclude
+//    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+//    private List<TournamentUser> users;
+//
+    @ToString.Exclude
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "tournament_signups",
@@ -101,7 +104,7 @@ public class Tournament {
     @Column(name = "signup")
     private Set<String> signups = new HashSet<>();
 
-//    @ToString.Exclude
+    @ToString.Exclude
     @ElementCollection (fetch = FetchType.EAGER)
     @CollectionTable(
             name = "tournament_participants",

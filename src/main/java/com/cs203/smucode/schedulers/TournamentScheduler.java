@@ -1,6 +1,5 @@
 package com.cs203.smucode.schedulers;
 
-import com.cs203.smucode.mappers.TournamentMapper;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.MatchmakingService;
 import com.cs203.smucode.services.TournamentService;
@@ -53,6 +52,17 @@ public class TournamentScheduler {
                 continue;
             }
 
+//            // Create notification
+//            NotificationDTO notification = new NotificationDTO(
+//                    tournament.getId(),
+//                    tournament.getName(),
+//                    "Tournament sign ups closed!",
+//                    NotificationType.SIGNUP_CLOSED,
+//                    NotificationCategory.GENERAL,
+//
+//
+//            )
+//            NotificationUtil.
             matchmakingService.runMatchmaking(tournament);
         }
 
