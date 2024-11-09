@@ -1,7 +1,7 @@
 package com.cs203.smucode.handlers;
 
 import com.cs203.smucode.consumers.UserServiceConsumer;
-import com.cs203.smucode.dto.UserDTO;
+import com.cs203.smucode.dtos.users.UserDTO;
 import com.cs203.smucode.exceptions.UserNotFoundException;
 import feign.FeignException;
 import org.springframework.beans.factory.annotation.Autowired;

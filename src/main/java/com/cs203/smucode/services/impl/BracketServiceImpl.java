@@ -3,6 +3,7 @@ package com.cs203.smucode.services.impl;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.BracketNotFoundException;
 import com.cs203.smucode.exceptions.UserNotFoundException;
+import com.cs203.smucode.factories.EventFactory;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
@@ -11,7 +12,6 @@ import com.cs203.smucode.repositories.RoundServiceRepository;
 import com.cs203.smucode.repositories.TournamentServiceRepository;
 import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.RatingUpdateService;
-import de.gesundkrank.jskills.Player;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,16 +30,18 @@ public class BracketServiceImpl implements BracketService {
     private final TournamentServiceRepository tournamentServiceRepository;
 
     private final RatingUpdateService ratingUpdateService;
+    private final EventFactory eventFactory;
 
     @Autowired
     public BracketServiceImpl(BracketServiceRepository bracketServiceRepository,
                               RoundServiceRepository roundServiceRepository,
                               TournamentServiceRepository tournamentServiceRepository,
-                              RatingUpdateService ratingUpdateService) {
+                              RatingUpdateService ratingUpdateService, EventFactory eventFactory) {
         this.bracketServiceRepository = bracketServiceRepository;
         this.roundServiceRepository = roundServiceRepository;
         this.tournamentServiceRepository = tournamentServiceRepository;
         this.ratingUpdateService = ratingUpdateService;
+        this.eventFactory = eventFactory;
     }
 
     @Transactional
@@ -159,6 +161,13 @@ public class BracketServiceImpl implements BracketService {
 
         // Close bracket
         bracket.setStatus(Status.COMPLETED);
+
+        // Publish BRACKET_COMPLETED notification
+        eventFactory.createBracketCompletedEvent(
+                bracket.getTournament().getId(),
+                bracket.getTournament().getName(),
+                String.format("Bracket %s has ended!", bracket.getId())
+        );
 
         return bracketServiceRepository.save(bracket);
     }

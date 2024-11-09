@@ -11,8 +11,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.time.LocalDateTime;
 
-@EnableScheduling //for cronjob
-@EnableFeignClients //for openfeign
+@EnableScheduling // For cronjob
+@EnableFeignClients // For openfeign
 @SpringBootApplication
 public class TournamentApplication {
 

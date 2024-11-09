@@ -1,7 +1,6 @@
-package com.cs203.smucode.dto;
+package com.cs203.smucode.dtos.tournaments;
 
 import com.cs203.smucode.validation.PowerOfTwo;
-import com.cs203.smucode.validation.WeightSum;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 

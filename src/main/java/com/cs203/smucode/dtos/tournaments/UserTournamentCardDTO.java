@@ -1,4 +1,4 @@
-package com.cs203.smucode.dto;
+package com.cs203.smucode.dtos.tournaments;
 
 import lombok.Data;
 

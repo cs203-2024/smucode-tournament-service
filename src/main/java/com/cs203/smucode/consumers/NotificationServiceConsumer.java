@@ -1,8 +1,9 @@
 package com.cs203.smucode.consumers;
 
-import com.cs203.smucode.dto.NotificationDTO;
+import com.cs203.smucode.dtos.notifications.NotificationDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * @author gav
@@ -17,5 +18,5 @@ import org.springframework.web.bind.annotation.PostMapping;
 public interface NotificationServiceConsumer {
 
     @PostMapping("/stream")
-    void streamNotifications(NotificationDTO notificationDTO);
+    void streamNotifications(@RequestBody NotificationDTO notificationDTO);
 }
