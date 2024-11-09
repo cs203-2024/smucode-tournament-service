@@ -33,8 +33,8 @@ class MatchmakingServiceImplTest {
     @Mock
     private UserServiceHandler userService;
 
-    @Mock
-    private EventFactory eventFactory;
+//    @Mock
+//    private EventFactory eventFactory;
 
     @Mock
     private BracketService bracketService;
