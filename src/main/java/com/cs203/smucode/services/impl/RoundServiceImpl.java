@@ -3,26 +3,20 @@ package com.cs203.smucode.services.impl;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.RoundCreationException;
 import com.cs203.smucode.exceptions.RoundNotFoundException;
-import com.cs203.smucode.exceptions.UserNotFoundException;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.PredictionResult;
 import com.cs203.smucode.repositories.BracketServiceRepository;
-import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.RoundServiceRepository;
 import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.PredictionService;
 import com.cs203.smucode.services.RoundService;
-import com.cs203.smucode.services.TournamentService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -36,17 +30,15 @@ public class RoundServiceImpl implements RoundService {
     private final RoundServiceRepository roundServiceRepository;
     private final BracketService bracketService;
     private final PredictionService predictionService;
-    private final BracketServiceRepository bracketServiceRepository;
 
 
     @Autowired
     public RoundServiceImpl(RoundServiceRepository roundServiceRepository,
                             BracketService bracketService,
-                            PredictionService predictionService, BracketServiceRepository bracketServiceRepository) {
+                            PredictionService predictionService) {
         this.roundServiceRepository = roundServiceRepository;
         this.bracketService = bracketService;
         this.predictionService = predictionService;
-        this.bracketServiceRepository = bracketServiceRepository;
     }
 
     @Transactional
@@ -147,7 +139,7 @@ public class RoundServiceImpl implements RoundService {
             bracketToUpdate.setPlayer2WinProbability(prediction.getPlayer2WinProbability());
             bracketToUpdate.setStatus(Status.ONGOING);
 
-            bracketServiceRepository.save(bracketToUpdate);
+            bracketService.update(bracketToUpdate.getId(), bracketToUpdate);
         }
 
         return nextRound;
@@ -184,7 +176,7 @@ public class RoundServiceImpl implements RoundService {
     }
 
 //    helper functions
-
+  
     /**
      * Method to create brackets for round
      *

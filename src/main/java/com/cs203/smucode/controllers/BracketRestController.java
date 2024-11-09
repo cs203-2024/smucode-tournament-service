@@ -1,6 +1,7 @@
 package com.cs203.smucode.controllers;
 
 import com.cs203.smucode.dto.BracketDTO;
+import com.cs203.smucode.dto.TournamentDTO;
 import com.cs203.smucode.dto.UpdateBracketScoreDTO;
 import com.cs203.smucode.mappers.BracketMapper;
 import com.cs203.smucode.models.Bracket;
