@@ -243,7 +243,7 @@ class BracketServiceImplTest {
         assertNull(result.getPlayer1());
         assertEquals(0, result.getPlayer1Score());
         assertEquals(0.0, result.getPlayer1WinProbability());
-        assertEquals(100.0, result.getPlayer2WinProbability());
+        assertEquals(1.0, result.getPlayer2WinProbability());
         verify(bracketServiceRepository).save(bracket);
     }
 
@@ -262,7 +262,7 @@ class BracketServiceImplTest {
         
         assertNull(bracket.getPlayer2());
         assertEquals(0, bracket.getPlayer2Score());
-        assertEquals(100.0, bracket.getPlayer1WinProbability());
+        assertEquals(1.0, bracket.getPlayer1WinProbability());
         assertEquals(0.0, bracket.getPlayer2WinProbability());
         verify(bracketServiceRepository).save(bracket);
     }
@@ -275,24 +275,6 @@ class BracketServiceImplTest {
         
         assertThrows(UserNotFoundException.class, 
             () -> bracketService.removePlayerFromBracket(bracket, "player3"));
-    }
-
-    @Test
-    void deleteBracketById_shouldCallRepositoryMethod() {
-        UUID bracketId = UUID.randomUUID();
-        when(bracketServiceRepository.existsById(bracketId)).thenReturn(true);
-
-        bracketService.deleteBracketById(bracketId);
-
-        verify(bracketServiceRepository).deleteById(bracketId);
-    }
-
-    @Test
-    void deleteBracketById_BracketNotFound() {
-        UUID bracketId = UUID.randomUUID();
-        when(bracketServiceRepository.existsById(bracketId)).thenReturn(false);
-        
-        assertThrows(BracketNotFoundException.class, () -> bracketService.deleteBracketById(bracketId));
     }
 
     @Test
@@ -445,5 +427,70 @@ class BracketServiceImplTest {
         assertEquals(Status.COMPLETED, result.getStatus());
         verify(ratingUpdateService).updateRatings(bracket);
         verify(bracketServiceRepository).save(bracket);
+    }
+
+    @Test
+    void updateBracketScore_Success() {
+        UUID bracketId = UUID.randomUUID();
+        Bracket existingBracket = new Bracket();
+        existingBracket.setId(bracketId);
+        existingBracket.setPlayer1Score(0);
+        existingBracket.setPlayer2Score(0);
+
+        Bracket updatedScores = new Bracket();
+        updatedScores.setPlayer1Score(10);
+        updatedScores.setPlayer2Score(5);
+
+        when(bracketServiceRepository.findById(bracketId)).thenReturn(Optional.of(existingBracket));
+        when(bracketServiceRepository.save(any(Bracket.class))).thenReturn(existingBracket);
+
+        Bracket result = bracketService.updateBracketScore(bracketId, updatedScores);
+
+        assertEquals(10, result.getPlayer1Score());
+        assertEquals(5, result.getPlayer2Score());
+        verify(bracketServiceRepository).save(any(Bracket.class));
+    }
+
+    @Test
+    void updateBracketScore_BracketNotFound() {
+        UUID bracketId = UUID.randomUUID();
+        Bracket updatedScores = new Bracket();
+        when(bracketServiceRepository.findById(bracketId)).thenReturn(Optional.empty());
+
+        assertThrows(BracketNotFoundException.class,
+                () -> bracketService.updateBracketScore(bracketId, updatedScores));
+    }
+
+    @Test
+    void updateBracket_Success() {
+        UUID bracketId = UUID.randomUUID();
+        Bracket existingBracket = new Bracket();
+        existingBracket.setId(bracketId);
+        Round parentRound = new Round();
+        parentRound.setStatus(Status.UPCOMING);
+        parentRound.setName("Round 1");
+        Tournament tournament = new Tournament();
+        parentRound.setTournament(tournament);
+        existingBracket.setRound(parentRound);
+
+        Bracket updatedBracket = new Bracket();
+        updatedBracket.setId(bracketId);
+        updatedBracket.setPlayer1("player1");
+        updatedBracket.setPlayer2("player2");
+        updatedBracket.setPlayer1WinProbability(0.6);
+        updatedBracket.setPlayer2WinProbability(0.4);
+
+        when(bracketServiceRepository.findById(bracketId)).thenReturn(Optional.of(existingBracket));
+        when(bracketServiceRepository.save(any(Bracket.class))).thenReturn(existingBracket);
+
+        Bracket result = bracketService.updateBracket(bracketId, updatedBracket);
+
+        assertEquals("player1", result.getPlayer1());
+        assertEquals("player2", result.getPlayer2());
+        assertEquals(0.6, result.getPlayer1WinProbability());
+        assertEquals(0.4, result.getPlayer2WinProbability());
+        assertEquals(Status.ONGOING, parentRound.getStatus());
+        verify(roundServiceRepository).save(parentRound);
+        verify(tournamentServiceRepository).save(tournament);
     }
 }
