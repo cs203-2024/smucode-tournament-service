@@ -7,4 +7,6 @@ public class UserTournamentDTO extends TournamentDTO{
 
     private boolean signedUp;
 
+    private boolean participated;
+
 }

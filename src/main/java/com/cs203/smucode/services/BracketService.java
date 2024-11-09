@@ -1,6 +1,5 @@
 package com.cs203.smucode.services;
 
-import com.cs203.smucode.dto.BracketDTO;
 import com.cs203.smucode.models.Bracket;
 
 import java.util.List;
@@ -16,15 +15,13 @@ public interface BracketService {
 
     Bracket findBracketByRoundIdAndPlayer(UUID roundId, String username);
 
-    Bracket createBracket(Bracket bracketDTO);
+    Bracket createBracket(Bracket bracket);
 
     Bracket updateBracket(UUID id, Bracket bracket);
+
+    Bracket updateBracketScore(UUID id, Bracket bracket);
 
     Bracket endBracket(UUID id);
 
     Bracket removePlayerFromBracket(Bracket bracket, String playerId);
-
-//    Bracket updateBracketPlayers(UUID bracketId, List<UUID> playerIds);
-
-    void deleteBracketById(UUID id);
 }
