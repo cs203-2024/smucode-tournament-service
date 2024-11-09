@@ -29,17 +29,14 @@ public class RoundServiceImpl implements RoundService {
     private final RoundServiceRepository roundServiceRepository;
     private final BracketService bracketService;
     private final PredictionService predictionService;
-    private final BracketServiceImpl bracketServiceImpl;
-
 
     @Autowired
     public RoundServiceImpl(RoundServiceRepository roundServiceRepository,
                             BracketService bracketService,
-                            PredictionService predictionService, BracketServiceImpl bracketServiceImpl) {
+                            PredictionService predictionService) {
         this.roundServiceRepository = roundServiceRepository;
         this.bracketService = bracketService;
         this.predictionService = predictionService;
-        this.bracketServiceImpl = bracketServiceImpl;
     }
 
     @Transactional
@@ -108,6 +105,16 @@ public class RoundServiceImpl implements RoundService {
     public Round populateNextRound(UUID currRoundId, UUID nextRoundId) {
         Round nextRound = roundServiceRepository.findById(nextRoundId)
                 .orElseThrow(() -> new RoundNotFoundException("Round with id " + nextRoundId + " not found"));
+
+        // End current round
+        Round currRound = roundServiceRepository.findById(currRoundId).
+                orElseThrow(() -> new RoundNotFoundException("Round with id " + currRoundId + " not found"));
+        currRound.setStatus(Status.COMPLETED);
+        roundServiceRepository.save(currRound);
+
+        // Start next round
+        nextRound.setStatus(Status.ONGOING);
+        roundServiceRepository.save(nextRound);
 
         for (int i = 1; i <= nextRound.getBrackets().size(); i++) {
             Bracket bracketToUpdate = bracketService.findBracketByRoundIdAndSeqId(nextRoundId, i);
