@@ -23,7 +23,6 @@ public class Bracket {
     private int seqId;
 
     @Convert(converter = StatusConverter.class)
-//    @Column(name = "status", nullable = false, insertable = false)
     @Column(name = "status", nullable = false)
     private Status status;
 
@@ -44,8 +43,7 @@ public class Bracket {
 
     @Column(name = "player2_win_probability")
     private Double player2WinProbability = 0.0;
-//    @ManyToOne
-//    @JoinColumn(name = "winner")
+
     @Column(name = "winner")
     private String winner;
 

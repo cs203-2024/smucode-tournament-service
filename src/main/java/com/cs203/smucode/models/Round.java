@@ -21,7 +21,6 @@ public class Round {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-//    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "seq_id")
     private int seqId;
 
@@ -36,7 +35,6 @@ public class Round {
     private LocalDateTime endDate;
 
     @Convert(converter = StatusConverter.class)
-//    @Column(name = "status", nullable = false, insertable = false)
     @Column(name = "status", nullable = false)
     private Status status;
 
