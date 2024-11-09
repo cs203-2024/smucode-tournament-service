@@ -3,8 +3,6 @@ package com.cs203.smucode.dto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 public class TournamentDTO {

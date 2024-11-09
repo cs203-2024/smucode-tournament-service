@@ -3,10 +3,10 @@ package com.cs203.smucode.services.impl;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.RoundCreationException;
 import com.cs203.smucode.exceptions.RoundNotFoundException;
+import com.cs203.smucode.exceptions.UserNotFoundException;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.PredictionResult;
-import com.cs203.smucode.repositories.BracketServiceRepository;
 import com.cs203.smucode.repositories.RoundServiceRepository;
 import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.PredictionService;
@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -139,7 +138,7 @@ public class RoundServiceImpl implements RoundService {
             bracketToUpdate.setPlayer2WinProbability(prediction.getPlayer2WinProbability());
             bracketToUpdate.setStatus(Status.ONGOING);
 
-            bracketService.update(bracketToUpdate.getId(), bracketToUpdate);
+            bracketService.updateBracket(bracketToUpdate.getId(), bracketToUpdate);
         }
 
         return nextRound;
