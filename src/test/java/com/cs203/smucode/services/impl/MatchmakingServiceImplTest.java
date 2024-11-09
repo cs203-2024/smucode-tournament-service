@@ -3,6 +3,7 @@ package com.cs203.smucode.services.impl;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.consumers.UserServiceConsumer;
 import com.cs203.smucode.dtos.users.UserDTO;
+import com.cs203.smucode.factories.EventFactory;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.PredictionResult;
 import com.cs203.smucode.models.Round;
@@ -31,6 +32,9 @@ class MatchmakingServiceImplTest {
 
     @Mock
     private UserServiceHandler userService;
+
+    @Mock
+    private EventFactory eventFactory;
 
     @Mock
     private BracketService bracketService;
