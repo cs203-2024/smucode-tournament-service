@@ -29,15 +29,17 @@ public class RoundServiceImpl implements RoundService {
     private final RoundServiceRepository roundServiceRepository;
     private final BracketService bracketService;
     private final PredictionService predictionService;
+    private final BracketServiceImpl bracketServiceImpl;
 
 
     @Autowired
     public RoundServiceImpl(RoundServiceRepository roundServiceRepository,
                             BracketService bracketService,
-                            PredictionService predictionService) {
+                            PredictionService predictionService, BracketServiceImpl bracketServiceImpl) {
         this.roundServiceRepository = roundServiceRepository;
         this.bracketService = bracketService;
         this.predictionService = predictionService;
+        this.bracketServiceImpl = bracketServiceImpl;
     }
 
     @Transactional
@@ -145,7 +147,8 @@ public class RoundServiceImpl implements RoundService {
     }
 
     /**
-     * Remove player from (ongoing) round - premature leaving of tournament
+     * Remove player from (ongoing) round - premature leaving of tournament.
+     * Result in round bye for round containing leaving player.
      *
      * @param roundId Round id of ongoing round
      * @param username Username of player to be removed
@@ -170,6 +173,9 @@ public class RoundServiceImpl implements RoundService {
         // Remove the player from the bracket
         bracketService.removePlayerFromBracket(bracketWithPlayer, username);
         logger.info("Successfully removed player '{}' from round {}", username, roundId);
+
+        // End the bracket with the leaving player
+        bracketService.endBracket(bracketWithPlayer.getId());
 
         return round;
     }
