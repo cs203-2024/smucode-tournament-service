@@ -7,7 +7,6 @@ import com.cs203.smucode.dto.*;
 import com.cs203.smucode.exceptions.UnauthorizedResourceAccessException;
 import com.cs203.smucode.mappers.TournamentMapper;
 import com.cs203.smucode.models.Tournament;
-import com.cs203.smucode.services.MatchmakingService;
 import com.cs203.smucode.services.TournamentService;
 import com.cs203.smucode.utils.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,6 +35,13 @@ public class TournamentRestController {
         this.userServiceConsumer = userServiceConsumer;
     }
 
+    /**
+     * Retrieves all tournaments relevant to the authenticated user.
+     * - Admin users see tournaments they created.
+     * - Regular users see tournaments they are registered or participating in.
+     *
+     * @return a list of TournamentCardDTO objects (AdminTournamentCardDTOs for admins and UserTournamentCardDTOs for users)
+     */
     @Operation(summary = "Get all of user's tournaments")
     @GetMapping()
     public List<? extends TournamentCardDTO> getAllTournaments() {
@@ -43,17 +49,27 @@ public class TournamentRestController {
         String role = JWTUtil.getClaim(authentication, OAuth2Constants.SCOPE);
         String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
 
-        // Admin - tournaments that they created
+        if (role == null || username == null) {
+            throw new UnauthorizedResourceAccessException("User information could not be retrieved.");
+        }
+
+        // Admin - retrieve tournaments that they created
         if (UserRole.ADMIN.getAuthority().equals(role)) {
             List<Tournament> tournaments = tournamentService.findAllTournamentsByOrganiser(username);
             return tournamentMapper.tournamentsToAdminTournamentCardDTOs(tournaments);
         }
 
-        // User - tournaments that they are signed up / participating in
+        // User - retrieve tournaments that they are signed up / participating in
         List<Tournament> tournaments = tournamentService.findAllTournamentsByRegistrant(username);
         return tournamentMapper.tournamentsToUserTournamentCardDTOs(tournaments, username);
     }
 
+    /**
+     * Get eligible tournaments for user to explore.
+     * Retrieves tournaments that the user has not signed up for and that still have signups open.
+     *
+     * @return a list of UserTournamentCardDTO representing eligible tournaments for the user
+     */
     @Operation(summary = "Get eligible tournaments for user")
     @GetMapping("/explore")
     public List<UserTournamentCardDTO> getAllEligibleTournaments() {
@@ -64,6 +80,16 @@ public class TournamentRestController {
         return tournamentMapper.tournamentsToUserTournamentCardDTOs(eligibleTournaments, username);
     }
 
+    /**
+     * Get tournament overview by tournament ID.
+     *
+     * - **Admin view**: Provides access to the tournament details including a 'band' field.
+     * - **User view**: Shows user-specific information, including fields like 'signedUp' and 'participated',
+     * indicating the user's involvement in the tournament.
+     *
+     * @param tournamentId the unique identifier of the tournament
+     * @return TournamentDTO, either AdminTournamentDTO or UserTournamentDTO based on the user's role
+     */
     @Operation(summary = "Get tournament overview by tournament ID")
     @GetMapping("/{tournamentId}")
     public TournamentDTO getTournamentById(@PathVariable UUID tournamentId) {
@@ -71,14 +97,14 @@ public class TournamentRestController {
         String role = JWTUtil.getClaim(authentication, OAuth2Constants.SCOPE);
         String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
 
-        // Admin
+        Tournament tournament = tournamentService.findTournamentById(tournamentId);
+
+        // Return Admin view if user is an admin
         if (UserRole.ADMIN.getAuthority().equals(role)) {
-            Tournament tournament = tournamentService.findTournamentById(tournamentId);
             return tournamentMapper.tournamentToAdminTournamentDTO(tournament);
         }
 
-        // User
-        Tournament tournament = tournamentService.findTournamentById(tournamentId);
+        // Return User view
         return tournamentMapper.tournamentToUserTournamentDTO(tournament, username);
     }
 
@@ -158,18 +184,10 @@ public class TournamentRestController {
         return tournamentMapper.tournamentToDetailedTournamentDTO(tournament);
     }
 
-    // TODO: should this be in bracketRestController instead - remove need for bracketService dependency in tournamentService
-    @Operation(summary = "End current bracket and set winner")
-    @PutMapping("/brackets/{bracketId}/end")
-    public TournamentDTO endBracket(@PathVariable UUID bracketId) {
-        Tournament tournament = tournamentService.endBracket(bracketId);
-        return tournamentMapper.tournamentToAdminTournamentDTO(tournament);
-    }
-
     @Operation(summary = "End current round and populate next round brackets")
     @PutMapping("/rounds/{roundId}/end")
     public TournamentDTO endRound(@PathVariable UUID roundId) {
-        Tournament tournament = tournamentService.endRound(roundId);
+        Tournament tournament = tournamentService.progressTournamentToNextRound(roundId);
         return tournamentMapper.tournamentToAdminTournamentDTO(tournament);
     }
 

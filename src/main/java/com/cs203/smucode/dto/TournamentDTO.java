@@ -3,8 +3,6 @@ package com.cs203.smucode.dto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 public class TournamentDTO {
@@ -40,6 +38,4 @@ public class TournamentDTO {
     private String currentRound;
 
     private LocalDateTime currentRoundEndDate;
-
-    private Set<String> signups = new HashSet<>();
 }
