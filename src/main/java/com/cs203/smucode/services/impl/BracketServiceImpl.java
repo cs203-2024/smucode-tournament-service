@@ -151,12 +151,13 @@ public class BracketServiceImpl implements BracketService {
 
         setBracketWinner(bracket);
 
+        // Update ratings only if both players participated
+        //TODO: refactor this to handle bye cases; issue now is that for updating to happen, we need both players ("relative updating")
         if (bracket.getPlayer1() != null && bracket.getPlayer2() != null) {
-            // Update ratings only if both players participated
-            //TODO: refactor this to handle bye cases; issue now is that for updating to happen, we need both players ("relative updating")
             ratingUpdateService.updateRatings(bracket);
         }
 
+        // Close bracket
         bracket.setStatus(Status.COMPLETED);
 
         return bracketServiceRepository.save(bracket);
@@ -220,12 +221,12 @@ public class BracketServiceImpl implements BracketService {
             bracket.setPlayer1(null);
             bracket.setPlayer1Score(0);
             bracket.setPlayer1WinProbability(0.0);
-            bracket.setPlayer2WinProbability(100.0);
+            bracket.setPlayer2WinProbability(1.0);
         } else if (playerNumber == 2) {
             bracket.setPlayer2(null);
             bracket.setPlayer2Score(0);
             bracket.setPlayer2WinProbability(0.0);
-            bracket.setPlayer1WinProbability(100.0);
+            bracket.setPlayer1WinProbability(1.0);
         } else {
             throw new IllegalArgumentException("Invalid player number: " + playerNumber);
         }
