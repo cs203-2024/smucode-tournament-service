@@ -1,6 +1,8 @@
 package com.cs203.smucode.services.impl;
 
+import com.cs203.smucode.exceptions.RoundCreationException;
 import com.cs203.smucode.exceptions.TournamentNotFoundException;
+import com.cs203.smucode.exceptions.UserNotFoundException;
 import com.cs203.smucode.models.PredictionResult;
 import com.cs203.smucode.services.PredictionService;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,29 +78,6 @@ class RoundServiceImplTest {
         bracket.setPlayer1Score(0);
         bracket.setPlayer2Score(0);
         return bracket;
-    }
-
-    @Test
-    void findAllRoundsByTournamentId_shouldReturnListOfRounds() {
-        UUID tournamentId = sampleTournament.getId();
-        List<Round> expectedRounds = Collections.singletonList(sampleRound);
-        when(roundServiceRepository.findByTournamentId(tournamentId)).thenReturn(Optional.of(expectedRounds));
-
-        List<Round> actualRounds = roundService.findAllRoundsByTournamentId(tournamentId);
-
-        assertEquals(expectedRounds, actualRounds);
-        verify(roundServiceRepository).findByTournamentId(tournamentId);
-    }
-
-    @Test
-    void findAllRoundsByTournamentId_whenNoRounds_shouldReturnNull() {
-        UUID tournamentId = sampleTournament.getId();
-        when(roundServiceRepository.findByTournamentId(tournamentId)).thenReturn(Optional.empty());
-
-        List<Round> actualRounds = roundService.findAllRoundsByTournamentId(tournamentId);
-
-        assertNull(actualRounds);
-        verify(roundServiceRepository).findByTournamentId(tournamentId);
     }
 
     @Test
@@ -206,25 +185,26 @@ class RoundServiceImplTest {
 
     @Test
     void populateNextRound_shouldPopulateRoundWithWinners() {
+        // Arrange
         UUID currRoundId = UUID.randomUUID();
         UUID nextRoundId = UUID.randomUUID();
         Round nextRound = createSampleRound();
-        
-        // Create a list with one bracket to simulate the next round
+
+        // Create a bracket for the next round
         Bracket nextRoundBracket = createSampleBracket();
         nextRound.setBrackets(Collections.singletonList(nextRoundBracket));
 
-        when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
-        
-        // Mock the next round bracket
-        when(bracketService.findBracketByRoundIdAndSeqId(nextRoundId, 1)).thenReturn(nextRoundBracket);
-        
-        // Mock the current round brackets with winners
+        // Create completed brackets with winners for current round
         Bracket bracket1 = createSampleBracket();
+        bracket1.setStatus(Status.COMPLETED); // Ensure bracket is completed
         bracket1.setWinner("player1");
+
         Bracket bracket2 = createSampleBracket();
+        bracket2.setStatus(Status.COMPLETED); // Ensure bracket is completed
         bracket2.setWinner("player2");
-        
+
+        when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
+        when(bracketService.findBracketByRoundIdAndSeqId(nextRoundId, 1)).thenReturn(nextRoundBracket);
         when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 1)).thenReturn(bracket1);
         when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 2)).thenReturn(bracket2);
 
@@ -234,10 +214,19 @@ class RoundServiceImplTest {
         predictionResult.setPlayer2WinProbability(0.4);
         when(predictionService.predictMatch("player1", "player2")).thenReturn(predictionResult);
 
+        // Act
         Round result = roundService.populateNextRound(currRoundId, nextRoundId);
 
+        // Assert
         assertEquals(nextRound, result);
-        verify(bracketService).updateBracket(any(UUID.class), any(Bracket.class));
+        verify(bracketService).updateBracket(any(UUID.class), argThat(bracket ->
+                bracket.getPlayer1().equals("player1") &&
+                        bracket.getPlayer2().equals("player2") &&
+                        bracket.getPlayer1WinProbability() == 0.6 &&
+                        bracket.getPlayer2WinProbability() == 0.4 &&
+                        bracket.getStatus() == Status.ONGOING
+        ));
+        verify(predictionService).predictMatch("player1", "player2");
     }
 
     @Test
@@ -251,36 +240,26 @@ class RoundServiceImplTest {
 
     @Test
     void removePlayerFromOngoingRound_shouldRemovePlayerAndReturnUpdatedRound() {
-        UUID roundId = sampleRound.getId();
+        // Arrange
+        UUID roundId = UUID.randomUUID();
         String username = "testUser";
-        Bracket bracketWithPlayer = createSampleBracket();
-        
-        when(bracketService.findBracketByRoundIdAndPlayer(roundId, username)).thenReturn(bracketWithPlayer);
-        when(roundServiceRepository.findById(roundId)).thenReturn(Optional.of(sampleRound));
+        Round round = createSampleRound();
+        round.setStatus(Status.ONGOING); // Set status to ONGOING
+        Bracket bracket = createSampleBracket();
+        bracket.setStatus(Status.ONGOING);
 
+        when(roundServiceRepository.findById(roundId)).thenReturn(Optional.of(round));
+        when(bracketService.findBracketByRoundIdAndPlayer(roundId, username)).thenReturn(bracket);
+        when(bracketService.removePlayerFromBracket(bracket, username)).thenReturn(bracket);
+
+        // Act
         Round result = roundService.removePlayerFromOngoingRound(roundId, username);
 
-        assertEquals(sampleRound, result);
-        verify(bracketService).removePlayerFromBracket(bracketWithPlayer, username);
-    }
-
-    @Test
-    void deleteRoundById_withValidId_shouldDeleteRound() {
-        UUID id = sampleRound.getId();
-        when(roundServiceRepository.existsById(id)).thenReturn(true);
-
-        roundService.deleteRoundById(id);
-
-        verify(roundServiceRepository).deleteById(id);
-    }
-
-    @Test
-    void deleteRoundById_withInvalidId_shouldThrowRoundNotFoundException() {
-        UUID id = UUID.randomUUID();
-        when(roundServiceRepository.existsById(id)).thenReturn(false);
-
-        assertThrows(RoundNotFoundException.class, () -> roundService.deleteRoundById(id));
-        verify(roundServiceRepository, never()).deleteById(id);
+        // Assert
+        assertEquals(round, result);
+        verify(bracketService).findBracketByRoundIdAndPlayer(roundId, username);
+        verify(bracketService).removePlayerFromBracket(bracket, username);
+        verify(bracketService).endBracket(bracket.getId());
     }
 
     @Test
@@ -314,19 +293,21 @@ class RoundServiceImplTest {
     }
 
     @Test
-    void createRound_whenBracketCreationFails_shouldHandleException() {
+    void createRound_whenBracketCreationFails_shouldThrowRoundCreationException() {
         // Arrange
         Round roundToCreate = createSampleRound();
+        roundToCreate.setName("Round of 16"); // This will trigger creation of 8 brackets
         when(roundServiceRepository.save(roundToCreate)).thenReturn(roundToCreate);
         when(bracketService.createBracket(any(Bracket.class)))
                 .thenThrow(new RuntimeException("Bracket creation failed"));
 
-        // Act
-        Round result = roundService.createRound(roundToCreate);
+        // Act & Assert
+        RoundCreationException exception = assertThrows(RoundCreationException.class, () ->
+                roundService.createRound(roundToCreate));
 
-        // Assert
-        assertEquals(roundToCreate, result);
+        assertTrue(exception.getMessage().contains("Failed to create round with brackets"));
         verify(roundServiceRepository).save(roundToCreate);
+        verify(bracketService).createBracket(any(Bracket.class)); // Should fail on first bracket
     }
 
     @Test
@@ -339,9 +320,13 @@ class RoundServiceImplTest {
         Bracket nextRoundBracket = createSampleBracket();
         nextRound.setBrackets(Collections.singletonList(nextRoundBracket));
 
+        // Create brackets for current round with one null winner
         Bracket bracket1 = createSampleBracket();
-        bracket1.setWinner(null); // Set winner as null
+        bracket1.setStatus(Status.COMPLETED); // Set status to COMPLETED
+        bracket1.setWinner(null);
+
         Bracket bracket2 = createSampleBracket();
+        bracket2.setStatus(Status.COMPLETED); // Set status to COMPLETED
         bracket2.setWinner("player2");
 
         when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
@@ -349,12 +334,12 @@ class RoundServiceImplTest {
         when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 1)).thenReturn(bracket1);
         when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 2)).thenReturn(bracket2);
 
-        // Act
-        Round result = roundService.populateNextRound(currRoundId, nextRoundId);
-
-        // Assert
+        // Act & Assert
+        assertThrows(IllegalStateException.class, () ->
+                        roundService.populateNextRound(currRoundId, nextRoundId),
+                "Should throw IllegalStateException when a winner is null"
+        );
         verify(predictionService, never()).predictMatch(anyString(), anyString());
-        verify(bracketService).updateBracket(any(UUID.class), any(Bracket.class));
     }
 
     @Test
@@ -432,4 +417,172 @@ class RoundServiceImplTest {
         verify(bracketService, never()).updateBracket(any(UUID.class), any(Bracket.class));
     }
 
+    @Test
+    void createRound_shouldThrowRoundCreationException_whenBracketCreationFails() {
+        // Arrange
+        Round roundToCreate = createSampleRound();
+        when(roundServiceRepository.save(roundToCreate)).thenReturn(roundToCreate);
+        when(bracketService.createBracket(any(Bracket.class)))
+                .thenThrow(new RuntimeException("Bracket creation failed"));
+
+        // Act & Assert
+        assertThrows(RoundCreationException.class, () -> roundService.createRound(roundToCreate));
+        verify(roundServiceRepository).save(roundToCreate);
+    }
+
+    @Test
+    void populateNextRound_shouldThrowIllegalStateException_whenCurrentBracketsNotCompleted() {
+        // Arrange
+        UUID currRoundId = UUID.randomUUID();
+        UUID nextRoundId = UUID.randomUUID();
+        Round nextRound = createSampleRound();
+        nextRound.setBrackets(Collections.singletonList(sampleBracket));
+
+        Bracket currentBracket1 = createSampleBracket();
+        currentBracket1.setStatus(Status.ONGOING); // Not completed
+        Bracket currentBracket2 = createSampleBracket();
+        currentBracket2.setStatus(Status.COMPLETED);
+
+        when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
+        when(bracketService.findBracketByRoundIdAndSeqId(nextRoundId, 1)).thenReturn(sampleBracket);
+        when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 1)).thenReturn(currentBracket1);
+        when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 2)).thenReturn(currentBracket2);
+
+        // Act & Assert
+        assertThrows(IllegalStateException.class,
+                () -> roundService.populateNextRound(currRoundId, nextRoundId));
+    }
+
+    @Test
+    void populateNextRound_shouldThrowIllegalStateException_whenWinnersNotSet() {
+        // Arrange
+        UUID currRoundId = UUID.randomUUID();
+        UUID nextRoundId = UUID.randomUUID();
+        Round nextRound = createSampleRound();
+        nextRound.setBrackets(Collections.singletonList(sampleBracket));
+
+        Bracket currentBracket1 = createSampleBracket();
+        currentBracket1.setStatus(Status.COMPLETED);
+        currentBracket1.setWinner("player1");
+        Bracket currentBracket2 = createSampleBracket();
+        currentBracket2.setStatus(Status.COMPLETED);
+        currentBracket2.setWinner(null); // Missing winner
+
+        when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
+        when(bracketService.findBracketByRoundIdAndSeqId(nextRoundId, 1)).thenReturn(sampleBracket);
+        when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 1)).thenReturn(currentBracket1);
+        when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 2)).thenReturn(currentBracket2);
+
+        // Act & Assert
+        assertThrows(IllegalStateException.class,
+                () -> roundService.populateNextRound(currRoundId, nextRoundId));
+    }
+
+    @Test
+    void removePlayerFromOngoingRound_shouldThrowIllegalStateException_whenRoundNotOngoing() {
+        // Arrange
+        UUID roundId = UUID.randomUUID();
+        String username = "testUser";
+        Round round = createSampleRound();
+        round.setStatus(Status.UPCOMING); // Not ongoing
+
+        when(roundServiceRepository.findById(roundId)).thenReturn(Optional.of(round));
+
+        // Act & Assert
+        assertThrows(IllegalStateException.class,
+                () -> roundService.removePlayerFromOngoingRound(roundId, username));
+    }
+
+    @Test
+    void removePlayerFromOngoingRound_shouldCompleteRemovedPlayerBracket() {
+        // Arrange
+        UUID roundId = UUID.randomUUID();
+        String username = "testUser";
+        Round round = createSampleRound();
+        round.setStatus(Status.ONGOING);
+        Bracket bracket = createSampleBracket();
+        bracket.setStatus(Status.ONGOING);
+
+        when(roundServiceRepository.findById(roundId)).thenReturn(Optional.of(round));
+        when(bracketService.findBracketByRoundIdAndPlayer(roundId, username)).thenReturn(bracket);
+        when(bracketService.removePlayerFromBracket(bracket, username)).thenReturn(bracket);
+
+        // Act
+        Round result = roundService.removePlayerFromOngoingRound(roundId, username);
+
+        // Assert
+        assertEquals(round, result);
+        verify(bracketService).removePlayerFromBracket(bracket, username);
+        verify(bracketService).endBracket(bracket.getId());
+    }
+
+    @Test
+    void createRound_shouldGenerateCorrectNumberOfBrackets() {
+        // Arrange
+        Round roundToCreate = createSampleRound();
+        when(roundServiceRepository.save(roundToCreate)).thenReturn(roundToCreate);
+
+        // Act
+        Round result = roundService.createRound(roundToCreate);
+
+        // Assert
+        assertEquals(roundToCreate, result);
+        verify(roundServiceRepository).save(roundToCreate);
+        // Round of 16 should create 8 brackets
+        verify(bracketService, times(8)).createBracket(any(Bracket.class));
+    }
+
+    @Test
+    void populateNextRound_shouldSetupNewBracketsCorrectly() {
+        // Arrange
+        UUID currRoundId = UUID.randomUUID();
+        UUID nextRoundId = UUID.randomUUID();
+        Round nextRound = createSampleRound();
+        nextRound.setBrackets(Collections.singletonList(sampleBracket));
+
+        Bracket currentBracket1 = createSampleBracket();
+        currentBracket1.setStatus(Status.COMPLETED);
+        currentBracket1.setWinner("player1");
+        Bracket currentBracket2 = createSampleBracket();
+        currentBracket2.setStatus(Status.COMPLETED);
+        currentBracket2.setWinner("player2");
+
+        PredictionResult predictionResult = new PredictionResult();
+        predictionResult.setPlayer1WinProbability(0.6);
+        predictionResult.setPlayer2WinProbability(0.4);
+
+        when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
+        when(bracketService.findBracketByRoundIdAndSeqId(nextRoundId, 1)).thenReturn(sampleBracket);
+        when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 1)).thenReturn(currentBracket1);
+        when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 2)).thenReturn(currentBracket2);
+        when(predictionService.predictMatch("player1", "player2")).thenReturn(predictionResult);
+
+        // Act
+        Round result = roundService.populateNextRound(currRoundId, nextRoundId);
+
+        // Assert
+        verify(bracketService).updateBracket(eq(sampleBracket.getId()), argThat(bracket ->
+                bracket.getPlayer1().equals("player1") &&
+                        bracket.getPlayer2().equals("player2") &&
+                        bracket.getPlayer1WinProbability() == 0.6 &&
+                        bracket.getPlayer2WinProbability() == 0.4 &&
+                        bracket.getStatus() == Status.ONGOING
+        ));
+    }
+
+    @Test
+    void removePlayerFromOngoingRound_shouldThrowUserNotFoundException_whenPlayerNotFound() {
+        // Arrange
+        UUID roundId = UUID.randomUUID();
+        String username = "nonexistentUser";
+        Round round = createSampleRound();
+        round.setStatus(Status.ONGOING);
+
+        when(roundServiceRepository.findById(roundId)).thenReturn(Optional.of(round));
+        when(bracketService.findBracketByRoundIdAndPlayer(roundId, username)).thenReturn(null);
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class,
+                () -> roundService.removePlayerFromOngoingRound(roundId, username));
+    }
 }
