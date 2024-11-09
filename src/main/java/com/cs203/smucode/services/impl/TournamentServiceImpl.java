@@ -82,7 +82,7 @@ public class TournamentServiceImpl implements TournamentService {
         // Filter out tournaments where the user has already signed up
         return openTournaments.stream()
                 .filter(tournament -> !tournament.getSignups().contains(username))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
