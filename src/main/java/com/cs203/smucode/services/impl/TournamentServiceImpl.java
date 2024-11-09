@@ -3,6 +3,7 @@ package com.cs203.smucode.services.impl;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.TournamentNotFoundException;
 import com.cs203.smucode.exceptions.UserNotFoundException;
+import com.cs203.smucode.factories.EventFactory;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.TournamentServiceRepository;
@@ -23,12 +24,15 @@ public class TournamentServiceImpl implements TournamentService {
     private static final Logger logger = LoggerFactory.getLogger(TournamentServiceImpl.class);
     private final TournamentServiceRepository tournamentServiceRepository;
     private final RoundService roundService;
+    private final EventFactory eventFactory;
 
     @Autowired
     public TournamentServiceImpl(TournamentServiceRepository tournamentServiceRepository,
-                                 RoundService roundService) {
+                                 RoundService roundService,
+                                 EventFactory eventFactory) {
         this.tournamentServiceRepository = tournamentServiceRepository;
         this.roundService = roundService;
+        this.eventFactory = eventFactory;
     }
 
     @Transactional
@@ -227,11 +231,25 @@ public class TournamentServiceImpl implements TournamentService {
         currRound.setStatus(Status.COMPLETED);
         roundService.updateRound(currRound.getId(), currRound);
 
+        // Publish ROUND_END notification
+        eventFactory.createRoundEndEvent(
+                parentTournament.getId(),
+                parentTournament.getName(),
+                String.format("Round %s has ended!", roundId)
+        );
+
         // Check if it's the final round
         if (currRound.getBrackets().size() == 1) {
             // TODO: tournament complete logic
             parentTournament.setStatus(Status.COMPLETED); // Mark the tournament as completed
             updateTournament(parentTournament.getId(), parentTournament);
+
+            // Publish TOURNAMENT_END notification
+            eventFactory.createTournamentEndEvent(
+                    parentTournament.getId(),
+                    parentTournament.getName(),
+                    String.format("Tournament %s has ended!", parentTournament.getId())
+            );
             return parentTournament;
         }
 

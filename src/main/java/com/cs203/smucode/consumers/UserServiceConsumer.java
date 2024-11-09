@@ -1,7 +1,7 @@
 package com.cs203.smucode.consumers;
 
-import com.cs203.smucode.dto.UserDTO;
-import com.cs203.smucode.dto.UserRatingDTO;
+import com.cs203.smucode.dtos.users.UserDTO;
+import com.cs203.smucode.dtos.users.UserRatingDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * This class is used to consume API endpoints exposed by user microservice.
  */
 
-@FeignClient(name = "user-service", url = "${user.service.url}")
+@FeignClient(name = "user-service", url = "${services.user.url}")
 public interface UserServiceConsumer {
 
     @GetMapping("/profile/{username}")

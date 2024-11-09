@@ -1,8 +1,8 @@
 package com.cs203.smucode.mappers;
 
-import com.cs203.smucode.dto.BracketDTO;
-import com.cs203.smucode.dto.UpdateBracketScoreDTO;
-import com.cs203.smucode.dto.BracketUserDTO;
+import com.cs203.smucode.dtos.brackets.BracketDTO;
+import com.cs203.smucode.dtos.brackets.UpdateBracketScoreDTO;
+import com.cs203.smucode.dtos.users.BracketUserDTO;
 import com.cs203.smucode.models.Bracket;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

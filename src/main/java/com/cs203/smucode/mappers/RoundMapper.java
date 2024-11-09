@@ -1,6 +1,6 @@
 package com.cs203.smucode.mappers;
 
-import com.cs203.smucode.dto.RoundDTO;
+import com.cs203.smucode.dtos.rounds.RoundDTO;
 import com.cs203.smucode.models.Round;
 import org.mapstruct.Mapper;
 
