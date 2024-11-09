@@ -9,17 +9,12 @@ import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.handlers.UserServiceHandler;
 import com.cs203.smucode.services.*;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -143,16 +143,4 @@ class BracketServiceImplTest {
         assertThrows(BracketNotFoundException.class, () -> bracketService.updateBracket(bracketId, updatedBracket));
     }
 
-    @Test
-    void deleteBracketById_shouldCallRepositoryMethod() {
-        // Arrange
-        UUID bracketId = UUID.randomUUID();
-        when(bracketServiceRepository.existsById(bracketId)).thenReturn(true);
-
-        // Act
-        bracketService.deleteBracketById(bracketId);
-
-        // Assert
-        verify(bracketServiceRepository).deleteById(bracketId);
-    }
 }

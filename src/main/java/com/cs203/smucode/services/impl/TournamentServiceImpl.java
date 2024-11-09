@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TournamentServiceImpl implements TournamentService {
@@ -67,41 +68,32 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     /**
-     * Get eligible tournaments for user (explore page)
-     * <p>Eligible defined as tournaments that user has not signed up for and still have their sign ups open</p>
+     * Get eligible tournaments for user (explore page).
+     * Eligible defined as tournaments that user has not signed up for and still have their signups open.
+     *
      * @param username of intended user
      * @return List of tournament objects eligible for user
      */
     @Transactional
     public List<Tournament> findAllEligibleTournamentsForUser(String username) {
-
-        // show tournaments which signups have not closed and have not been signed up by user
+        // Retrieve open tournaments (where signups have not closed)
         List<Tournament> openTournaments = findTournamentsWithSignUpAfter(LocalDateTime.now());
 
-        List<Tournament> eligibleTournaments = new ArrayList<>();
-        for (Tournament tournament : openTournaments) {
-            if (!tournament.getSignups().contains(username)) {
-                eligibleTournaments.add(tournament);
-            }
-        }
-
-        return eligibleTournaments;
+        // Filter out tournaments where the user has already signed up
+        return openTournaments.stream()
+                .filter(tournament -> !tournament.getSignups().contains(username))
+                .toList();
     }
 
     /**
-     * Create tournament (and generate associated rounds)
+     * Create tournament and generate its associated rounds.
      *
      * @param tournament Tournament object
      * @return the created tournament object
      */
     @Transactional
     public Tournament createTournament(Tournament tournament) {
-
-        // TODO: data insert validation
-        if (tournament == null) { return null; }
-
         tournamentServiceRepository.save(tournament);
-
         createRounds(tournament); // generate rounds
 
         return tournament;
