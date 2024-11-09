@@ -2,7 +2,6 @@ package com.cs203.smucode.services.impl;
 
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.dtos.users.UserDTO;
-import com.cs203.smucode.factories.EventFactory;
 import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.PredictionResult;
 import com.cs203.smucode.models.Round;
@@ -29,7 +28,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     private final BracketService bracketService;
     private final UserServiceHandler userServiceHandler;
     private final PredictionService predictionService;
-    private final EventFactory eventFactory;
+//    private final EventFactory eventFactory;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -39,14 +38,14 @@ public class MatchmakingServiceImpl implements MatchmakingService {
                                   BracketService bracketService,
                                   TournamentService tournamentService,
                                   UserServiceHandler userServiceHandler,
-                                  PredictionService predictionService,
-                                  EventFactory eventFactory) {
+                                  PredictionService predictionService) {
+//                                  EventFactory eventFactory) {
         this.roundService = roundService;
         this.bracketService = bracketService;
         this.tournamentService = tournamentService;
         this.userServiceHandler = userServiceHandler;
         this.predictionService = predictionService;
-        this.eventFactory = eventFactory;
+//        this.eventFactory = eventFactory;
     }
 
     @Override
@@ -71,16 +70,16 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         tournamentService.updateTournament(tournament.getId(), tournament);
 
         // Publish REGISTRATION_ACCEPTED and REGISTRATION_REJECTED notifications
-        eventFactory.createRegistrationAcceptedEvent(
-                tournament.getId(),
-                tournament.getName(),
-                String.format("Tournament `%s` has started!", tournament.getId())
-        );
-        eventFactory.createRegistrationRejectedEvent(
-                tournament.getId(),
-                tournament.getName(),
-                String.format("Tournament `%s` has started!", tournament.getId())
-        );
+//        eventFactory.createRegistrationAcceptedEvent(
+//                tournament.getId(),
+//                tournament.getName(),
+//                String.format("Tournament `%s` has started!", tournament.getId())
+//        );
+//        eventFactory.createRegistrationRejectedEvent(
+//                tournament.getId(),
+//                tournament.getName(),
+//                String.format("Tournament `%s` has started!", tournament.getId())
+//        );
 
         //Pair the selected players into brackets (order of brackets matters)
         List<Bracket> bracketPairs = pairPlayers(selectedPlayers, true);
@@ -88,6 +87,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         //Save the brackets
         updateBrackets(tournament, bracketPairs);
 
+        // Update tournament fields to indicate that it has started
         tournament.setStatus(Status.ONGOING);
         tournament.setCurrentRound("Round of " + tournament.getCapacity());
         tournamentService.updateTournament(tournament.getId(), tournament);

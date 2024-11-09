@@ -1,7 +1,5 @@
 package com.cs203.smucode.schedulers;
 
-import com.cs203.smucode.factories.EventFactory;
-import com.cs203.smucode.mappers.TournamentMapper;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.MatchmakingService;
 import com.cs203.smucode.services.TournamentService;
@@ -28,16 +26,16 @@ public class TournamentScheduler {
     private static final Logger logger = LoggerFactory.getLogger(TournamentScheduler.class);
     private final TournamentService tournamentService;
     private final MatchmakingService matchmakingService;
-    private final EventFactory eventFactory;
+//    private final EventFactory eventFactory;
 
     @Autowired
     public TournamentScheduler(
             TournamentService tournamentService,
-            MatchmakingService matchmakingService,
-            EventFactory eventFactory) {
+            MatchmakingService matchmakingService) {
+//            EventFactory eventFactory) {
         this.tournamentService = tournamentService;
         this.matchmakingService = matchmakingService;
-        this.eventFactory = eventFactory;
+//        this.eventFactory = eventFactory;
     }
 
     @Scheduled(cron = "0/30 * * * * ?") //Runs every 30 minutes
