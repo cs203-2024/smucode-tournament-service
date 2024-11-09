@@ -1,13 +1,8 @@
 package com.cs203.smucode.schedulers;
 
-import com.cs203.smucode.constants.NotificationCategory;
-import com.cs203.smucode.constants.NotificationType;
-import com.cs203.smucode.dto.NotificationDTO;
-import com.cs203.smucode.mappers.TournamentMapper;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.MatchmakingService;
 import com.cs203.smucode.services.TournamentService;
-import com.cs203.smucode.utils.NotificationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
