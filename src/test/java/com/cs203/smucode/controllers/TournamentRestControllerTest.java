@@ -7,6 +7,7 @@ import com.cs203.smucode.dtos.tournaments.*;
 import com.cs203.smucode.mappers.TournamentMapper;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.TournamentService;
+import com.cs203.smucode.utils.AWSUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,6 +47,9 @@ class TournamentRestControllerTest {
 
     @MockBean
     private TournamentMapper tournamentMapper;
+
+    @MockBean
+    private AWSUtil awsUtil;
 
     @MockBean
     private UserServiceConsumer userServiceConsumer;
