@@ -38,4 +38,6 @@ public interface TournamentService {
     Tournament deleteTournamentParticipant(UUID id, String participant);
 
     void deleteTournamentById(UUID id);
+
+    void uploadTournamentPicture(Tournament tournament, String imageUrl);
 }

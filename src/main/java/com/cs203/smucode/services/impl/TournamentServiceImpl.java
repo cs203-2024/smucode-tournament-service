@@ -313,4 +313,11 @@ public class TournamentServiceImpl implements TournamentService {
         }
         return createdRounds;
     }
+
+    @Override
+    @Transactional
+    public void uploadTournamentPicture(Tournament tournament, String imageUrl) {
+        tournament.setIcon(imageUrl);
+        tournamentServiceRepository.save(tournament);
+    }
 }
