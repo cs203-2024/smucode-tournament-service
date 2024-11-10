@@ -33,3 +33,7 @@ services:
     url: ${USER_SERVICE_URL:http://localhost:8080/api/users}
   notification:
     url: ${NOTIFICATION_SERVICE_URL:http://localhost:8082/api/notifications}
+
+feign:
+  access:
+    token: ${FEIGN_ACCESS_TOKEN:write_your_Access_token}
