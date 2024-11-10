@@ -316,10 +316,7 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     @Transactional
-    public void uploadTournamentPicture(UUID id, String imageUrl) {
-        Tournament tournament = tournamentServiceRepository.findById(id)
-                .orElseThrow( () -> new TournamentNotFoundException("Tournament with id " + id + " not found"));
-
+    public void uploadTournamentPicture(Tournament tournament, String imageUrl) {
         tournament.setIcon(imageUrl);
         tournamentServiceRepository.save(tournament);
     }

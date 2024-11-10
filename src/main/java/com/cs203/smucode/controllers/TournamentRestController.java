@@ -225,9 +225,11 @@ public class TournamentRestController {
             throw new ImageUploadUnsucessfulException("Unsupported content type: " + contentType);
         }
 
+        Tournament tournament = tournamentService.findTournamentById(tournamentId);
+
         try {
-            String preSignedUrl = awsUtil.generatePresignedUrl(tournamentId, contentType);
-            String key = awsUtil.getKey(tournamentId);
+            String preSignedUrl = awsUtil.generatePresignedUrl(tournament.getId(), contentType);
+            String key = awsUtil.getKey(tournament.getId());
 
             return ResponseEntity.ok(
                     new UploadLinkResponseDTO(key, preSignedUrl)
@@ -253,9 +255,11 @@ public class TournamentRestController {
         if (!awsUtil.getKey(tournamentId).equals(key)) {
             throw new ImageUploadUnsucessfulException("Input key does not match generated key");
         }
+
+        Tournament tournament = tournamentService.findTournamentById(tournamentId);
         try {
-            String imageUrl = awsUtil.getObjectUrl(tournamentId);
-            tournamentService.uploadTournamentPicture(tournamentId, imageUrl);
+            String imageUrl = awsUtil.getObjectUrl(tournament.getId());
+            tournamentService.uploadTournamentPicture(tournament, imageUrl);
 
             return ResponseEntity.ok(
                     new UploadSuccessResponseDTO("success", imageUrl)
