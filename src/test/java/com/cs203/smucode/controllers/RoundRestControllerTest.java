@@ -61,7 +61,7 @@ class RoundRestControllerTest {
     private void setupMocks() {
         when(roundService.findRoundById(testData.roundId))
                 .thenReturn(testData.round);
-        when(roundMapper.roundToRoundDTO(any(Round.class), userServiceConsumer))
+        when(roundMapper.roundToRoundDTO(any(Round.class), eq(userServiceConsumer)))
                 .thenReturn(testData.roundDTO);
         when(roundMapper.roundDTOToRound(any(RoundDTO.class)))
                 .thenReturn(testData.round);
