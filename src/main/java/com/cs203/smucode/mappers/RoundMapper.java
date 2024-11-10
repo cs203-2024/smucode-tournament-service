@@ -25,14 +25,10 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", uses = {BracketMapper.class})
 public interface RoundMapper {
 
-//    @Mapping(target = "brackets",
-//            expression = "java(mapBracketsWithUserContext(round.getBrackets(), userServiceConsumer))")
     @Mapping(target = "brackets", source = "brackets")
     RoundDTO roundToRoundDTO(Round round, @Context UserServiceConsumer userServiceConsumer);
 
     @Mapping(target = "brackets", ignore = true)
     Round roundDTOToRound(RoundDTO roundDTO);
 
-//    List<BracketDTO> mapBracketsWithUserContext(List<Bracket> brackets,
-//                                                @Context UserServiceConsumer userServiceConsumer);
 }
