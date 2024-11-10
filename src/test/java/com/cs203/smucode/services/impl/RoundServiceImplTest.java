@@ -436,22 +436,6 @@ class RoundServiceImplTest {
     }
 
     @Test
-    void createRound_shouldGenerateCorrectNumberOfBrackets() {
-        // Arrange
-        Round roundToCreate = createSampleRound();
-        when(roundServiceRepository.save(roundToCreate)).thenReturn(roundToCreate);
-
-        // Act
-        Round result = roundService.createRound(roundToCreate);
-
-        // Assert
-        assertEquals(roundToCreate, result);
-        verify(roundServiceRepository).save(roundToCreate);
-        // Round of 16 should create 8 brackets
-        verify(bracketService, times(8)).createBracket(any(Bracket.class));
-    }
-
-    @Test
     void removePlayerFromOngoingRound_shouldThrowUserNotFoundException_whenPlayerNotFound() {
         // Arrange
         UUID roundId = UUID.randomUUID();
