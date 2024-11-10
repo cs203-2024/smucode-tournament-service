@@ -1,6 +1,7 @@
 package com.cs203.smucode.controllers;
 
 import com.cs203.smucode.constants.Status;
+import com.cs203.smucode.consumers.UserServiceConsumer;
 import com.cs203.smucode.dtos.brackets.*;
 import com.cs203.smucode.dtos.users.*;
 import com.cs203.smucode.exceptions.BracketNotFoundException;
@@ -47,6 +48,9 @@ class BracketRestControllerTest {
     @MockBean
     private BracketMapper bracketMapper;
 
+    @MockBean
+    private UserServiceConsumer userServiceConsumer;
+
     private TestData testData;
 
     @BeforeEach
@@ -58,7 +62,7 @@ class BracketRestControllerTest {
     private void setupMocks() {
         when(bracketService.findBracketById(testData.bracketId))
                 .thenReturn(testData.bracket);
-        when(bracketMapper.bracketToBracketDTO(any(Bracket.class)))
+        when(bracketMapper.bracketToBracketDTO(any(Bracket.class), any(UserServiceConsumer.class)))
                 .thenReturn(testData.bracketDTO);
         when(bracketMapper.updateBracketScoreDTOToBracket(any()))
                 .thenReturn(testData.bracket);
@@ -127,7 +131,7 @@ class BracketRestControllerTest {
         void endBracket_Success() throws Exception {
             when(bracketService.endBracket(testData.bracketId))
                     .thenReturn(testData.completedBracket);
-            when(bracketMapper.bracketToBracketDTO(testData.completedBracket))
+            when(bracketMapper.bracketToBracketDTO(testData.completedBracket, userServiceConsumer))
                     .thenReturn(testData.completedBracketDTO);
 
             mockMvc.perform(put("/tournaments/brackets/{bracketId}/end", testData.bracketId)

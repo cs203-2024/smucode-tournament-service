@@ -1,8 +1,18 @@
 package com.cs203.smucode.mappers;
 
+import com.cs203.smucode.consumers.UserServiceConsumer;
+import com.cs203.smucode.dtos.brackets.BracketDTO;
+import com.cs203.smucode.dtos.rounds.DetailedRoundDTO;
 import com.cs203.smucode.dtos.rounds.RoundDTO;
+import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Round;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author jered
@@ -15,8 +25,14 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring", uses = {BracketMapper.class})
 public interface RoundMapper {
 
-    RoundDTO roundToRoundDTO(Round round);
+//    @Mapping(target = "brackets",
+//            expression = "java(mapBracketsWithUserContext(round.getBrackets(), userServiceConsumer))")
+    @Mapping(target = "brackets", source = "brackets")
+    RoundDTO roundToRoundDTO(Round round, @Context UserServiceConsumer userServiceConsumer);
 
+    @Mapping(target = "brackets", ignore = true)
     Round roundDTOToRound(RoundDTO roundDTO);
 
+//    List<BracketDTO> mapBracketsWithUserContext(List<Bracket> brackets,
+//                                                @Context UserServiceConsumer userServiceConsumer);
 }

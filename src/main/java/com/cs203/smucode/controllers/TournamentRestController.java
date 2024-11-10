@@ -116,7 +116,7 @@ public class TournamentRestController {
     @GetMapping("/{tournamentId}/brackets")
     public TournamentBracketsDTO getTournamentBracketsByTournamentId(@PathVariable UUID tournamentId) {
         Tournament tournament = tournamentService.findTournamentById(tournamentId);
-        return tournamentMapper.tournamentToTournamentBracketsDTO(tournament);
+        return tournamentMapper.tournamentToTournamentBracketsDTO(tournament, userServiceConsumer);
     }
 
     @GetMapping("/{tournamentId}/participants")

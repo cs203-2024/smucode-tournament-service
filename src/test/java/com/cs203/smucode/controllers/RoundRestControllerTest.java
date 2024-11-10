@@ -1,6 +1,7 @@
 package com.cs203.smucode.controllers;
 
 import com.cs203.smucode.constants.Status;
+import com.cs203.smucode.consumers.UserServiceConsumer;
 import com.cs203.smucode.dtos.rounds.RoundDTO;
 import com.cs203.smucode.exceptions.RoundNotFoundException;
 import com.cs203.smucode.mappers.RoundMapper;
@@ -46,6 +47,9 @@ class RoundRestControllerTest {
     @MockBean
     private RoundMapper roundMapper;
 
+    @MockBean
+    private UserServiceConsumer userServiceConsumer;
+
     private TestData testData;
 
     @BeforeEach
@@ -57,7 +61,7 @@ class RoundRestControllerTest {
     private void setupMocks() {
         when(roundService.findRoundById(testData.roundId))
                 .thenReturn(testData.round);
-        when(roundMapper.roundToRoundDTO(any(Round.class)))
+        when(roundMapper.roundToRoundDTO(any(Round.class), userServiceConsumer))
                 .thenReturn(testData.roundDTO);
         when(roundMapper.roundDTOToRound(any(RoundDTO.class)))
                 .thenReturn(testData.round);
@@ -79,7 +83,7 @@ class RoundRestControllerTest {
                     .andExpect(jsonPath("$.status").value(testData.round.getStatus().toString().toLowerCase()));
 
             verify(roundService).findRoundById(testData.roundId);
-            verify(roundMapper).roundToRoundDTO(testData.round);
+            verify(roundMapper).roundToRoundDTO(testData.round, userServiceConsumer);
         }
 
         @Test
@@ -112,7 +116,7 @@ class RoundRestControllerTest {
         void updateRound_Success() throws Exception {
             when(roundService.updateRound(eq(testData.roundId), any(Round.class)))
                     .thenReturn(testData.updatedRound);
-            when(roundMapper.roundToRoundDTO(testData.updatedRound))
+            when(roundMapper.roundToRoundDTO(testData.updatedRound, userServiceConsumer))
                     .thenReturn(testData.updatedRoundDTO);
 
             mockMvc.perform(put("/tournaments/rounds/{roundId}", testData.roundId)
