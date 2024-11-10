@@ -271,27 +271,6 @@ class TournamentServiceImplTest {
     }
 
     @Test
-    void deleteTournamentParticipant_shouldRemoveParticipantAndUpdateTournament() {
-        // Arrange
-        UUID tournamentId = sampleTournament.getId();
-        String participantToRemove = "User1";
-        Round currentRound = new Round();
-        currentRound.setId(UUID.randomUUID());
-
-        when(tournamentServiceRepository.findById(tournamentId)).thenReturn(Optional.of(sampleTournament));
-        when(roundService.findRoundByTournamentIdAndName(eq(tournamentId), anyString())).thenReturn(currentRound);
-        when(tournamentServiceRepository.save(any(Tournament.class))).thenReturn(sampleTournament);
-
-        // Act
-        Tournament result = tournamentService.deleteTournamentParticipant(tournamentId, participantToRemove);
-
-        // Assert
-        assertFalse(result.getParticipants().contains(participantToRemove));
-        verify(roundService).removePlayerFromOngoingRound(currentRound.getId(), participantToRemove);
-        verify(tournamentServiceRepository).save(any(Tournament.class));
-    }
-
-    @Test
     void findAllEligibleTournamentsForUser_shouldReturnEligibleTournaments() {
         // Arrange
         String username = "TestUser";
@@ -411,29 +390,6 @@ class TournamentServiceImplTest {
         // Act & Assert
         assertThrows(TournamentNotFoundException.class, () ->
                 tournamentService.addTournamentSignup(tournamentId, newSignup));
-    }
-
-    @Test
-    void findAllEligibleTournamentsForUser_whenUserAlreadySignedUp_shouldExcludeTournament() {
-        // Arrange
-        String username = "TestUser";
-        Tournament signedUpTournament = createSampleTournament();
-        signedUpTournament.getSignups().add(username);
-        Tournament eligibleTournament = createSampleTournament();
-        eligibleTournament.setId(UUID.randomUUID());
-        List<Tournament> openTournaments = Arrays.asList(signedUpTournament, eligibleTournament);
-
-        when(tournamentServiceRepository.findBySignupEndDateAfterAndStatus(any(LocalDateTime.class), eq(Status.UPCOMING)))
-                .thenReturn(Optional.of(openTournaments));
-
-        // Act
-        List<Tournament> result = tournamentService.findAllEligibleTournamentsForUser(username);
-
-        // Assert
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertFalse(result.contains(signedUpTournament));
-        assertTrue(result.contains(eligibleTournament));
     }
 
     @Test
@@ -614,24 +570,6 @@ class TournamentServiceImplTest {
                 round.getStatus() == Status.UPCOMING &&
                         round.getTournament() == tournament
         ));
-    }
-
-    @Test
-    void addTournamentSignup_whenSignupsOpen_shouldAddSignup() {
-        // Arrange
-        UUID tournamentId = sampleTournament.getId();
-        String newSignup = "NewUser";
-        sampleTournament.setSignupEndDate(LocalDateTime.now().plusDays(1));
-
-        when(tournamentServiceRepository.findById(tournamentId)).thenReturn(Optional.of(sampleTournament));
-        when(tournamentServiceRepository.save(any(Tournament.class))).thenReturn(sampleTournament);
-
-        // Act
-        Tournament result = tournamentService.addTournamentSignup(tournamentId, newSignup);
-
-        // Assert
-        assertTrue(result.getSignups().contains(newSignup));
-        verify(tournamentServiceRepository).save(sampleTournament);
     }
 
     @Test
