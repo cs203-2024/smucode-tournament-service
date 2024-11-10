@@ -119,7 +119,6 @@ class BracketServiceImplTest {
         assertEquals(bracket, result);
         verify(bracketServiceRepository).save(bracket);
     }
-
     @Test
     void endBracket_BothPlayersPresent() {
         UUID bracketId = UUID.randomUUID();
