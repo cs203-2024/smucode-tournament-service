@@ -2,8 +2,6 @@ package com.cs203.smucode.models.events;
 
 import com.cs203.smucode.constants.NotificationCategory;
 import com.cs203.smucode.constants.NotificationType;
-import com.cs203.smucode.consumers.NotificationServiceConsumer;
-import com.cs203.smucode.mappers.NotificationMapper;
 import com.cs203.smucode.services.TournamentService;
 import lombok.Data;
 import org.slf4j.Logger;

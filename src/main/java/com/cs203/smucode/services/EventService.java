@@ -1,8 +1,5 @@
 package com.cs203.smucode.services;
 
-import com.cs203.smucode.factories.EventFactory;
-import com.cs203.smucode.models.events.Event;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
