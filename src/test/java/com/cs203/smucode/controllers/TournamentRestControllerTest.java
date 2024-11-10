@@ -430,7 +430,7 @@ class TournamentRestControllerTest {
         @Test
         @DisplayName("Should return tournament brackets when authenticated")
         void getTournamentBrackets_Success() throws Exception {
-            when(tournamentMapper.tournamentToTournamentBracketsDTO(any(Tournament.class), userServiceConsumer))
+            when(tournamentMapper.tournamentToTournamentBracketsDTO(any(Tournament.class), eq(userServiceConsumer)))
                     .thenReturn(testData.tournamentBracketsDTO);
 
             mockMvc.perform(get("/tournaments/{tournamentId}/brackets", testData.tournamentId)
@@ -438,7 +438,7 @@ class TournamentRestControllerTest {
                     .andExpect(status().isOk());
 
             verify(tournamentService).findTournamentById(testData.tournamentId);
-            verify(tournamentMapper).tournamentToTournamentBracketsDTO(any(Tournament.class), userServiceConsumer);
+            verify(tournamentMapper).tournamentToTournamentBracketsDTO(any(Tournament.class), eq(userServiceConsumer));
         }
 
         @Test
