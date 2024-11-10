@@ -1,7 +1,6 @@
 package com.cs203.smucode.controllers;
 
 import com.cs203.smucode.consumers.UserServiceConsumer;
-import com.cs203.smucode.dtos.rounds.DetailedRoundDTO;
 import com.cs203.smucode.dtos.rounds.RoundDTO;
 import com.cs203.smucode.mappers.RoundMapper;
 import com.cs203.smucode.models.Round;
