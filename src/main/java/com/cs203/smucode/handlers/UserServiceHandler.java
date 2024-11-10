@@ -35,7 +35,7 @@ public class UserServiceHandler {
                 userDTOs.add(userServiceConsumer.getUserById(username));
             }
             catch (FeignException e) {
-                throw new UserNotFoundException("User with username: " + username + " not found");
+                throw new UserNotFoundException("Exception occurred while retrieving user " + username + ": " + e);
             }
         }
         return userDTOs;
