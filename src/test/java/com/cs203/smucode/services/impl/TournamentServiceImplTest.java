@@ -1,5 +1,6 @@
 package com.cs203.smucode.services.impl;
 
+import com.cs203.smucode.utils.AWSUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -28,6 +29,9 @@ class TournamentServiceImplTest {
 
     @Mock
     private BracketService bracketService;
+
+    @Mock
+    private AWSUtil awsUtil;
 
     @InjectMocks
     private TournamentServiceImpl tournamentService;
