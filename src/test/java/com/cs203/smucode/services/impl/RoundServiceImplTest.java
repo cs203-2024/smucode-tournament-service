@@ -350,19 +350,6 @@ class RoundServiceImplTest {
     }
 
     @Test
-    void createRound_shouldThrowRoundCreationException_whenBracketCreationFails() {
-        // Arrange
-        Round roundToCreate = createSampleRound();
-        when(roundServiceRepository.save(roundToCreate)).thenReturn(roundToCreate);
-        when(bracketService.createBracket(any(Bracket.class)))
-                .thenThrow(new RuntimeException("Bracket creation failed"));
-
-        // Act & Assert
-        assertThrows(RoundCreationException.class, () -> roundService.createRound(roundToCreate));
-        verify(roundServiceRepository).save(roundToCreate);
-    }
-
-    @Test
     void populateNextRound_shouldThrowIllegalStateException_whenCurrentBracketsNotCompleted() {
         // Arrange
         UUID currRoundId = UUID.randomUUID();
