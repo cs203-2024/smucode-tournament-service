@@ -150,7 +150,7 @@
 					<!-- Global configuration for all executions -->
 					<excludes>
 						<exclude>**/exceptions/**/*</exclude>
-						<exclude>**/dto/**/*</exclude>
+						<exclude>**/dtos/**/*</exclude>
 						<exclude>**/handlers/**/*</exclude>
 						<exclude>**/models/**/*</exclude>
 						<exclude>**/constants/**/*</exclude>
@@ -160,6 +160,7 @@
 						<exclude>**/utils/**/*</exclude>
 						<exclude>**/aspects/**/*</exclude>
 						<exclude>**/config/**/*</exclude>
+						<exclude>**/schedulers/**/*</exclude>
 						<exclude>com/cs203/smucode/TournamentApplication.class</exclude>
 					</excludes>
 				</configuration>

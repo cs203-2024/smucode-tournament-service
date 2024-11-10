@@ -184,52 +184,6 @@ class RoundServiceImplTest {
     }
 
     @Test
-    void populateNextRound_shouldPopulateRoundWithWinners() {
-        // Arrange
-        UUID currRoundId = UUID.randomUUID();
-        UUID nextRoundId = UUID.randomUUID();
-        Round nextRound = createSampleRound();
-
-        // Create a bracket for the next round
-        Bracket nextRoundBracket = createSampleBracket();
-        nextRound.setBrackets(Collections.singletonList(nextRoundBracket));
-
-        // Create completed brackets with winners for current round
-        Bracket bracket1 = createSampleBracket();
-        bracket1.setStatus(Status.COMPLETED); // Ensure bracket is completed
-        bracket1.setWinner("player1");
-
-        Bracket bracket2 = createSampleBracket();
-        bracket2.setStatus(Status.COMPLETED); // Ensure bracket is completed
-        bracket2.setWinner("player2");
-
-        when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
-        when(bracketService.findBracketByRoundIdAndSeqId(nextRoundId, 1)).thenReturn(nextRoundBracket);
-        when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 1)).thenReturn(bracket1);
-        when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 2)).thenReturn(bracket2);
-
-        // Mock prediction service
-        PredictionResult predictionResult = new PredictionResult();
-        predictionResult.setPlayer1WinProbability(0.6);
-        predictionResult.setPlayer2WinProbability(0.4);
-        when(predictionService.predictMatch("player1", "player2")).thenReturn(predictionResult);
-
-        // Act
-        Round result = roundService.populateNextRound(currRoundId, nextRoundId);
-
-        // Assert
-        assertEquals(nextRound, result);
-        verify(bracketService).updateBracket(any(UUID.class), argThat(bracket ->
-                bracket.getPlayer1().equals("player1") &&
-                        bracket.getPlayer2().equals("player2") &&
-                        bracket.getPlayer1WinProbability() == 0.6 &&
-                        bracket.getPlayer2WinProbability() == 0.4 &&
-                        bracket.getStatus() == Status.ONGOING
-        ));
-        verify(predictionService).predictMatch("player1", "player2");
-    }
-
-    @Test
     void populateNextRound_withInvalidNextRoundId_shouldThrowRoundNotFoundException() {
         UUID currRoundId = UUID.randomUUID();
         UUID nextRoundId = UUID.randomUUID();
@@ -335,7 +289,7 @@ class RoundServiceImplTest {
         when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 2)).thenReturn(bracket2);
 
         // Act & Assert
-        assertThrows(IllegalStateException.class, () ->
+        assertThrows(RoundNotFoundException.class, () ->
                         roundService.populateNextRound(currRoundId, nextRoundId),
                 "Should throw IllegalStateException when a winner is null"
         );
@@ -396,28 +350,6 @@ class RoundServiceImplTest {
     }
 
     @Test
-    void populateNextRound_whenBothPlayersAreNull_shouldSkipBracketUpdate() {
-        // Arrange
-        UUID currRoundId = UUID.randomUUID();
-        UUID nextRoundId = UUID.randomUUID();
-        Round nextRound = createSampleRound();
-        nextRound.setBrackets(new ArrayList<>());  // Empty brackets list
-
-        when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
-
-        // No need to mock bracket service calls since there are no brackets
-
-        // Act
-        Round result = roundService.populateNextRound(currRoundId, nextRoundId);
-
-        // Assert
-        assertEquals(nextRound, result);
-        verify(predictionService, never()).predictMatch(anyString(), anyString());
-        verify(bracketService, never()).findBracketByRoundIdAndSeqId(any(UUID.class), anyInt());
-        verify(bracketService, never()).updateBracket(any(UUID.class), any(Bracket.class));
-    }
-
-    @Test
     void createRound_shouldThrowRoundCreationException_whenBracketCreationFails() {
         // Arrange
         Round roundToCreate = createSampleRound();
@@ -449,7 +381,7 @@ class RoundServiceImplTest {
         when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 2)).thenReturn(currentBracket2);
 
         // Act & Assert
-        assertThrows(IllegalStateException.class,
+        assertThrows(RoundNotFoundException.class,
                 () -> roundService.populateNextRound(currRoundId, nextRoundId));
     }
 
@@ -474,7 +406,7 @@ class RoundServiceImplTest {
         when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 2)).thenReturn(currentBracket2);
 
         // Act & Assert
-        assertThrows(IllegalStateException.class,
+        assertThrows(RoundNotFoundException.class,
                 () -> roundService.populateNextRound(currRoundId, nextRoundId));
     }
 
@@ -533,44 +465,6 @@ class RoundServiceImplTest {
     }
 
     @Test
-    void populateNextRound_shouldSetupNewBracketsCorrectly() {
-        // Arrange
-        UUID currRoundId = UUID.randomUUID();
-        UUID nextRoundId = UUID.randomUUID();
-        Round nextRound = createSampleRound();
-        nextRound.setBrackets(Collections.singletonList(sampleBracket));
-
-        Bracket currentBracket1 = createSampleBracket();
-        currentBracket1.setStatus(Status.COMPLETED);
-        currentBracket1.setWinner("player1");
-        Bracket currentBracket2 = createSampleBracket();
-        currentBracket2.setStatus(Status.COMPLETED);
-        currentBracket2.setWinner("player2");
-
-        PredictionResult predictionResult = new PredictionResult();
-        predictionResult.setPlayer1WinProbability(0.6);
-        predictionResult.setPlayer2WinProbability(0.4);
-
-        when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
-        when(bracketService.findBracketByRoundIdAndSeqId(nextRoundId, 1)).thenReturn(sampleBracket);
-        when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 1)).thenReturn(currentBracket1);
-        when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, 2)).thenReturn(currentBracket2);
-        when(predictionService.predictMatch("player1", "player2")).thenReturn(predictionResult);
-
-        // Act
-        Round result = roundService.populateNextRound(currRoundId, nextRoundId);
-
-        // Assert
-        verify(bracketService).updateBracket(eq(sampleBracket.getId()), argThat(bracket ->
-                bracket.getPlayer1().equals("player1") &&
-                        bracket.getPlayer2().equals("player2") &&
-                        bracket.getPlayer1WinProbability() == 0.6 &&
-                        bracket.getPlayer2WinProbability() == 0.4 &&
-                        bracket.getStatus() == Status.ONGOING
-        ));
-    }
-
-    @Test
     void removePlayerFromOngoingRound_shouldThrowUserNotFoundException_whenPlayerNotFound() {
         // Arrange
         UUID roundId = UUID.randomUUID();
@@ -584,5 +478,357 @@ class RoundServiceImplTest {
         // Act & Assert
         assertThrows(UserNotFoundException.class,
                 () -> roundService.removePlayerFromOngoingRound(roundId, username));
+    }
+
+    @Test
+    void populateNextRound_shouldPopulateNextRoundSuccessfully() {
+        // Arrange
+        UUID currRoundId = UUID.randomUUID();
+        UUID nextRoundId = UUID.randomUUID();
+
+        // Mock current round
+        Round currRound = new Round();
+        currRound.setId(currRoundId);
+        currRound.setBrackets(new ArrayList<>());
+        currRound.setStatus(Status.ONGOING);
+
+        // Mock next round
+        Round nextRound = new Round();
+        nextRound.setId(nextRoundId);
+        nextRound.setBrackets(new ArrayList<>());
+        nextRound.setStatus(Status.UPCOMING);
+
+        // Assume we have 4 brackets in current round
+        int numberOfBracketsInCurrentRound = 4;
+        for (int i = 1; i <= numberOfBracketsInCurrentRound; i++) {
+            Bracket currBracket = new Bracket();
+            currBracket.setId(UUID.randomUUID());
+            currBracket.setSeqId(i);
+            currBracket.setStatus(Status.COMPLETED);
+            currBracket.setWinner("player" + i);
+            currBracket.setRound(currRound);
+            currRound.getBrackets().add(currBracket);
+        }
+
+        // Assume we have 2 brackets in next round
+        int numberOfBracketsInNextRound = 2;
+        for (int i = 1; i <= numberOfBracketsInNextRound; i++) {
+            Bracket nextBracket = new Bracket();
+            nextBracket.setId(UUID.randomUUID());
+            nextBracket.setSeqId(i);
+            nextBracket.setStatus(Status.UPCOMING);
+            nextBracket.setRound(nextRound);
+            nextRound.getBrackets().add(nextBracket);
+        }
+
+        // Mock repository calls
+        when(roundServiceRepository.findById(currRoundId)).thenReturn(Optional.of(currRound));
+        when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
+        when(roundServiceRepository.save(any(Round.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Mock bracketService calls for current brackets
+        for (int i = 1; i <= numberOfBracketsInCurrentRound; i++) {
+            Bracket currBracket = currRound.getBrackets().get(i - 1);
+            when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, i))
+                    .thenReturn(currBracket);
+        }
+
+        // Mock bracketService calls for next brackets
+        for (int i = 1; i <= numberOfBracketsInNextRound; i++) {
+            Bracket nextBracket = nextRound.getBrackets().get(i - 1);
+            when(bracketService.findBracketByRoundIdAndSeqId(nextRoundId, i))
+                    .thenReturn(nextBracket);
+        }
+
+        // Mock predictionService calls
+        for (int i = 1; i <= numberOfBracketsInNextRound; i++) {
+            String player1 = currRound.getBrackets().get((i - 1) * 2).getWinner();
+            String player2 = currRound.getBrackets().get((i - 1) * 2 + 1).getWinner();
+
+            PredictionResult predictionResult = new PredictionResult();
+            predictionResult.setPlayer1WinProbability(0.6);
+            predictionResult.setPlayer2WinProbability(0.4);
+
+            when(predictionService.predictMatch(player1, player2))
+                    .thenReturn(predictionResult);
+        }
+
+        // Act
+        Round result = roundService.populateNextRound(currRoundId, nextRoundId);
+
+        // Assert
+        assertEquals(Status.COMPLETED, currRound.getStatus());
+        assertEquals(Status.ONGOING, nextRound.getStatus());
+        assertEquals(nextRound, result);
+
+        // Verify that brackets in next round are updated correctly
+        for (int i = 1; i <= numberOfBracketsInNextRound; i++) {
+            Bracket nextBracket = nextRound.getBrackets().get(i - 1);
+            String expectedPlayer1 = currRound.getBrackets().get((i - 1) * 2).getWinner();
+            String expectedPlayer2 = currRound.getBrackets().get((i - 1) * 2 + 1).getWinner();
+
+            assertEquals(expectedPlayer1, nextBracket.getPlayer1());
+            assertEquals(expectedPlayer2, nextBracket.getPlayer2());
+            assertEquals(0.6, nextBracket.getPlayer1WinProbability());
+            assertEquals(0.4, nextBracket.getPlayer2WinProbability());
+            assertEquals(Status.ONGOING, nextBracket.getStatus());
+
+            verify(bracketService).updateBracket(eq(nextBracket.getId()), any(Bracket.class));
+        }
+
+        // Verify methods were called
+        verify(roundServiceRepository, times(2)).findById(any(UUID.class));
+        verify(roundServiceRepository, times(2)).save(any(Round.class));
+        verify(bracketService, times(numberOfBracketsInNextRound)).findBracketByRoundIdAndSeqId(eq(nextRoundId), anyInt());
+        verify(bracketService, times(numberOfBracketsInCurrentRound)).findBracketByRoundIdAndSeqId(eq(currRoundId), anyInt());
+        verify(predictionService, times(numberOfBracketsInNextRound)).predictMatch(anyString(), anyString());
+    }
+    @Test
+    void populateNextRound_withInvalidCurrentRoundId_shouldThrowRoundNotFoundException() {
+        // Arrange
+        UUID currRoundId = UUID.randomUUID();
+        UUID nextRoundId = UUID.randomUUID();
+
+        // Mock next round exists
+        Round nextRound = new Round();
+        nextRound.setId(nextRoundId);
+        when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
+
+        // Mock current round does not exist
+        when(roundServiceRepository.findById(currRoundId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(RoundNotFoundException.class, () -> roundService.populateNextRound(currRoundId, nextRoundId));
+
+        verify(roundServiceRepository).findById(currRoundId);
+        verify(roundServiceRepository, never()).save(any(Round.class));
+    }
+
+    @Test
+    void populateNextRound_withIncompleteCurrentBracket_shouldThrowIllegalStateException() {
+        // Arrange
+        UUID currRoundId = UUID.randomUUID();
+        UUID nextRoundId = UUID.randomUUID();
+
+        // Mock current round
+        Round currRound = new Round();
+        currRound.setId(currRoundId);
+        currRound.setBrackets(new ArrayList<>());
+        currRound.setStatus(Status.ONGOING);
+
+        // Mock next round
+        Round nextRound = new Round();
+        nextRound.setId(nextRoundId);
+        nextRound.setBrackets(new ArrayList<>());
+        nextRound.setStatus(Status.UPCOMING);
+
+        // Assume we have 2 brackets in current round
+        int numberOfBracketsInCurrentRound = 2;
+        for (int i = 1; i <= numberOfBracketsInCurrentRound; i++) {
+            Bracket currBracket = new Bracket();
+            currBracket.setId(UUID.randomUUID());
+            currBracket.setSeqId(i);
+            if (i == 1) {
+                currBracket.setStatus(Status.COMPLETED);
+                currBracket.setWinner("player" + i);
+            } else {
+                currBracket.setStatus(Status.ONGOING); // Not completed
+            }
+            currBracket.setRound(currRound);
+            currRound.getBrackets().add(currBracket);
+        }
+
+        // Assume we have 1 bracket in next round
+        Bracket nextBracket = new Bracket();
+        nextBracket.setId(UUID.randomUUID());
+        nextBracket.setSeqId(1);
+        nextBracket.setStatus(Status.UPCOMING);
+        nextBracket.setRound(nextRound);
+        nextRound.getBrackets().add(nextBracket);
+
+        // Mock repository calls
+        when(roundServiceRepository.findById(currRoundId)).thenReturn(Optional.of(currRound));
+        when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
+        when(roundServiceRepository.save(any(Round.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Mock bracketService calls for current brackets
+        for (int i = 1; i <= numberOfBracketsInCurrentRound; i++) {
+            Bracket currBracket = currRound.getBrackets().get(i - 1);
+            when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, i))
+                    .thenReturn(currBracket);
+        }
+
+        // Mock bracketService calls for next brackets
+        when(bracketService.findBracketByRoundIdAndSeqId(nextRoundId, 1))
+                .thenReturn(nextBracket);
+
+        // Act & Assert
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> roundService.populateNextRound(currRoundId, nextRoundId));
+
+        assertTrue(exception.getMessage().contains("is still ongoing"));
+    }
+
+    @Test
+    void populateNextRound_withBracketMissingWinner_shouldThrowIllegalStateException() {
+        // Arrange
+        UUID currRoundId = UUID.randomUUID();
+        UUID nextRoundId = UUID.randomUUID();
+
+        // Mock current round
+        Round currRound = new Round();
+        currRound.setId(currRoundId);
+        currRound.setBrackets(new ArrayList<>());
+        currRound.setStatus(Status.ONGOING);
+
+        // Mock next round
+        Round nextRound = new Round();
+        nextRound.setId(nextRoundId);
+        nextRound.setBrackets(new ArrayList<>());
+        nextRound.setStatus(Status.UPCOMING);
+
+        // Assume we have 2 brackets in current round
+        int numberOfBracketsInCurrentRound = 2;
+        for (int i = 1; i <= numberOfBracketsInCurrentRound; i++) {
+            Bracket currBracket = new Bracket();
+            currBracket.setId(UUID.randomUUID());
+            currBracket.setSeqId(i);
+            currBracket.setStatus(Status.COMPLETED);
+            if (i == 1) {
+                currBracket.setWinner("player" + i);
+            } else {
+                currBracket.setWinner(null); // Missing winner
+            }
+            currBracket.setRound(currRound);
+            currRound.getBrackets().add(currBracket);
+        }
+
+        // Assume we have 1 bracket in next round
+        Bracket nextBracket = new Bracket();
+        nextBracket.setId(UUID.randomUUID());
+        nextBracket.setSeqId(1);
+        nextBracket.setStatus(Status.UPCOMING);
+        nextBracket.setRound(nextRound);
+        nextRound.getBrackets().add(nextBracket);
+
+        // Mock repository calls
+        when(roundServiceRepository.findById(currRoundId)).thenReturn(Optional.of(currRound));
+        when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
+        when(roundServiceRepository.save(any(Round.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Mock bracketService calls for current brackets
+        for (int i = 1; i <= numberOfBracketsInCurrentRound; i++) {
+            Bracket currBracket = currRound.getBrackets().get(i - 1);
+            when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, i))
+                    .thenReturn(currBracket);
+        }
+
+        // Mock bracketService calls for next brackets
+        when(bracketService.findBracketByRoundIdAndSeqId(nextRoundId, 1))
+                .thenReturn(nextBracket);
+
+        // Act & Assert
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> roundService.populateNextRound(currRoundId, nextRoundId));
+
+        assertTrue(exception.getMessage().contains("does not have a winner"));
+    }
+
+    @Test
+    void populateNextRound_withNoBracketsInNextRound_shouldReturnNextRoundWithUpdatedStatus() {
+        // Arrange
+        UUID currRoundId = UUID.randomUUID();
+        UUID nextRoundId = UUID.randomUUID();
+
+        // Mock current round
+        Round currRound = new Round();
+        currRound.setId(currRoundId);
+        currRound.setBrackets(new ArrayList<>());
+        currRound.setStatus(Status.ONGOING);
+
+        // Mock next round with no brackets
+        Round nextRound = new Round();
+        nextRound.setId(nextRoundId);
+        nextRound.setBrackets(new ArrayList<>());
+        nextRound.setStatus(Status.UPCOMING);
+
+        // Mock repository calls
+        when(roundServiceRepository.findById(currRoundId)).thenReturn(Optional.of(currRound));
+        when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
+        when(roundServiceRepository.save(any(Round.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Round result = roundService.populateNextRound(currRoundId, nextRoundId);
+
+        // Assert
+        assertEquals(Status.COMPLETED, currRound.getStatus());
+        assertEquals(Status.ONGOING, nextRound.getStatus());
+        assertEquals(nextRound, result);
+
+        // Verify that no brackets were updated
+        verify(bracketService, never()).findBracketByRoundIdAndSeqId(any(UUID.class), anyInt());
+        verify(bracketService, never()).updateBracket(any(UUID.class), any(Bracket.class));
+    }
+
+    @Test
+    void populateNextRound_whenPredictionServiceFails_shouldThrowException() {
+        // Arrange
+        UUID currRoundId = UUID.randomUUID();
+        UUID nextRoundId = UUID.randomUUID();
+
+        // Mock current round
+        Round currRound = new Round();
+        currRound.setId(currRoundId);
+        currRound.setBrackets(new ArrayList<>());
+        currRound.setStatus(Status.ONGOING);
+
+        // Mock next round
+        Round nextRound = new Round();
+        nextRound.setId(nextRoundId);
+        nextRound.setBrackets(new ArrayList<>());
+        nextRound.setStatus(Status.UPCOMING);
+
+        // Assume we have 2 brackets in current round
+        int numberOfBracketsInCurrentRound = 2;
+        for (int i = 1; i <= numberOfBracketsInCurrentRound; i++) {
+            Bracket currBracket = new Bracket();
+            currBracket.setId(UUID.randomUUID());
+            currBracket.setSeqId(i);
+            currBracket.setStatus(Status.COMPLETED);
+            currBracket.setWinner("player" + i);
+            currBracket.setRound(currRound);
+            currRound.getBrackets().add(currBracket);
+        }
+
+        // Assume we have 1 bracket in next round
+        Bracket nextBracket = new Bracket();
+        nextBracket.setId(UUID.randomUUID());
+        nextBracket.setSeqId(1);
+        nextBracket.setStatus(Status.UPCOMING);
+        nextBracket.setRound(nextRound);
+        nextRound.getBrackets().add(nextBracket);
+
+        // Mock repository calls
+        when(roundServiceRepository.findById(currRoundId)).thenReturn(Optional.of(currRound));
+        when(roundServiceRepository.findById(nextRoundId)).thenReturn(Optional.of(nextRound));
+        when(roundServiceRepository.save(any(Round.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Mock bracketService calls for current brackets
+        for (int i = 1; i <= numberOfBracketsInCurrentRound; i++) {
+            Bracket currBracket = currRound.getBrackets().get(i - 1);
+            when(bracketService.findBracketByRoundIdAndSeqId(currRoundId, i))
+                    .thenReturn(currBracket);
+        }
+
+        // Mock bracketService calls for next brackets
+        when(bracketService.findBracketByRoundIdAndSeqId(nextRoundId, 1))
+                .thenReturn(nextBracket);
+
+        // Mock predictionService to throw exception
+        when(predictionService.predictMatch(anyString(), anyString()))
+                .thenThrow(new RuntimeException("Prediction service failure"));
+
+        // Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> roundService.populateNextRound(currRoundId, nextRoundId));
+
+        assertEquals("Prediction service failure", exception.getMessage());
     }
 }

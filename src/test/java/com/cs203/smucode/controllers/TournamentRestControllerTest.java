@@ -2,7 +2,8 @@ package com.cs203.smucode.controllers;
 
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.consumers.UserServiceConsumer;
-import com.cs203.smucode.dto.*;
+import com.cs203.smucode.dtos.users.*;
+import com.cs203.smucode.dtos.tournaments.*;
 import com.cs203.smucode.mappers.TournamentMapper;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.TournamentService;
