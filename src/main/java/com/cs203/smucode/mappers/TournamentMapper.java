@@ -1,9 +1,11 @@
 package com.cs203.smucode.mappers;
 
 import com.cs203.smucode.consumers.UserServiceConsumer;
+import com.cs203.smucode.dtos.brackets.BracketDTO;
 import com.cs203.smucode.dtos.tournaments.*;
 import com.cs203.smucode.dtos.users.ParticipantUserDTO;
 import com.cs203.smucode.dtos.users.TournamentParticipantsDTO;
+import com.cs203.smucode.models.Bracket;
 import com.cs203.smucode.models.Tournament;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
@@ -52,7 +54,9 @@ public interface TournamentMapper {
     UserTournamentDTO mapTournamentToUserTournamentDTO(Tournament tournament);
 
     // TournamentBracketsDTO
-    TournamentBracketsDTO tournamentToTournamentBracketsDTO(Tournament tournament);
+    @Mapping(target = "rounds", source = "rounds")
+    TournamentBracketsDTO tournamentToTournamentBracketsDTO(Tournament tournament,
+                                                            @Context UserServiceConsumer userServiceConsumer);
 
     // TournamentParticipantsDTO
     @Mapping(target = "participants", expression = "java(getParticipants(tournament, userServiceConsumer))")
@@ -122,7 +126,6 @@ public interface TournamentMapper {
 
         return dtos;
     }
-
 
     // Derive signup status
     default boolean getSignupsOpen(Tournament tournament) {
