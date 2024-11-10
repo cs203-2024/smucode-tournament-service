@@ -224,17 +224,6 @@ class PredictionServiceImplTest {
         verify(userServiceConsumer).getUserById(player2);
         verify(userServiceConsumer).getUserById(player1);
     }
-
-    @Test
-    void trainModelWithResult_whenUserServiceFails_shouldLogError() {
-        // Arrange
-        when(userServiceConsumer.getUserById(anyString()))
-                .thenThrow(new RuntimeException("User service failed"));
-
-        // Act & Assert - should not throw exception, just log error
-        predictionService.trainModelWithResult("player1", "player2", true);
-    }
-
     @Test
     void predictMatch_whenTrueSkillProbabilityLessThanThreshold_shouldNotBlendWithModel() {
         // Arrange

@@ -75,7 +75,7 @@ class RoundRestControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.id").value(testData.roundId.toString()))
-                    .andExpect(jsonPath("$.name").value(testData.ROUND_NAME))
+                    .andExpect(jsonPath("$.name").value(testData.roundName))
                     .andExpect(jsonPath("$.status").value(testData.round.getStatus().toString().toLowerCase()));
 
             verify(roundService).findRoundById(testData.roundId);
@@ -120,7 +120,7 @@ class RoundRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(testData.updateRoundDTO)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.name").value(testData.UPDATED_ROUND_NAME))
+                    .andExpect(jsonPath("$.name").value(testData.updatedRoundName))
                     .andExpect(jsonPath("$.status").value(Status.COMPLETED.toString().toLowerCase()));
 
             verify(roundService).updateRound(eq(testData.roundId), any(Round.class));
@@ -155,8 +155,8 @@ class RoundRestControllerTest {
 
     private static class TestData {
         final UUID roundId = UUID.randomUUID();
-        final String ROUND_NAME = "Round of 16";
-        final String UPDATED_ROUND_NAME = "Updated Round";
+        final String roundName = "Round of 16";
+        final String updatedRoundName = "Updated Round";
         final LocalDateTime startDate = LocalDateTime.now();
         final LocalDateTime endDate = LocalDateTime.now().plusDays(1);
 
@@ -170,15 +170,15 @@ class RoundRestControllerTest {
             Tournament tournament = createTournament();
 
             // Create regular round and DTO
-            this.round = createRound(tournament, Status.ONGOING, ROUND_NAME);
-            this.roundDTO = createRoundDTO(Status.ONGOING, ROUND_NAME);
+            this.round = createRound(tournament, Status.ONGOING, roundName);
+            this.roundDTO = createRoundDTO(Status.ONGOING, roundName);
 
             // Create updated round and DTO
-            this.updatedRound = createRound(tournament, Status.COMPLETED, UPDATED_ROUND_NAME);
-            this.updatedRoundDTO = createRoundDTO(Status.COMPLETED, UPDATED_ROUND_NAME);
+            this.updatedRound = createRound(tournament, Status.COMPLETED, updatedRoundName);
+            this.updatedRoundDTO = createRoundDTO(Status.COMPLETED, updatedRoundName);
 
             // Create update DTO
-            this.updateRoundDTO = createRoundDTO(Status.COMPLETED, UPDATED_ROUND_NAME);
+            this.updateRoundDTO = createRoundDTO(Status.COMPLETED, updatedRoundName);
         }
 
         private Tournament createTournament() {
@@ -189,16 +189,16 @@ class RoundRestControllerTest {
         }
 
         private Round createRound(Tournament tournament, Status status, String name) {
-            Round round = new Round();
-            round.setId(roundId);
-            round.setSeqId(1);
-            round.setName(name);
-            round.setStatus(status);
-            round.setStartDate(startDate);
-            round.setEndDate(endDate);
-            round.setTournament(tournament);
-            round.setBrackets(new ArrayList<>());
-            return round;
+            Round newRound = new Round();
+            newRound.setId(roundId);
+            newRound.setSeqId(1);
+            newRound.setName(name);
+            newRound.setStatus(status);
+            newRound.setStartDate(startDate);
+            newRound.setEndDate(endDate);
+            newRound.setTournament(tournament);
+            newRound.setBrackets(new ArrayList<>());
+            return newRound;
         }
 
         private RoundDTO createRoundDTO(Status status, String name) {

@@ -84,7 +84,7 @@ class TournamentRestControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$[0].id").value(testData.tournamentId.toString()))
-                    .andExpect(jsonPath("$[0].name").value(testData.TOURNAMENT_NAME))
+                    .andExpect(jsonPath("$[0].name").value(testData.tournamentName))
                     .andExpect(jsonPath("$[0].band").exists());
 
             verify(tournamentService).findAllTournamentsByOrganiser(anyString());
@@ -103,7 +103,7 @@ class TournamentRestControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$[0].id").value(testData.tournamentId.toString()))
-                    .andExpect(jsonPath("$[0].name").value(testData.TOURNAMENT_NAME))
+                    .andExpect(jsonPath("$[0].name").value(testData.tournamentName))
                     .andExpect(jsonPath("$[0].signedUp").exists());
 
             verify(tournamentService).findAllTournamentsByRegistrant(anyString());
@@ -133,7 +133,7 @@ class TournamentRestControllerTest {
                             .with(jwt().jwt(jwt -> jwt.claim("sub", "user").claim("scope", "ROLE_USER"))))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[0].id").value(testData.tournamentId.toString()))
-                    .andExpect(jsonPath("$[0].name").value(testData.TOURNAMENT_NAME))
+                    .andExpect(jsonPath("$[0].name").value(testData.tournamentName))
                     .andExpect(jsonPath("$[0].signedUp").exists());
 
             verify(tournamentService).findAllEligibleTournamentsForUser(anyString());
@@ -161,7 +161,7 @@ class TournamentRestControllerTest {
                             .with(jwt().jwt(jwt -> jwt.claim("sub", "admin").claim("scope", "ROLE_ADMIN"))))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(testData.tournamentId.toString()))
-                    .andExpect(jsonPath("$.name").value(testData.TOURNAMENT_NAME))
+                    .andExpect(jsonPath("$.name").value(testData.tournamentName))
                     .andExpect(jsonPath("$.band").exists());
 
             verify(tournamentService).findTournamentById(testData.tournamentId);
@@ -177,7 +177,7 @@ class TournamentRestControllerTest {
                             .with(jwt().jwt(jwt -> jwt.claim("sub", "user").claim("scope", "ROLE_USER"))))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(testData.tournamentId.toString()))
-                    .andExpect(jsonPath("$.name").value(testData.TOURNAMENT_NAME))
+                    .andExpect(jsonPath("$.name").value(testData.tournamentName))
                     .andExpect(jsonPath("$.signedUp").exists());
 
             verify(tournamentService).findTournamentById(testData.tournamentId);
@@ -207,7 +207,7 @@ class TournamentRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(testData.createTournamentDTO)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.name").value(testData.TOURNAMENT_NAME));
+                    .andExpect(jsonPath("$.name").value(testData.tournamentName));
 
             verify(tournamentService).createTournament(any(Tournament.class));
         }
@@ -244,7 +244,7 @@ class TournamentRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(testData.detailedTournamentDTO)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.name").value(testData.TOURNAMENT_NAME));
+                    .andExpect(jsonPath("$.name").value(testData.tournamentName));
 
             verify(tournamentService).updateTournament(eq(testData.tournamentId), any(Tournament.class));
         }
@@ -298,9 +298,9 @@ class TournamentRestControllerTest {
                             .with(jwt().jwt(jwt -> jwt.claim("sub", "user").claim("scope", "ROLE_USER")))
                             .with(csrf()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.name").value(testData.TOURNAMENT_NAME));
+                    .andExpect(jsonPath("$.name").value(testData.tournamentName));
 
-            verify(tournamentService).addTournamentSignup(eq(testData.tournamentId), eq("user"));
+            verify(tournamentService).addTournamentSignup(testData.tournamentId, "user");
         }
 
         @Test
@@ -326,9 +326,9 @@ class TournamentRestControllerTest {
                             .with(jwt().jwt(jwt -> jwt.claim("sub", "user").claim("scope", "ROLE_USER")))
                             .with(csrf()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.name").value(testData.TOURNAMENT_NAME));
+                    .andExpect(jsonPath("$.name").value(testData.tournamentName));
 
-            verify(tournamentService).deleteTournamentSignup(eq(testData.tournamentId), eq("user"));
+            verify(tournamentService).deleteTournamentSignup(testData.tournamentId,"user");
         }
 
         @Test
@@ -354,9 +354,9 @@ class TournamentRestControllerTest {
                             .with(jwt().jwt(jwt -> jwt.claim("sub", "user").claim("scope", "ROLE_USER")))
                             .with(csrf()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.name").value(testData.TOURNAMENT_NAME));
+                    .andExpect(jsonPath("$.name").value(testData.tournamentName));
 
-            verify(tournamentService).deleteTournamentParticipant(eq(testData.tournamentId), eq("user"));
+            verify(tournamentService).deleteTournamentParticipant(testData.tournamentId, "user");
         }
 
         @Test
@@ -385,9 +385,9 @@ class TournamentRestControllerTest {
                             .with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(testData.tournamentId.toString()))
-                    .andExpect(jsonPath("$.name").value(testData.TOURNAMENT_NAME));
+                    .andExpect(jsonPath("$.name").value(testData.tournamentName));
 
-            verify(tournamentService).progressTournamentToNextRound(eq(testData.roundId));
+            verify(tournamentService).progressTournamentToNextRound(testData.roundId);
         }
 
         @Test
@@ -411,7 +411,7 @@ class TournamentRestControllerTest {
                             .with(csrf()))
                     .andExpect(status().isOk());
 
-            verify(tournamentService).deleteTournamentById(eq(testData.tournamentId));
+            verify(tournamentService).deleteTournamentById(testData.tournamentId);
         }
 
         @Test
@@ -481,7 +481,7 @@ class TournamentRestControllerTest {
     private static class TestData {
         final UUID tournamentId = UUID.randomUUID();
         final UUID roundId = UUID.randomUUID();
-        final String TOURNAMENT_NAME = "Test Tournament";
+        final String tournamentName = "Test Tournament";
         final LocalDateTime startDate = LocalDateTime.now().plusDays(7);
         final LocalDateTime endDate = LocalDateTime.now().plusDays(14);
         final LocalDateTime signupStartDate = LocalDateTime.now();
@@ -510,22 +510,22 @@ class TournamentRestControllerTest {
         }
 
         private Tournament createTournament() {
-            Tournament tournament = new Tournament();
-            tournament.setId(tournamentId);
-            tournament.setName(TOURNAMENT_NAME);
-            tournament.setStartDate(startDate);
-            tournament.setEndDate(endDate);
-            tournament.setSignupStartDate(signupStartDate);
-            tournament.setSignupEndDate(signupEndDate);
-            tournament.setStatus(Status.UPCOMING);
-            tournament.setOrganiser("admin");
-            return tournament;
+            Tournament newTournament = new Tournament();
+            newTournament.setId(tournamentId);
+            newTournament.setName(tournamentName);
+            newTournament.setStartDate(startDate);
+            newTournament.setEndDate(endDate);
+            newTournament.setSignupStartDate(signupStartDate);
+            newTournament.setSignupEndDate(signupEndDate);
+            newTournament.setStatus(Status.UPCOMING);
+            newTournament.setOrganiser("admin");
+            return newTournament;
         }
 
         private AdminTournamentDTO createAdminTournamentDTO() {
             AdminTournamentDTO dto = new AdminTournamentDTO();
             dto.setId(tournamentId.toString());
-            dto.setName(TOURNAMENT_NAME);
+            dto.setName(tournamentName);
             dto.setBand("MIDDLE");
             return dto;
         }
@@ -533,7 +533,7 @@ class TournamentRestControllerTest {
         private UserTournamentDTO createUserTournamentDTO() {
             UserTournamentDTO dto = new UserTournamentDTO();
             dto.setId(tournamentId.toString());
-            dto.setName(TOURNAMENT_NAME);
+            dto.setName(tournamentName);
             dto.setSignedUp(true);
             return dto;
         }
@@ -541,7 +541,7 @@ class TournamentRestControllerTest {
         private AdminTournamentCardDTO createAdminTournamentCardDTO() {
             AdminTournamentCardDTO dto = new AdminTournamentCardDTO();
             dto.setId(tournamentId.toString());
-            dto.setName(TOURNAMENT_NAME);
+            dto.setName(tournamentName);
             dto.setBand("MIDDLE");
             dto.setStartDate(startDate);
             dto.setEndDate(endDate);
@@ -561,7 +561,7 @@ class TournamentRestControllerTest {
         private UserTournamentCardDTO createUserTournamentCardDTO() {
             UserTournamentCardDTO dto = new UserTournamentCardDTO();
             dto.setId(tournamentId.toString());
-            dto.setName(TOURNAMENT_NAME);
+            dto.setName(tournamentName);
             dto.setStartDate(startDate);
             dto.setEndDate(endDate);
             dto.setSignupStartDate(signupStartDate);
@@ -581,7 +581,7 @@ class TournamentRestControllerTest {
 
         private DetailedTournamentDTO createDetailedTournamentDTO() {
             DetailedTournamentDTO dto = new DetailedTournamentDTO();
-            dto.setName(TOURNAMENT_NAME);
+            dto.setName(tournamentName);
             dto.setStartDate(startDate);
             dto.setEndDate(endDate);
             dto.setSignupStartDate(signupStartDate);
@@ -591,15 +591,11 @@ class TournamentRestControllerTest {
         }
 
         private TournamentBracketsDTO createTournamentBracketsDTO() {
-            TournamentBracketsDTO dto = new TournamentBracketsDTO();
-            // Add other necessary fields
-            return dto;
+            return new TournamentBracketsDTO();
         }
 
         private TournamentParticipantsDTO createTournamentParticipantsDTO() {
-            TournamentParticipantsDTO dto = new TournamentParticipantsDTO();
-            // Add other necessary fields
-            return dto;
+            return new TournamentParticipantsDTO();
         }
     }
 }

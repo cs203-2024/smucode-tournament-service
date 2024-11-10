@@ -295,7 +295,6 @@ class TournamentServiceImplTest {
     void findAllEligibleTournamentsForUser_shouldReturnEligibleTournaments() {
         // Arrange
         String username = "TestUser";
-        LocalDateTime now = LocalDateTime.now();
         List<Tournament> openTournaments = Arrays.asList(sampleTournament);
 
         when(tournamentServiceRepository.findBySignupEndDateAfterAndStatus(any(LocalDateTime.class), eq(Status.UPCOMING)))

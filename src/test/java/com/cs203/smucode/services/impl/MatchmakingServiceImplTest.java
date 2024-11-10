@@ -189,24 +189,24 @@ class MatchmakingServiceImplTest {
     @Test
     void updateBrackets_whenRoundsNotPreCreated_shouldThrowIllegalStateException() {
         // Arrange
-        Tournament tournament = new Tournament();
-        tournament.setId(UUID.randomUUID());
-        tournament.setRounds(new ArrayList<>());
+        Tournament newTournament = new Tournament();
+        newTournament.setId(UUID.randomUUID());
+        newTournament.setRounds(new ArrayList<>());
         List<Bracket> bracketPairs = Arrays.asList(new Bracket(), new Bracket());
 
         // Act & Assert
         assertThrows(IllegalStateException.class, () ->
-                matchmakingService.updateBrackets(tournament, bracketPairs));
+                matchmakingService.updateBrackets(newTournament, bracketPairs));
     }
 
     @Test
     void updateBrackets_whenBracketsNotPreCreated_shouldThrowIllegalStateException() {
         // Arrange
-        Tournament tournament = new Tournament();
-        tournament.setId(UUID.randomUUID());
+        Tournament newTournament = new Tournament();
+        newTournament.setId(UUID.randomUUID());
         Round round = new Round();
         round.setBrackets(new ArrayList<>());
-        tournament.setRounds(Arrays.asList(round));
+        newTournament.setRounds(Arrays.asList(round));
         List<Bracket> bracketPairs = Arrays.asList(new Bracket(), new Bracket());
 
         when(roundService.findRoundByTournamentIdAndSeqId(any(UUID.class), eq(1)))
@@ -214,40 +214,40 @@ class MatchmakingServiceImplTest {
 
         // Act & Assert
         assertThrows(IllegalStateException.class, () ->
-                matchmakingService.updateBrackets(tournament, bracketPairs));
+                matchmakingService.updateBrackets(newTournament, bracketPairs));
     }
 
     @Test
     void updateBrackets_whenBracketsNull_shouldThrowIllegalStateException() {
         // Arrange
-        Tournament tournament = new Tournament();
-        tournament.setId(UUID.randomUUID());
+        Tournament newTournament = new Tournament();
+        newTournament.setId(UUID.randomUUID());
 
         Round round = new Round();
         round.setId(UUID.randomUUID());
         round.setSeqId(1);
         round.setBrackets(null); // Explicitly set brackets to null
-        tournament.setRounds(Arrays.asList(round));
+        newTournament.setRounds(Arrays.asList(round));
 
         List<Bracket> bracketPairs = Arrays.asList(new Bracket(), new Bracket());
 
-        when(roundService.findRoundByTournamentIdAndSeqId(tournament.getId(), 1)).thenReturn(round);
+        when(roundService.findRoundByTournamentIdAndSeqId(newTournament.getId(), 1)).thenReturn(round);
 
         // Act & Assert
         IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
-                matchmakingService.updateBrackets(tournament, bracketPairs));
+                matchmakingService.updateBrackets(newTournament, bracketPairs));
         assertEquals("Brackets have not been pre-created in the tournament.", exception.getMessage());
     }
 
     @Test
     void runMatchmaking_whenTournamentAlreadyStarted_shouldThrowIllegalStateException() {
         // Arrange
-        Tournament tournament = new Tournament();
-        tournament.setStatus(Status.ONGOING);
+        Tournament newTournament = new Tournament();
+        newTournament.setStatus(Status.ONGOING);
 
         // Act & Assert
         assertThrows(IllegalStateException.class, () ->
-                matchmakingService.runMatchmaking(tournament));
+                matchmakingService.runMatchmaking(newTournament));
     }
 
     @Test

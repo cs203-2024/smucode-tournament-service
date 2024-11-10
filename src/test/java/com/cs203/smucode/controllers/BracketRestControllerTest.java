@@ -76,8 +76,8 @@ class BracketRestControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.id").value(testData.bracketId.toString()))
-                    .andExpect(jsonPath("$.player1.username").value(testData.PLAYER_1_USERNAME))
-                    .andExpect(jsonPath("$.player2.username").value(testData.PLAYER_2_USERNAME));
+                    .andExpect(jsonPath("$.player1.username").value(testData.player1Username))
+                    .andExpect(jsonPath("$.player2.username").value(testData.player2Username));
 
             verify(bracketService).findBracketById(testData.bracketId);
         }
@@ -111,8 +111,8 @@ class BracketRestControllerTest {
                             .content(objectMapper.writeValueAsString(testData.updateScoreDTO))
                             .with(csrf()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.player1.score").value(testData.PLAYER_1_SCORE))
-                    .andExpect(jsonPath("$.player2.score").value(testData.PLAYER_2_SCORE));
+                    .andExpect(jsonPath("$.player1.score").value(testData.player1Score))
+                    .andExpect(jsonPath("$.player2.score").value(testData.player2Score));
 
             verify(bracketService).updateBracketScore(eq(testData.bracketId), any(Bracket.class));
         }
@@ -134,7 +134,7 @@ class BracketRestControllerTest {
                             .with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status").value("completed"))
-                    .andExpect(jsonPath("$.winner").value(testData.PLAYER_1_USERNAME));
+                    .andExpect(jsonPath("$.winner").value(testData.player1Username));
 
             verify(bracketService).endBracket(testData.bracketId);
         }
@@ -162,10 +162,10 @@ class BracketRestControllerTest {
 
     private static class TestData {
         final UUID bracketId = UUID.randomUUID();
-        final String PLAYER_1_USERNAME = "player1";
-        final String PLAYER_2_USERNAME = "player2";
-        final int PLAYER_1_SCORE = 10;
-        final int PLAYER_2_SCORE = 5;
+        final String player1Username = "player1";
+        final String player2Username = "player2";
+        final int player1Score = 10;
+        final int player2Score = 5;
 
         final Bracket bracket;
         final BracketDTO bracketDTO;
@@ -183,8 +183,8 @@ class BracketRestControllerTest {
 
             // Create completed bracket and DTO
             this.completedBracket = createBracket(round, tournament, Status.COMPLETED);
-            this.completedBracket.setWinner(PLAYER_1_USERNAME);
-            this.completedBracketDTO = createBracketDTO(Status.COMPLETED, PLAYER_1_USERNAME);
+            this.completedBracket.setWinner(player1Username);
+            this.completedBracketDTO = createBracketDTO(Status.COMPLETED, player1Username);
 
             // Create update score DTO
             this.updateScoreDTO = createUpdateScoreDTO();
@@ -206,17 +206,17 @@ class BracketRestControllerTest {
         }
 
         private Bracket createBracket(Round round, Tournament tournament, Status status) {
-            Bracket bracket = new Bracket();
-            bracket.setId(bracketId);
-            bracket.setSeqId(1);
-            bracket.setStatus(status);
-            bracket.setPlayer1(PLAYER_1_USERNAME);
-            bracket.setPlayer2(PLAYER_2_USERNAME);
-            bracket.setPlayer1Score(PLAYER_1_SCORE);
-            bracket.setPlayer2Score(PLAYER_2_SCORE);
-            bracket.setRound(round);
-            bracket.setTournament(tournament);
-            return bracket;
+            Bracket newBracket = new Bracket();
+            newBracket.setId(bracketId);
+            newBracket.setSeqId(1);
+            newBracket.setStatus(status);
+            newBracket.setPlayer1(player1Username);
+            newBracket.setPlayer2(player2Username);
+            newBracket.setPlayer1Score(player1Score);
+            newBracket.setPlayer2Score(player2Score);
+            newBracket.setRound(round);
+            newBracket.setTournament(tournament);
+            return newBracket;
         }
 
         private BracketDTO createBracketDTO(Status status, String winner) {
@@ -227,12 +227,12 @@ class BracketRestControllerTest {
             dto.setWinner(winner);
 
             BracketUserDTO player1 = new BracketUserDTO();
-            player1.setUsername(PLAYER_1_USERNAME);
-            player1.setScore(PLAYER_1_SCORE);
+            player1.setUsername(player1Username);
+            player1.setScore(player1Score);
 
             BracketUserDTO player2 = new BracketUserDTO();
-            player2.setUsername(PLAYER_2_USERNAME);
-            player2.setScore(PLAYER_2_SCORE);
+            player2.setUsername(player2Username);
+            player2.setScore(player2Score);
 
             dto.setPlayer1(player1);
             dto.setPlayer2(player2);
@@ -243,12 +243,12 @@ class BracketRestControllerTest {
             UpdateBracketScoreDTO dto = new UpdateBracketScoreDTO();
 
             PlayerInfo player1Info = new PlayerInfo();
-            player1Info.setId(PLAYER_1_USERNAME);
-            player1Info.setScore(PLAYER_1_SCORE);
+            player1Info.setId(player1Username);
+            player1Info.setScore(player1Score);
 
             PlayerInfo player2Info = new PlayerInfo();
-            player2Info.setId(PLAYER_2_USERNAME);
-            player2Info.setScore(PLAYER_2_SCORE);
+            player2Info.setId(player2Username);
+            player2Info.setScore(player2Score);
 
             dto.setPlayer1(player1Info);
             dto.setPlayer2(player2Info);
