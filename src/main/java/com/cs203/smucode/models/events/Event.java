@@ -60,26 +60,4 @@ public abstract class Event {
      */
     protected abstract void setRecipients(TournamentService tournamentService);
 
-    /**
-     * Publishes the event by sending notifications to the recipients.
-     * This method uses the provided notification service consumer and mapper
-     * to convert the event into a notification and stream it to the appropriate
-     * recipients.
-     *
-     * @param notificationServiceConsumer the consumer responsible for sending notifications.
-     * @param notificationMapper          the mapper that converts the event into a notification DTO.
-     * @return the current event instance after it has been published.
-     */
-    public Event publish(NotificationServiceConsumer notificationServiceConsumer,
-                         NotificationMapper notificationMapper) {
-        if (recipients.isEmpty()) {
-            logger.warn("No recipients found for event: {}", this);
-            return null;
-        }
-
-        logger.info("Publishing event: {}", this);
-        notificationServiceConsumer.streamNotifications(notificationMapper.eventToNotificationDTO(this));
-        return this;
-    }
-
 }
