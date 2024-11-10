@@ -1,139 +1,216 @@
 package com.cs203.smucode.controllers;
 
-import com.cs203.smucode.configs.TestSecurityConfig;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.dto.RoundDTO;
 import com.cs203.smucode.exceptions.RoundNotFoundException;
+import com.cs203.smucode.mappers.RoundMapper;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.RoundService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.*;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(TestSecurityConfig.class)
-@ActiveProfiles("test")
-@TestPropertySource(properties = {
-        "eureka.client.enabled=false",
-        "spring.cloud.config.enabled=false"
-})
+@WebMvcTest(RoundRestController.class)
+@DisplayName("RoundController Integration Tests")
 class RoundRestControllerTest {
 
-    @LocalServerPort
-    private int port;
+    @Autowired
+    private MockMvc mockMvc;
 
     @Autowired
-    private TestRestTemplate restTemplate;
+    private ObjectMapper objectMapper;
 
     @MockBean
     private RoundService roundService;
 
-    private String baseUrl;
-    private Round sampleRound;
-    private UUID roundId;
+    @MockBean
+    private RoundMapper roundMapper;
+
+    private TestData testData;
 
     @BeforeEach
     void setUp() {
-        baseUrl = String.format("http://localhost:%d/api/tournaments/rounds", port);
-        roundId = UUID.randomUUID();
-        sampleRound = createSampleRound();
-        when(roundService.findRoundById(roundId)).thenReturn(sampleRound);
+        testData = new TestData();
+        setupMocks();
     }
 
-    private Round createSampleRound() {
-        Tournament tournament = new Tournament();
-        tournament.setId(UUID.randomUUID());
-
-        Round round = new Round();
-        round.setId(roundId);
-        round.setSeqId(1);
-        round.setName("Round of 16");
-        round.setStartDate(LocalDateTime.now());
-        round.setEndDate(LocalDateTime.now().plusDays(1));
-        round.setStatus(Status.ONGOING);
-        round.setTournament(tournament);
-        round.setBrackets(new ArrayList<>());
-        return round;
+    private void setupMocks() {
+        when(roundService.findRoundById(testData.roundId))
+                .thenReturn(testData.round);
+        when(roundMapper.roundToRoundDTO(any(Round.class)))
+                .thenReturn(testData.roundDTO);
+        when(roundMapper.roundDTOToRound(any(RoundDTO.class)))
+                .thenReturn(testData.round);
     }
 
-    @Test
-    void getRoundById_Success() {
-        // Test successful round retrieval
-        ResponseEntity<RoundDTO> response = restTemplate.getForEntity(
-                baseUrl + "/" + roundId,
-                RoundDTO.class
-        );
+    @Nested
+    @DisplayName("GET /tournaments/rounds/{roundId}")
+    class GetRoundTests {
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(roundId.toString(), response.getBody().getId());
-        assertEquals("Round of 16", response.getBody().getName());
-        verify(roundService).findRoundById(roundId);
+        @Test
+        @WithMockUser
+        @DisplayName("Should successfully retrieve round")
+        void getRound_Success() throws Exception {
+            mockMvc.perform(get("/tournaments/rounds/{roundId}", testData.roundId))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.id").value(testData.roundId.toString()))
+                    .andExpect(jsonPath("$.name").value(testData.ROUND_NAME))
+                    .andExpect(jsonPath("$.status").value(testData.round.getStatus().toString().toLowerCase()));
+
+            verify(roundService).findRoundById(testData.roundId);
+            verify(roundMapper).roundToRoundDTO(testData.round);
+        }
+
+        @Test
+        @WithMockUser
+        @DisplayName("Should return 404 when round not found")
+        void getRound_NotFound() throws Exception {
+            when(roundService.findRoundById(testData.roundId))
+                    .thenThrow(new RoundNotFoundException("Round not found"));
+
+            mockMvc.perform(get("/tournaments/rounds/{roundId}", testData.roundId))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value("Round not found"));
+        }
+
+        @Test
+        @DisplayName("Should return 401 when not authenticated")
+        void getRound_Unauthorized() throws Exception {
+            mockMvc.perform(get("/tournaments/rounds/{roundId}", testData.roundId))
+                    .andExpect(status().isUnauthorized());
+        }
     }
 
-    @Test
-    void getRoundById_NotFound() {
-        // Test round not found scenario
-        UUID nonExistentId = UUID.randomUUID();
-        when(roundService.findRoundById(nonExistentId))
-                .thenThrow(new RoundNotFoundException("Round not found"));
+    @Nested
+    @DisplayName("PUT /tournaments/rounds/{roundId}")
+    class UpdateRoundTests {
 
-        ResponseEntity<String> response = restTemplate.getForEntity(
-                baseUrl + "/" + nonExistentId,
-                String.class
-        );
+        @Test
+        @WithMockUser
+        @DisplayName("Should successfully update round")
+        void updateRound_Success() throws Exception {
+            when(roundService.updateRound(eq(testData.roundId), any(Round.class)))
+                    .thenReturn(testData.updatedRound);
+            when(roundMapper.roundToRoundDTO(testData.updatedRound))
+                    .thenReturn(testData.updatedRoundDTO);
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertTrue(response.getBody().contains("Round not found"));
+            mockMvc.perform(put("/tournaments/rounds/{roundId}", testData.roundId)
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(testData.updateRoundDTO)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name").value(testData.UPDATED_ROUND_NAME))
+                    .andExpect(jsonPath("$.status").value(Status.COMPLETED.toString().toLowerCase()));
+
+            verify(roundService).updateRound(eq(testData.roundId), any(Round.class));
+            verify(roundMapper).roundDTOToRound(any(RoundDTO.class));
+        }
+
+        @Test
+        @WithMockUser
+        @DisplayName("Should return 404 when round not found")
+        void updateRound_NotFound() throws Exception {
+            when(roundService.updateRound(eq(testData.roundId), any(Round.class)))
+                    .thenThrow(new RoundNotFoundException("Round not found"));
+
+            mockMvc.perform(put("/tournaments/rounds/{roundId}", testData.roundId)
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(testData.updateRoundDTO)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value("Round not found"));
+        }
+
+        @Test
+        @WithMockUser
+        @DisplayName("Should return 403 when CSRF token is missing")
+        void updateRound_MissingCsrf() throws Exception {
+            mockMvc.perform(put("/tournaments/rounds/{roundId}", testData.roundId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(testData.updateRoundDTO)))
+                    .andExpect(status().isForbidden());
+        }
     }
 
-    @Test
-    void updateRound_Success() {
-        // Create round update request
-        RoundDTO updateRequest = new RoundDTO();
-        updateRequest.setName("Updated Round");
-        updateRequest.setStartDate(LocalDateTime.now());
-        updateRequest.setEndDate(LocalDateTime.now().plusDays(1));
-        updateRequest.setStatus("ONGOING");
+    private static class TestData {
+        final UUID roundId = UUID.randomUUID();
+        final String ROUND_NAME = "Round of 16";
+        final String UPDATED_ROUND_NAME = "Updated Round";
+        final LocalDateTime startDate = LocalDateTime.now();
+        final LocalDateTime endDate = LocalDateTime.now().plusDays(1);
 
-        // Mock service to return updated round
-        Round updatedRound = createSampleRound();
-        updatedRound.setName("Updated Round");
-        when(roundService.updateRound(eq(roundId), any(Round.class))).thenReturn(updatedRound);
+        final Round round;
+        final RoundDTO roundDTO;
+        final Round updatedRound;
+        final RoundDTO updatedRoundDTO;
+        final RoundDTO updateRoundDTO;
 
-        // Perform update request
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<RoundDTO> request = new HttpEntity<>(updateRequest, headers);
+        TestData() {
+            Tournament tournament = createTournament();
 
-        ResponseEntity<RoundDTO> response = restTemplate.exchange(
-                baseUrl + "/" + roundId,
-                HttpMethod.PUT,
-                request,
-                RoundDTO.class
-        );
+            // Create regular round and DTO
+            this.round = createRound(tournament, Status.ONGOING, ROUND_NAME);
+            this.roundDTO = createRoundDTO(Status.ONGOING, ROUND_NAME);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Updated Round", response.getBody().getName());
-        verify(roundService).updateRound(eq(roundId), any(Round.class));
+            // Create updated round and DTO
+            this.updatedRound = createRound(tournament, Status.COMPLETED, UPDATED_ROUND_NAME);
+            this.updatedRoundDTO = createRoundDTO(Status.COMPLETED, UPDATED_ROUND_NAME);
+
+            // Create update DTO
+            this.updateRoundDTO = createRoundDTO(Status.COMPLETED, UPDATED_ROUND_NAME);
+        }
+
+        private Tournament createTournament() {
+            Tournament tournament = new Tournament();
+            tournament.setId(UUID.randomUUID());
+            tournament.setStatus(Status.ONGOING);
+            return tournament;
+        }
+
+        private Round createRound(Tournament tournament, Status status, String name) {
+            Round round = new Round();
+            round.setId(roundId);
+            round.setSeqId(1);
+            round.setName(name);
+            round.setStatus(status);
+            round.setStartDate(startDate);
+            round.setEndDate(endDate);
+            round.setTournament(tournament);
+            round.setBrackets(new ArrayList<>());
+            return round;
+        }
+
+        private RoundDTO createRoundDTO(Status status, String name) {
+            RoundDTO dto = new RoundDTO();
+            dto.setId(roundId.toString());
+            dto.setSeqId(1);
+            dto.setName(name);
+            dto.setStatus(status.toString().toLowerCase());
+            dto.setStartDate(startDate);
+            dto.setEndDate(endDate);
+            dto.setBrackets(new ArrayList<>());
+            return dto;
+        }
     }
 }
