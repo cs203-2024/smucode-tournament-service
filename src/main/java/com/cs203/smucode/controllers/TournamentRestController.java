@@ -1,20 +1,27 @@
 package com.cs203.smucode.controllers;
 
+import com.cs203.smucode.constants.MediaConstants;
 import com.cs203.smucode.constants.OAuth2Constants;
 import com.cs203.smucode.constants.UserRole;
 import com.cs203.smucode.consumers.UserServiceConsumer;
 import com.cs203.smucode.dtos.tournaments.*;
 import com.cs203.smucode.dtos.users.TournamentParticipantsDTO;
+import com.cs203.smucode.exceptions.ImageUploadUnsucessfulException;
+import com.cs203.smucode.exceptions.InvalidTokenException;
 import com.cs203.smucode.exceptions.UnauthorizedResourceAccessException;
 import com.cs203.smucode.mappers.TournamentMapper;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.services.TournamentService;
+import com.cs203.smucode.utils.AWSUtil;
 import com.cs203.smucode.utils.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -26,14 +33,17 @@ public class TournamentRestController {
     private final TournamentService tournamentService;
     private final TournamentMapper tournamentMapper;
     private final UserServiceConsumer userServiceConsumer;
+    private final AWSUtil awsUtil;
 
     @Autowired
     public TournamentRestController(TournamentService tournamentService,
                                     TournamentMapper tournamentMapper,
-                                    UserServiceConsumer userServiceConsumer) {
+                                    UserServiceConsumer userServiceConsumer,
+                                    AWSUtil awsUtil) {
         this.tournamentService = tournamentService;
         this.tournamentMapper = tournamentMapper;
         this.userServiceConsumer = userServiceConsumer;
+        this.awsUtil = awsUtil;
     }
 
     /**
@@ -196,4 +206,62 @@ public class TournamentRestController {
     @DeleteMapping("/{tournamentId}")
     public void deleteTournamentById(@PathVariable UUID tournamentId) { tournamentService.deleteTournamentById(tournamentId); }
 
+    @Operation(summary = "Generate presigned link to upload an image to s3")
+    @PostMapping("/get-upload-link")
+    public ResponseEntity<UploadLinkResponseDTO> getPreSignedUrl(
+            @RequestParam UUID tournamentId,
+            @RequestParam String contentType
+    ) {
+
+        if (tournamentId == null) {
+            throw new ImageUploadUnsucessfulException("Invalid tournamentId");
+        }
+
+        if (contentType == null || contentType.isEmpty()) {
+            throw new ImageUploadUnsucessfulException("Content type is mandatory");
+        }
+
+        if (!MediaConstants.SUPPORTED_MEDIA.contains(contentType)) {
+            throw new ImageUploadUnsucessfulException("Unsupported content type: " + contentType);
+        }
+
+        try {
+            String preSignedUrl = awsUtil.generatePresignedUrl(tournamentId, contentType);
+            String key = awsUtil.getKey(tournamentId);
+
+            return ResponseEntity.ok(
+                    new UploadLinkResponseDTO(key, preSignedUrl)
+            );
+        } catch (Exception e) {
+            throw new ImageUploadUnsucessfulException("An error occurred while uploading the profile picture");
+        }
+    }
+
+    @Operation(summary = "Persist image to database upon successful upload")
+    @PostMapping("/upload-picture")
+    public ResponseEntity<UploadSuccessResponseDTO> uploadPicture(@RequestParam UUID tournamentId,
+                                                                  @RequestParam String key) {
+
+        if (key == null || key.isEmpty()) {
+            throw new ImageUploadUnsucessfulException("Please provide a non-empty or null key");
+        }
+
+        if (!key.startsWith("tournament-pictures/")) {
+            throw new ImageUploadUnsucessfulException("Invalid key: " + key + ", please provide a valid key");
+        }
+
+        if (!awsUtil.getKey(tournamentId).equals(key)) {
+            throw new ImageUploadUnsucessfulException("Input key does not match generated key");
+        }
+        try {
+            String imageUrl = awsUtil.getObjectUrl(tournamentId);
+            tournamentService.uploadTournamentPicture(tournamentId, imageUrl);
+
+            return ResponseEntity.ok(
+                    new UploadSuccessResponseDTO("success", imageUrl)
+            );
+        } catch (Exception e) {
+            throw new ImageUploadUnsucessfulException("An error occurred while uploading the profile picture");
+        }
+    }
 }

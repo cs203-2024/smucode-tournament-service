@@ -313,4 +313,14 @@ public class TournamentServiceImpl implements TournamentService {
         }
         return createdRounds;
     }
+
+    @Override
+    @Transactional
+    public void uploadTournamentPicture(UUID id, String imageUrl) {
+        Tournament tournament = tournamentServiceRepository.findById(id)
+                .orElseThrow( () -> new TournamentNotFoundException("Tournament with id " + id + " not found"));
+
+        tournament.setIcon(imageUrl);
+        tournamentServiceRepository.save(tournament);
+    }
 }
