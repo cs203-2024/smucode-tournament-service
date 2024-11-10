@@ -12,6 +12,8 @@ import com.cs203.smucode.services.TournamentService;
 import com.cs203.smucode.utils.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +24,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/tournaments")
 public class TournamentRestController {
+    private static final Logger logger = LoggerFactory.getLogger(TournamentRestController.class);
 
     private final TournamentService tournamentService;
     private final TournamentMapper tournamentMapper;
@@ -128,10 +131,11 @@ public class TournamentRestController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = JWTUtil.getClaim(authentication, OAuth2Constants.SUBJECT);
 
-        Tournament tournament = tournamentMapper.detailedTournamentDTOToTournament(tournamentDTO);
-        tournament.setOrganiser(username); // Set organiser as admin who submitted request
-        tournamentService.createTournament(tournament);
-        return tournamentDTO;
+        Tournament tournamentToCreate = tournamentMapper.detailedTournamentDTOToTournament(tournamentDTO);
+        tournamentToCreate.setOrganiser(username); // Set organiser as admin who submitted request
+        Tournament createdTournament = tournamentService.createTournament(tournamentToCreate);
+        logger.info("Created tournament: {}", createdTournament);
+        return tournamentMapper.tournamentToDetailedTournamentDTO(createdTournament);
     }
 
     @Operation(summary = "Update tournament by tournament ID")

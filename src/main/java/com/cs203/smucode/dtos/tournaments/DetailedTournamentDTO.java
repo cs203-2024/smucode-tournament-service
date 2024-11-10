@@ -6,11 +6,14 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.UUID;
 
 @Data
 //@WeightSum
 // TODO: add rest of Bean validation
 public class DetailedTournamentDTO {
+
+    private UUID id;
 
     @NotNull
     private String name;
