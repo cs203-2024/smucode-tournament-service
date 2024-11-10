@@ -1,5 +1,6 @@
 package com.cs203.smucode.services.impl;
 
+import com.cs203.smucode.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -267,5 +268,334 @@ class TournamentServiceImplTest {
 
         // Assert
         verify(tournamentServiceRepository).deleteById(id);
+    }
+
+    @Test
+    void findAllEligibleTournamentsForUser_shouldReturnEligibleTournaments() {
+        // Arrange
+        String username = "TestUser";
+        List<Tournament> openTournaments = Arrays.asList(sampleTournament);
+
+        when(tournamentServiceRepository.findBySignupEndDateAfterAndStatus(any(LocalDateTime.class), eq(Status.UPCOMING)))
+                .thenReturn(Optional.of(openTournaments));
+
+        // Act
+        List<Tournament> result = tournamentService.findAllEligibleTournamentsForUser(username);
+
+        // Assert
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        verify(tournamentServiceRepository).findBySignupEndDateAfterAndStatus(any(LocalDateTime.class), eq(Status.UPCOMING));
+    }
+
+    @Test
+    void findTournamentsWithSignUpBefore_shouldReturnTournaments() {
+        // Arrange
+        LocalDateTime dateTime = LocalDateTime.now();
+        List<Tournament> expectedTournaments = Collections.singletonList(sampleTournament);
+
+        when(tournamentServiceRepository.findBySignupEndDateBeforeAndStatus(dateTime, Status.UPCOMING))
+                .thenReturn(Optional.of(expectedTournaments));
+
+        // Act
+        List<Tournament> result = tournamentService.findTournamentsWithSignUpBefore(dateTime);
+
+        // Assert
+        assertEquals(expectedTournaments, result);
+        verify(tournamentServiceRepository).findBySignupEndDateBeforeAndStatus(dateTime, Status.UPCOMING);
+    }
+
+    @Test
+    void findTournamentsWithSignUpAfter_shouldReturnTournaments() {
+        // Arrange
+        LocalDateTime dateTime = LocalDateTime.now();
+        List<Tournament> expectedTournaments = Collections.singletonList(sampleTournament);
+
+        when(tournamentServiceRepository.findBySignupEndDateAfterAndStatus(dateTime, Status.UPCOMING))
+                .thenReturn(Optional.of(expectedTournaments));
+
+        // Act
+        List<Tournament> result = tournamentService.findTournamentsWithSignUpAfter(dateTime);
+
+        // Assert
+        assertEquals(expectedTournaments, result);
+        verify(tournamentServiceRepository).findBySignupEndDateAfterAndStatus(dateTime, Status.UPCOMING);
+    }
+
+    @Test
+    void findAllTournamentsByRegistrant_shouldReturnTournaments() {
+        // Arrange
+        String registrant = "TestUser";
+        List<Tournament> expectedTournaments = Collections.singletonList(sampleTournament);
+
+        when(tournamentServiceRepository.findByRegistrant(registrant))
+                .thenReturn(Optional.of(expectedTournaments));
+
+        // Act
+        List<Tournament> result = tournamentService.findAllTournamentsByRegistrant(registrant);
+
+        // Assert
+        assertEquals(expectedTournaments, result);
+        verify(tournamentServiceRepository).findByRegistrant(registrant);
+    }
+
+    @Test
+    void deleteTournamentById_whenTournamentNotFound_shouldThrowException() {
+        // Arrange
+        UUID id = UUID.randomUUID();
+        when(tournamentServiceRepository.existsById(id)).thenReturn(false);
+
+        // Act & Assert
+        assertThrows(TournamentNotFoundException.class, () ->
+                tournamentService.deleteTournamentById(id));
+        verify(tournamentServiceRepository, never()).deleteById(id);
+    }
+
+    @Test
+    void deleteTournamentParticipant_whenParticipantNotFound_shouldThrowIllegalArgumentException() {
+        // Arrange
+        UUID tournamentId = sampleTournament.getId();
+        String nonExistentParticipant = "NonExistentUser";
+        sampleTournament.setParticipants(new HashSet<>(Collections.singletonList("DifferentUser")));
+
+        when(tournamentServiceRepository.findById(tournamentId)).thenReturn(Optional.of(sampleTournament));
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class, () ->
+                tournamentService.deleteTournamentParticipant(tournamentId, nonExistentParticipant));
+    }
+
+    @Test
+    void deleteTournamentSignup_whenSignupNotFound_shouldThrowIllegalArgumentException() {
+        // Arrange
+        UUID tournamentId = sampleTournament.getId();
+        String nonExistentSignup = "NonExistentUser";
+        sampleTournament.setSignups(new HashSet<>(Collections.singletonList("DifferentUser")));
+
+        when(tournamentServiceRepository.findById(tournamentId)).thenReturn(Optional.of(sampleTournament));
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class, () ->
+                tournamentService.deleteTournamentSignup(tournamentId, nonExistentSignup));
+    }
+
+    @Test
+    void addTournamentSignup_whenTournamentNotFound_shouldThrowTournamentNotFoundException() {
+        // Arrange
+        UUID tournamentId = UUID.randomUUID();
+        String newSignup = "NewUser";
+
+        when(tournamentServiceRepository.findById(tournamentId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(TournamentNotFoundException.class, () ->
+                tournamentService.addTournamentSignup(tournamentId, newSignup));
+    }
+
+    @Test
+    void deleteTournamentParticipant_whenTournamentNotFound_shouldThrowTournamentNotFoundException() {
+        // Arrange
+        UUID tournamentId = UUID.randomUUID();
+        String participant = "User1";
+
+        when(tournamentServiceRepository.findById(tournamentId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(TournamentNotFoundException.class, () ->
+                tournamentService.deleteTournamentParticipant(tournamentId, participant));
+        verify(roundService, never()).removePlayerFromOngoingRound(any(), anyString());
+    }
+
+    @Test
+    void deleteTournamentSignup_whenTournamentNotFound_shouldThrowTournamentNotFoundException() {
+        // Arrange
+        UUID tournamentId = UUID.randomUUID();
+        String signup = "User1";
+
+        when(tournamentServiceRepository.findById(tournamentId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(TournamentNotFoundException.class, () ->
+                tournamentService.deleteTournamentSignup(tournamentId, signup));
+    }
+
+    @Test
+    void deleteTournamentSignup_whenSignupExists_shouldRemoveAndReturnUpdatedTournament() {
+        // Arrange
+        UUID tournamentId = sampleTournament.getId();
+        String signupToRemove = "User1";
+        Set<String> signups = new HashSet<>();
+        signups.add(signupToRemove);
+        signups.add("User2");
+        sampleTournament.setSignups(signups);
+
+        when(tournamentServiceRepository.findById(tournamentId)).thenReturn(Optional.of(sampleTournament));
+        when(tournamentServiceRepository.save(any(Tournament.class))).thenReturn(sampleTournament);
+
+        // Act
+        Tournament result = tournamentService.deleteTournamentSignup(tournamentId, signupToRemove);
+
+        // Assert
+        assertFalse(result.getSignups().contains(signupToRemove));
+        verify(tournamentServiceRepository).save(sampleTournament);
+        assertEquals(1, result.getSignups().size());
+    }
+
+    @Test
+    void progressTournamentToNextRound_withNonFinalRound_shouldProgressToNextRound() {
+        // Arrange
+        UUID roundId = UUID.randomUUID();
+        Round currentRound = new Round();
+        currentRound.setId(roundId);
+        currentRound.setSeqId(2);
+        currentRound.setTournament(sampleTournament);
+        currentRound.setBrackets(Arrays.asList(new Bracket(), new Bracket())); // Multiple brackets
+
+        Round nextRound = new Round();
+        nextRound.setId(UUID.randomUUID());
+        nextRound.setSeqId(3);
+        nextRound.setName("Round of 4");
+        nextRound.setTournament(sampleTournament);
+
+        when(roundService.findRoundById(roundId)).thenReturn(currentRound);
+        when(roundService.findRoundByTournamentIdAndSeqId(sampleTournament.getId(), 3)).thenReturn(nextRound);
+        // Mock tournament find by ID
+        when(tournamentServiceRepository.findById(sampleTournament.getId())).thenReturn(Optional.of(sampleTournament));
+        when(tournamentServiceRepository.save(any(Tournament.class))).thenReturn(sampleTournament);
+
+        // Act
+        Tournament result = tournamentService.progressTournamentToNextRound(roundId);
+
+        // Assert
+        verify(roundService).updateRound(eq(currentRound.getId()), argThat(round ->
+                round.getStatus() == Status.COMPLETED
+        ));
+        verify(roundService).populateNextRound(roundId, nextRound.getId());
+        verify(tournamentServiceRepository).findById(sampleTournament.getId());
+        verify(tournamentServiceRepository).save(any(Tournament.class));
+        assertEquals("Round of 4", result.getCurrentRound());
+    }
+
+    @Test
+    void progressTournamentToNextRound_withFinalRound_shouldCompleteTournament() {
+        // Arrange
+        UUID roundId = UUID.randomUUID();
+        Round finalRound = new Round();
+        finalRound.setId(roundId);
+        finalRound.setTournament(sampleTournament);
+        finalRound.setBrackets(Collections.singletonList(new Bracket())); // Single bracket indicates final round
+
+        // Mock round service call
+        when(roundService.findRoundById(roundId)).thenReturn(finalRound);
+
+        // Mock tournament repository calls
+        when(tournamentServiceRepository.findById(sampleTournament.getId())).thenReturn(Optional.of(sampleTournament));
+        when(tournamentServiceRepository.save(any(Tournament.class))).thenReturn(sampleTournament);
+
+        // Act
+        Tournament result = tournamentService.progressTournamentToNextRound(roundId);
+
+        // Assert
+        assertEquals(Status.COMPLETED, result.getStatus());
+        verify(roundService).updateRound(eq(finalRound.getId()), argThat(round ->
+                round.getStatus() == Status.COMPLETED
+        ));
+        // Only verify one findById call
+        verify(tournamentServiceRepository).findById(sampleTournament.getId());
+        verify(tournamentServiceRepository).save(any(Tournament.class));
+        verify(roundService, never()).populateNextRound(any(), any());
+    }
+
+    @Test
+    void deleteTournamentParticipant_shouldRemoveFromOngoingRoundAndUpdateTournament() {
+        // Arrange
+        UUID tournamentId = sampleTournament.getId();
+        String participantToRemove = "User1";
+        Round currentRound = new Round();
+        currentRound.setId(UUID.randomUUID());
+        sampleTournament.setCurrentRound("Round of 16");
+
+        when(tournamentServiceRepository.findById(tournamentId)).thenReturn(Optional.of(sampleTournament));
+        when(roundService.findRoundByTournamentIdAndName(tournamentId, "Round of 16")).thenReturn(currentRound);
+        when(tournamentServiceRepository.save(any(Tournament.class))).thenReturn(sampleTournament);
+
+        // Act
+        Tournament result = tournamentService.deleteTournamentParticipant(tournamentId, participantToRemove);
+
+        // Assert
+        verify(roundService).removePlayerFromOngoingRound(currentRound.getId(), participantToRemove);
+        assertFalse(result.getParticipants().contains(participantToRemove));
+    }
+
+    @Test
+    void findAllEligibleTournamentsForUser_shouldFilterOutSignedUpTournaments() {
+        // Arrange
+        String username = "TestUser";
+        Tournament openTournament1 = createSampleTournament();
+        Tournament openTournament2 = createSampleTournament();
+        openTournament2.setId(UUID.randomUUID());
+        openTournament2.getSignups().add(username); // User already signed up for this one
+
+        List<Tournament> openTournaments = Arrays.asList(openTournament1, openTournament2);
+
+        when(tournamentServiceRepository.findBySignupEndDateAfterAndStatus(any(LocalDateTime.class), eq(Status.UPCOMING)))
+                .thenReturn(Optional.of(openTournaments));
+
+        // Act
+        List<Tournament> result = tournamentService.findAllEligibleTournamentsForUser(username);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertTrue(result.contains(openTournament1));
+        assertFalse(result.contains(openTournament2));
+    }
+
+    @Test
+    void createRounds_shouldCreateCorrectNumberOfRounds() {
+        // Arrange
+        Tournament tournament = createSampleTournament();
+        tournament.setCapacity(16);
+        Round createdRound = new Round();
+        when(roundService.createRound(any(Round.class))).thenReturn(createdRound);
+
+        // Act
+        List<Round> rounds = tournamentService.createRounds(tournament);
+
+        // Assert
+        assertEquals(4, rounds.size()); // log2(16) = 4 rounds
+        verify(roundService, times(4)).createRound(any(Round.class));
+
+        // Verify round names are correct
+        verify(roundService, times(4)).createRound(argThat(round ->
+                round.getStatus() == Status.UPCOMING &&
+                        round.getTournament() == tournament
+        ));
+    }
+
+    @Test
+    void addTournamentSignup_whenSignupsClosed_shouldThrowIllegalStateException() {
+        // Arrange
+        UUID tournamentId = sampleTournament.getId();
+        String newSignup = "NewUser";
+        sampleTournament.setSignupEndDate(LocalDateTime.now().minusDays(1));
+
+        when(tournamentServiceRepository.findById(tournamentId)).thenReturn(Optional.of(sampleTournament));
+
+        // Act & Assert
+        assertThrows(IllegalStateException.class, () ->
+                tournamentService.addTournamentSignup(tournamentId, newSignup));
+        verify(tournamentServiceRepository, never()).save(any());
+    }
+
+    @Test
+    void createRounds_withInvalidCapacity_shouldThrowIllegalArgumentException() {
+        // Arrange
+        Tournament tournament = createSampleTournament();
+        tournament.setCapacity(1); // Invalid capacity
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () ->
+                tournamentService.createRounds(tournament));
+        verify(roundService, never()).createRound(any());
     }
 }
