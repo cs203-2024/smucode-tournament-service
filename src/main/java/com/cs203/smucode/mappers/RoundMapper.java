@@ -1,8 +1,11 @@
 package com.cs203.smucode.mappers;
 
+import com.cs203.smucode.consumers.UserServiceConsumer;
 import com.cs203.smucode.dtos.rounds.RoundDTO;
 import com.cs203.smucode.models.Round;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 /**
  * @author jered
@@ -15,8 +18,10 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring", uses = {BracketMapper.class})
 public interface RoundMapper {
 
-    RoundDTO roundToRoundDTO(Round round);
+    @Mapping(target = "brackets", source = "brackets")
+    RoundDTO roundToRoundDTO(Round round, @Context UserServiceConsumer userServiceConsumer);
 
+    @Mapping(target = "brackets", ignore = true)
     Round roundDTOToRound(RoundDTO roundDTO);
 
 }

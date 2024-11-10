@@ -21,7 +21,6 @@ public class Round {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-//    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "seq_id")
     private int seqId;
 

@@ -99,10 +99,10 @@ public class TournamentServiceImpl implements TournamentService {
      */
     @Transactional
     public Tournament createTournament(Tournament tournament) {
-        tournamentServiceRepository.save(tournament);
+        Tournament createdTournament = tournamentServiceRepository.save(tournament);
         createRounds(tournament); // generate rounds
 
-        return tournament;
+        return createdTournament;
     }
 
     @Transactional
@@ -312,5 +312,12 @@ public class TournamentServiceImpl implements TournamentService {
 
         }
         return createdRounds;
+    }
+
+    @Override
+    @Transactional
+    public void uploadTournamentPicture(Tournament tournament, String imageUrl) {
+        tournament.setIcon(imageUrl);
+        tournamentServiceRepository.save(tournament);
     }
 }

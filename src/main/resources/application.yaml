@@ -37,3 +37,7 @@ services:
 feign:
   access:
     token: ${FEIGN_ACCESS_TOKEN:write_your_Access_token}
+
+aws:
+  bucket:
+    name: ${AWS_ASSETS_BUCKET:brawlcode-assets}

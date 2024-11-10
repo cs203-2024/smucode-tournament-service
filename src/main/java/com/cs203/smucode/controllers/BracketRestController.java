@@ -1,5 +1,6 @@
 package com.cs203.smucode.controllers;
 
+import com.cs203.smucode.consumers.UserServiceConsumer;
 import com.cs203.smucode.dtos.brackets.BracketDTO;
 import com.cs203.smucode.dtos.brackets.UpdateBracketScoreDTO;
 import com.cs203.smucode.mappers.BracketMapper;
@@ -21,19 +22,22 @@ public class BracketRestController {
     private static final Logger logger = LoggerFactory.getLogger(BracketRestController.class.getName());
     private final BracketService bracketService;
     private final BracketMapper bracketMapper;
+    private final UserServiceConsumer userServiceConsumer;
 
     @Autowired
     public BracketRestController(BracketService bracketService,
-                                 BracketMapper bracketMapper) {
+                                 BracketMapper bracketMapper,
+                                 UserServiceConsumer userServiceConsumer) {
         this.bracketService = bracketService;
         this.bracketMapper = bracketMapper;
+        this.userServiceConsumer = userServiceConsumer;
     }
 
     @Operation(summary = "Get bracket by bracket ID")
     @GetMapping("/{bracketId}")
     public BracketDTO getBracketById(@PathVariable UUID bracketId) {
         Bracket bracket = bracketService.findBracketById(bracketId);
-        return bracketMapper.bracketToBracketDTO(bracket);
+        return bracketMapper.bracketToBracketDTO(bracket, userServiceConsumer);
     }
 
     @Operation(summary = "Update bracket score")
@@ -44,13 +48,13 @@ public class BracketRestController {
         logger.info("bracket from bracket DTO: {}", bracketScore);
         Bracket newBracket = bracketService.updateBracketScore(bracketId, bracketScore);
         logger.info("new bracket: {}", newBracket);
-        return bracketMapper.bracketToBracketDTO(newBracket);
+        return bracketMapper.bracketToBracketDTO(newBracket, userServiceConsumer);
     }
 
     @Operation(summary = "End current bracket and set winner")
     @PutMapping("/{bracketId}/end")
     public BracketDTO endBracket(@PathVariable UUID bracketId) {
         Bracket bracket = bracketService.endBracket(bracketId);
-        return bracketMapper.bracketToBracketDTO(bracket);
+        return bracketMapper.bracketToBracketDTO(bracket, userServiceConsumer);
     }
 }
