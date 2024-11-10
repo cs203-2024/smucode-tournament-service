@@ -32,9 +32,6 @@ class MatchmakingServiceImplTest {
     @Mock
     private UserServiceHandler userService;
 
-//    @Mock
-//    private EventFactory eventFactory;
-
     @Mock
     private BracketService bracketService;
 
@@ -46,6 +43,9 @@ class MatchmakingServiceImplTest {
 
     @Mock
     private PredictionService predictionService;
+
+    @Mock
+    private EventService eventService;
 
     @InjectMocks
     private MatchmakingServiceImpl matchmakingService;

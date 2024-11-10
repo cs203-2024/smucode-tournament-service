@@ -6,6 +6,7 @@ import com.cs203.smucode.exceptions.UserNotFoundException;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.TournamentServiceRepository;
+import com.cs203.smucode.services.EventService;
 import com.cs203.smucode.services.RoundService;
 import com.cs203.smucode.services.TournamentService;
 import jakarta.transaction.Transactional;
@@ -23,19 +24,16 @@ public class TournamentServiceImpl implements TournamentService {
 
     private final TournamentServiceRepository tournamentServiceRepository;
     private final RoundService roundService;
-//    private EventFactory eventFactory;
+    private final EventService eventService;
 
     @Autowired
     public TournamentServiceImpl(TournamentServiceRepository tournamentServiceRepository,
-                                 RoundService roundService) {
+                                 RoundService roundService,
+                                 EventService eventService) {
         this.tournamentServiceRepository = tournamentServiceRepository;
         this.roundService = roundService;
+        this.eventService = eventService;
     }
-
-//    @Autowired
-//    public void setEventFactory(EventFactory eventFactory) {
-//        this.eventFactory = eventFactory;
-//    }
 
     @Transactional
     public Tournament findTournamentById(UUID id) {
@@ -234,11 +232,11 @@ public class TournamentServiceImpl implements TournamentService {
         roundService.updateRound(currRound.getId(), currRound);
 
 //        // Publish ROUND_END notification
-//        eventFactory.createRoundEndEvent(
-//                parentTournament.getId(),
-//                parentTournament.getName(),
-//                String.format("Round %s has ended!", roundId)
-//        );
+        eventService.handleRoundEndEvent(
+                parentTournament.getId(),
+                parentTournament.getName(),
+                String.format("Round %s has ended!", roundId)
+        );
 
         // Check if it's the final round
         if (currRound.getBrackets().size() == 1) {
@@ -247,11 +245,11 @@ public class TournamentServiceImpl implements TournamentService {
             updateTournament(parentTournament.getId(), parentTournament);
 
 //            // Publish TOURNAMENT_END notification
-//            eventFactory.createTournamentEndEvent(
-//                    parentTournament.getId(),
-//                    parentTournament.getName(),
-//                    String.format("Tournament %s has ended!", parentTournament.getId())
-//            );
+            eventService.handleTournamentEndEvent(
+                    parentTournament.getId(),
+                    parentTournament.getName(),
+                    String.format("Tournament %s has ended!", parentTournament.getId())
+            );
             return parentTournament;
         }
 

@@ -28,7 +28,7 @@ public class MatchmakingServiceImpl implements MatchmakingService {
     private final BracketService bracketService;
     private final UserServiceHandler userServiceHandler;
     private final PredictionService predictionService;
-//    private final EventFactory eventFactory;
+    private final EventService eventService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -38,14 +38,14 @@ public class MatchmakingServiceImpl implements MatchmakingService {
                                   BracketService bracketService,
                                   TournamentService tournamentService,
                                   UserServiceHandler userServiceHandler,
-                                  PredictionService predictionService) {
-//                                  EventFactory eventFactory) {
+                                  PredictionService predictionService,
+                                  EventService eventService) {
         this.roundService = roundService;
         this.bracketService = bracketService;
         this.tournamentService = tournamentService;
         this.userServiceHandler = userServiceHandler;
         this.predictionService = predictionService;
-//        this.eventFactory = eventFactory;
+        this.eventService = eventService;
     }
 
     @Override
@@ -70,16 +70,16 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         tournamentService.updateTournament(tournament.getId(), tournament);
 
         // Publish REGISTRATION_ACCEPTED and REGISTRATION_REJECTED notifications
-//        eventFactory.createRegistrationAcceptedEvent(
-//                tournament.getId(),
-//                tournament.getName(),
-//                String.format("Tournament `%s` has started!", tournament.getId())
-//        );
-//        eventFactory.createRegistrationRejectedEvent(
-//                tournament.getId(),
-//                tournament.getName(),
-//                String.format("Tournament `%s` has started!", tournament.getId())
-//        );
+        eventService.handleRegistrationAcceptedEvent(
+                tournament.getId(),
+                tournament.getName(),
+                String.format("Tournament `%s` has started!", tournament.getId())
+        );
+        eventService.handleRegistrationRejectedEvent(
+                tournament.getId(),
+                tournament.getName(),
+                String.format("Tournament `%s` has started!", tournament.getId())
+        );
 
         //Pair the selected players into brackets (order of brackets matters)
         List<Bracket> bracketPairs = pairPlayers(selectedPlayers, true);
