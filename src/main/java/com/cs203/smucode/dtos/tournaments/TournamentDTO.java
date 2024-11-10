@@ -1,11 +1,11 @@
-package com.cs203.smucode.dto;
+package com.cs203.smucode.dtos.tournaments;
 
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
-public class TournamentCardDTO {
+public class TournamentDTO {
 
     private String id;
 
@@ -14,6 +14,8 @@ public class TournamentCardDTO {
     private String name;
 
     private int capacity;
+
+    private String description;
 
     private String format;
 
@@ -29,16 +31,11 @@ public class TournamentCardDTO {
 
     private String status;
 
+    private String organiser;
+
     private int numberOfSignups;
 
     private String currentRound;
 
     private LocalDateTime currentRoundEndDate;
-
-    private int timeWeight;
-
-    private int memWeight;
-
-    private int testCaseWeight;
-
 }

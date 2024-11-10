@@ -1,5 +1,6 @@
-package com.cs203.smucode.dto;
+package com.cs203.smucode.dtos.brackets;
 
+import com.cs203.smucode.dtos.users.BracketUserDTO;
 import lombok.Data;
 
 @Data

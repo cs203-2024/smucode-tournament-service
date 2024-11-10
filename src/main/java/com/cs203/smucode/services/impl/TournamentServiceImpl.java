@@ -6,7 +6,6 @@ import com.cs203.smucode.exceptions.UserNotFoundException;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.TournamentServiceRepository;
-import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.RoundService;
 import com.cs203.smucode.services.TournamentService;
 import jakarta.transaction.Transactional;
@@ -21,8 +20,10 @@ import java.util.*;
 @Service
 public class TournamentServiceImpl implements TournamentService {
     private static final Logger logger = LoggerFactory.getLogger(TournamentServiceImpl.class);
+
     private final TournamentServiceRepository tournamentServiceRepository;
     private final RoundService roundService;
+//    private EventFactory eventFactory;
 
     @Autowired
     public TournamentServiceImpl(TournamentServiceRepository tournamentServiceRepository,
@@ -30,6 +31,11 @@ public class TournamentServiceImpl implements TournamentService {
         this.tournamentServiceRepository = tournamentServiceRepository;
         this.roundService = roundService;
     }
+
+//    @Autowired
+//    public void setEventFactory(EventFactory eventFactory) {
+//        this.eventFactory = eventFactory;
+//    }
 
     @Transactional
     public Tournament findTournamentById(UUID id) {
@@ -227,11 +233,25 @@ public class TournamentServiceImpl implements TournamentService {
         currRound.setStatus(Status.COMPLETED);
         roundService.updateRound(currRound.getId(), currRound);
 
+//        // Publish ROUND_END notification
+//        eventFactory.createRoundEndEvent(
+//                parentTournament.getId(),
+//                parentTournament.getName(),
+//                String.format("Round %s has ended!", roundId)
+//        );
+
         // Check if it's the final round
         if (currRound.getBrackets().size() == 1) {
             // TODO: tournament complete logic
             parentTournament.setStatus(Status.COMPLETED); // Mark the tournament as completed
             updateTournament(parentTournament.getId(), parentTournament);
+
+//            // Publish TOURNAMENT_END notification
+//            eventFactory.createTournamentEndEvent(
+//                    parentTournament.getId(),
+//                    parentTournament.getName(),
+//                    String.format("Tournament %s has ended!", parentTournament.getId())
+//            );
             return parentTournament;
         }
 

@@ -1,4 +1,4 @@
-package com.cs203.smucode.dto;
+package com.cs203.smucode.dtos.brackets;
 
 import com.cs203.smucode.models.PlayerInfo;
 import lombok.Data;

@@ -1,7 +1,9 @@
 package com.cs203.smucode.mappers;
 
 import com.cs203.smucode.consumers.UserServiceConsumer;
-import com.cs203.smucode.dto.*;
+import com.cs203.smucode.dtos.tournaments.*;
+import com.cs203.smucode.dtos.users.ParticipantUserDTO;
+import com.cs203.smucode.dtos.users.TournamentParticipantsDTO;
 import com.cs203.smucode.models.Tournament;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;

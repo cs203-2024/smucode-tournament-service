@@ -1,5 +1,6 @@
-package com.cs203.smucode.dto;
+package com.cs203.smucode.dtos.rounds;
 
+import com.cs203.smucode.dtos.brackets.BracketDTO;
 import lombok.Data;
 
 import java.time.LocalDateTime;

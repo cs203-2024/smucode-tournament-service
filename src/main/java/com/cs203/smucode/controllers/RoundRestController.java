@@ -1,16 +1,14 @@
 package com.cs203.smucode.controllers;
 
-import com.cs203.smucode.dto.RoundDTO;
+import com.cs203.smucode.dtos.rounds.RoundDTO;
 import com.cs203.smucode.mappers.RoundMapper;
 import com.cs203.smucode.models.Round;
 import com.cs203.smucode.services.RoundService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -27,13 +25,6 @@ public class RoundRestController {
         this.roundMapper = roundMapper;
     }
 
-//    @Operation(summary = "Get all rounds associated to tournament")
-//    @GetMapping("/tournament/{tournamentId}")
-//    public List<RoundDTO> getAllRoundsByTournamentId(@PathVariable UUID tournamentId) {
-//        List<Round> rounds = roundService.findAllRoundsByTournamentId(tournamentId);
-//        return roundMapper.roundsToRoundDTOs(rounds);
-//    }
-
     @Operation(summary = "Get round by round ID")
     @GetMapping("/{roundId}")
     public RoundDTO getRoundById(@PathVariable UUID roundId) {
@@ -48,10 +39,4 @@ public class RoundRestController {
         Round round = roundService.updateRound(roundId, newRoundInfo);
         return roundMapper.roundToRoundDTO(round);
     }
-
-//    @Operation(summary = "Delete existing round by round ID")
-//    @DeleteMapping("/{roundId}")
-//    public void deleteRound(@PathVariable UUID roundId) {
-//        roundService.deleteRoundById(roundId);
-//    }
 }

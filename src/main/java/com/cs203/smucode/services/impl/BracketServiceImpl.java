@@ -4,14 +4,9 @@ import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.exceptions.BracketNotFoundException;
 import com.cs203.smucode.exceptions.UserNotFoundException;
 import com.cs203.smucode.models.Bracket;
-import com.cs203.smucode.models.Round;
-import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.BracketServiceRepository;
-import com.cs203.smucode.repositories.RoundServiceRepository;
-import com.cs203.smucode.repositories.TournamentServiceRepository;
 import com.cs203.smucode.services.BracketService;
 import com.cs203.smucode.services.RatingUpdateService;
-import de.gesundkrank.jskills.Player;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,21 +21,20 @@ public class BracketServiceImpl implements BracketService {
     private static final Logger logger = LoggerFactory.getLogger(BracketServiceImpl.class);
 
     private final BracketServiceRepository bracketServiceRepository;
-    private final RoundServiceRepository roundServiceRepository;
-    private final TournamentServiceRepository tournamentServiceRepository;
-
     private final RatingUpdateService ratingUpdateService;
+//    private EventFactory eventFactory;
 
     @Autowired
     public BracketServiceImpl(BracketServiceRepository bracketServiceRepository,
-                              RoundServiceRepository roundServiceRepository,
-                              TournamentServiceRepository tournamentServiceRepository,
                               RatingUpdateService ratingUpdateService) {
         this.bracketServiceRepository = bracketServiceRepository;
-        this.roundServiceRepository = roundServiceRepository;
-        this.tournamentServiceRepository = tournamentServiceRepository;
         this.ratingUpdateService = ratingUpdateService;
     }
+
+//    @Autowired
+//    public void setEventFactory(EventFactory eventFactory) {
+//        this.eventFactory = eventFactory;
+//    }
 
     @Transactional
     public List<Bracket> findAllBracketsByRoundId(UUID roundId) {
@@ -73,8 +67,7 @@ public class BracketServiceImpl implements BracketService {
     }
 
     /**
-     * Updates the specified bracket and handles associated status changes
-     * in the parent round and tournament as necessary.
+     * Updates the specified bracket.
      *
      * @param id the UUID of the bracket to update
      * @param bracket the Bracket object containing updated information
@@ -85,21 +78,6 @@ public class BracketServiceImpl implements BracketService {
     public Bracket updateBracket(UUID id, Bracket bracket) {
         Bracket bracketToUpdate = bracketServiceRepository.findById(id)
                 .orElseThrow(() -> new BracketNotFoundException("Bracket with id " + id + " not found"));
-
-        // Update status of parent round if needed
-        Round parentRound = bracketToUpdate.getRound();
-        if (parentRound.getStatus() == Status.UPCOMING) {
-            parentRound.setStatus(Status.ONGOING);
-            roundServiceRepository.save(parentRound); // Save updated parent round status
-        }
-
-        // Update tournament current round and status if needed
-        Tournament tournament = parentRound.getTournament();
-        tournament.setCurrentRound(parentRound.getName());
-        if (tournament.getStatus() == Status.UPCOMING) {
-            tournament.setStatus(Status.ONGOING);
-        }
-        tournamentServiceRepository.save(tournament); // Save updated tournament status
 
         // Update bracket details
         if (bracketToUpdate.getStatus() == Status.UPCOMING) {
@@ -159,6 +137,13 @@ public class BracketServiceImpl implements BracketService {
 
         // Close bracket
         bracket.setStatus(Status.COMPLETED);
+
+        // Publish BRACKET_COMPLETED notification
+//        eventFactory.createBracketCompletedEvent(
+//                bracket.getTournament().getId(),
+//                bracket.getTournament().getName(),
+//                String.format("Bracket %s has ended!", bracket.getId())
+//        );
 
         return bracketServiceRepository.save(bracket);
     }

@@ -28,6 +28,8 @@ eureka:
     serviceUrl:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
 
-user:
-  service:
+services:
+  user:
     url: ${USER_SERVICE_URL:http://localhost:8080/api/users}
+  notification:
+    url: ${NOTIFICATION_SERVICE_URL:http://localhost:8082/api/notifications}
