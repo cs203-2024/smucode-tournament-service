@@ -227,9 +227,9 @@ public class TournamentServiceImpl implements TournamentService {
         Round currRound = roundService.findRoundById(roundId);
         Tournament parentTournament = currRound.getTournament();
 
-        // Complete the current round
-        currRound.setStatus(Status.COMPLETED);
-        roundService.updateRound(currRound.getId(), currRound);
+//        // Complete the current round
+//        currRound.setStatus(Status.COMPLETED);
+//        roundService.updateRound(currRound.getId(), currRound);
 
         // Publish ROUND_END notification
         eventService.handleRoundEndedEvent(

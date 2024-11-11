@@ -87,6 +87,11 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         //Save the brackets
         updateBrackets(tournament, bracketPairs);
 
+        // Update round fields to indicate that it has started // TODO: May need to change when Round status is modified
+        Round firstRound = roundService.findRoundByTournamentIdAndSeqId(tournament.getId(), 1);
+        firstRound.setStatus(Status.ONGOING);
+        roundService.updateRound(firstRound.getId(), firstRound);
+
         // Update tournament fields to indicate that it has started
         tournament.setStatus(Status.ONGOING);
         tournament.setCurrentRound("Round of " + tournament.getCapacity());
