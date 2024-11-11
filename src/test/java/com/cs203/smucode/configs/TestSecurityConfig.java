@@ -35,7 +35,7 @@ public class TestSecurityConfig {
     public JwtDecoder jwtDecoder() {
         return token -> {
             return new Jwt(token, Instant.now(), Instant.now().plusSeconds(300),
-                    Map.of("alg", "RS256"), Map.of("sub", "testuser", "scope", "ROLE_USER"));
+                    Map.of("alg", "RS256"), Map.of("sub", "system", "scope", "ROLE_ADMIN"));
         };
     }
 }
