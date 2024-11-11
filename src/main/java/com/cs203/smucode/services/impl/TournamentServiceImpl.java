@@ -231,11 +231,13 @@ public class TournamentServiceImpl implements TournamentService {
         currRound.setStatus(Status.COMPLETED);
         roundService.updateRound(currRound.getId(), currRound);
 
-//        // Publish ROUND_END notification
-        eventService.handleRoundEndEvent(
+        // Publish ROUND_END notification
+        eventService.handleRoundEndedEvent(
                 parentTournament.getId(),
                 parentTournament.getName(),
-                String.format("Round %s has ended!", roundId)
+                String.format("Round %s for Tournament %s has ended!",
+                        currRound.getName(),
+                        parentTournament.getId())
         );
 
         // Check if it's the final round
@@ -244,11 +246,11 @@ public class TournamentServiceImpl implements TournamentService {
             parentTournament.setStatus(Status.COMPLETED); // Mark the tournament as completed
             updateTournament(parentTournament.getId(), parentTournament);
 
-//            // Publish TOURNAMENT_END notification
-            eventService.handleTournamentEndEvent(
+            // Publish TOURNAMENT_END notification
+            eventService.handleTournamentEndedEvent(
                     parentTournament.getId(),
                     parentTournament.getName(),
-                    String.format("Tournament %s has ended!", parentTournament.getId())
+                    String.format("Tournament %s has ended!", parentTournament.getName())
             );
             return parentTournament;
         }
