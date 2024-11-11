@@ -189,7 +189,7 @@ public class EventFactory {
         SuspiciousActivityEvent event = new SuspiciousActivityEvent(
                 bracket,
                 message,
-                NotificationType.BRACKET_COMPLETED,
+                NotificationType.SUSPICIOUS_BEHAVIOUR,
                 NotificationCategory.GENERAL
         );
         event.setRecipients();
