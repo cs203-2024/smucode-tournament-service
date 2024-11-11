@@ -2,42 +2,43 @@ package com.cs203.smucode.models.events;
 
 import com.cs203.smucode.constants.NotificationCategory;
 import com.cs203.smucode.constants.NotificationType;
-import com.cs203.smucode.models.Tournament;
-import com.cs203.smucode.services.TournamentService;
+import com.cs203.smucode.models.Bracket;
 
 import java.util.ArrayList;
-import java.util.UUID;
+import java.util.List;
 
 /**
  * Event triggered when a bracket is completed.
- * This event sends a notification to all participants of the tournament.
+ * This event sends a notification to all players within the bracket.
  */
 public class BracketCompletedEvent extends Event {
-    public BracketCompletedEvent(UUID tournamentId,
-                                 String tournamentName,
+    private final Bracket bracket;
+    public BracketCompletedEvent(Bracket bracket,
                                  String message,
                                  NotificationType type,
                                  NotificationCategory category) {
-        super(tournamentId, tournamentName, message, type, category);
+        super(bracket.getTournament().getId(), bracket.getTournament().getName(), message, type, category);
+        this.bracket = bracket;
     }
 
     /**
-     * Sets the recipients for this event to be the participants of the tournament.
-     * It fetches the tournament using the provided tournament service and adds all
-     * participants to the recipient list.
+     * Sets the recipients for this event to be the players within the bracket.
+     * TODO: Should it have a separate event for each player?
+     * "Bracket against player1 has ended"
+     * "Bracket against player2 has ended"
      *
-     * @param tournamentService the service used to retrieve tournament details.
-     * @throws IllegalStateException if the tournament is not found or has no participants.
+     * @throws IllegalStateException if the tournament has no participants.
      */
     @Override
-    public void setRecipients(TournamentService tournamentService) {
-        Tournament tournament = tournamentService.findTournamentById(tournamentId);
-
-        if (tournament.getParticipants().isEmpty()) {
-            throw new IllegalArgumentException("Tournament " + tournamentId + " has no participants");
+    public void setRecipients() {
+        if (bracket.getPlayer1() == null && bracket.getPlayer2() == null) {
+            throw new IllegalArgumentException("Bracket " + bracket.getId() + " has no participants");
         }
 
-        recipients = new ArrayList<>(tournament.getParticipants());
+        List<String> eventRecipients = new ArrayList<>();
+        if (bracket.getPlayer1() != null) { eventRecipients.add(bracket.getPlayer1()); }
+        if (bracket.getPlayer2() != null) { eventRecipients.add(bracket.getPlayer2()); }
+        recipients = eventRecipients;
     }
 
 }

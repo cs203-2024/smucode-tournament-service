@@ -8,21 +8,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Event triggered when the signups for a tournament are closed.
- * This event sends a notification to the tournament organiser to inform them that signups are closed.
+ * Event triggered when a tournament ends.
+ * This event sends a notification to both the tournament organiser and the participants.
  */
-public class SignupClosedEvent extends Event {
+
+public class TournamentEndedEvent extends Event {
     private final Tournament tournament;
-    public SignupClosedEvent(Tournament tournament,
-                             String message,
-                             NotificationType type,
-                             NotificationCategory category) {
+    public TournamentEndedEvent(Tournament tournament,
+                                String message,
+                                NotificationType type,
+                                NotificationCategory category) {
         super(tournament.getId(), tournament.getName(), message, type, category);
         this.tournament = tournament;
     }
 
+
     /**
-     * Sets the recipients for this event to be the tournament organiser.
+     * Sets the recipients for this event to be the tournament organiser and participants.
      *
      * @throws IllegalStateException if the organiser is null.
      */
@@ -35,7 +37,8 @@ public class SignupClosedEvent extends Event {
         }
 
         List<String> eventRecipients = new ArrayList<>();
-        eventRecipients.add(organiser);
+        eventRecipients.add(tournament.getOrganiser());
+        eventRecipients.addAll(tournament.getParticipants());
         recipients = eventRecipients;
     }
 }

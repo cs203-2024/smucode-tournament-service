@@ -10,6 +10,7 @@ import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.repositories.BracketServiceRepository;
 import com.cs203.smucode.repositories.RoundServiceRepository;
 import com.cs203.smucode.repositories.TournamentServiceRepository;
+import com.cs203.smucode.services.EventService;
 import com.cs203.smucode.services.RatingUpdateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,9 @@ class BracketServiceImplTest {
 
     @Mock
     private RatingUpdateService ratingUpdateService;
+
+    @Mock
+    private EventService eventService;
 
     @InjectMocks
     private BracketServiceImpl bracketService;
@@ -127,6 +131,10 @@ class BracketServiceImplTest {
         bracket.setPlayer2("player2");
         bracket.setPlayer1Score(10);
         bracket.setPlayer2Score(5);
+        Round round = new Round();
+        bracket.setRound(round);
+        Tournament tournament = new Tournament();
+        bracket.setTournament(tournament);
 
         when(bracketServiceRepository.findById(bracketId)).thenReturn(Optional.of(bracket));
         when(bracketServiceRepository.save(any(Bracket.class))).thenReturn(bracket);
@@ -144,6 +152,10 @@ class BracketServiceImplTest {
         UUID bracketId = UUID.randomUUID();
         Bracket bracket = new Bracket();
         bracket.setPlayer2("player2");
+        Round round = new Round();
+        bracket.setRound(round);
+        Tournament tournament = new Tournament();
+        bracket.setTournament(tournament);
 
         when(bracketServiceRepository.findById(bracketId)).thenReturn(Optional.of(bracket));
         when(bracketServiceRepository.save(any(Bracket.class))).thenReturn(bracket);
@@ -160,6 +172,10 @@ class BracketServiceImplTest {
         UUID bracketId = UUID.randomUUID();
         Bracket bracket = new Bracket();
         bracket.setPlayer1("player1");
+        Round round = new Round();
+        bracket.setRound(round);
+        Tournament tournament = new Tournament();
+        bracket.setTournament(tournament);
 
         when(bracketServiceRepository.findById(bracketId)).thenReturn(Optional.of(bracket));
         when(bracketServiceRepository.save(any(Bracket.class))).thenReturn(bracket);
@@ -264,6 +280,10 @@ class BracketServiceImplTest {
         bracket.setPlayer2("player2");
         bracket.setPlayer1Score(10);
         bracket.setPlayer2Score(10);
+        Round round = new Round();
+        bracket.setRound(round);
+        Tournament tournament = new Tournament();
+        bracket.setTournament(tournament);
 
         when(bracketServiceRepository.findById(bracketId)).thenReturn(Optional.of(bracket));
         when(bracketServiceRepository.save(any(Bracket.class))).thenReturn(bracket);

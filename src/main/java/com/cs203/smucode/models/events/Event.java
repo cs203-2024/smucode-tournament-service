@@ -2,7 +2,6 @@ package com.cs203.smucode.models.events;
 
 import com.cs203.smucode.constants.NotificationCategory;
 import com.cs203.smucode.constants.NotificationType;
-import com.cs203.smucode.services.TournamentService;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +52,7 @@ public abstract class Event {
      * Abstract method that sets the recipients of this event.
      * Subclasses should implement this method to specify how recipients
      * are determined based on tournament data.
-     *
-     * @param tournamentService the service used to retrieve tournament details.
      */
-    protected abstract void setRecipients(TournamentService tournamentService);
+    protected abstract void setRecipients();
 
 }
