@@ -177,5 +177,28 @@ public class EventFactory {
         return event;
 
     }
+
+    /**
+     * Creates a BracketCompletedEvent for a specific tournament.
+     *
+     * @param bracket The bracket which has completed.
+     * @param message The message to include in the event.
+     * @return A BracketCompletedEvent with set recipients and notification type.
+     */
+    public Event createSuspiciousActivityEvent(Bracket bracket, String message) {
+        SuspiciousActivityEvent event = new SuspiciousActivityEvent(
+                bracket,
+                message,
+                NotificationType.BRACKET_COMPLETED,
+                NotificationCategory.GENERAL
+        );
+        event.setRecipients();
+        logger.info("Created SuspiciousActivityEvent {} for bracket {} in tournament {}",
+                event,
+                bracket.getId(),
+                event.getTournamentId());
+        return event;
+
+    }
 }
 

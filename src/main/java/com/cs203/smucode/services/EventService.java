@@ -21,6 +21,10 @@ public interface EventService {
 
     void handleRoundEndedEvent(Round round, String message);
 
+    void handleTournamentStartedEvent(Tournament tournament, String message);
+
     void handleTournamentEndedEvent(Tournament tournament, String message);
+
+    void handleSuspiciousActivityEvent(Bracket bracket, String message);
 
 }
