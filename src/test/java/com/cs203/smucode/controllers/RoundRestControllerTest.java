@@ -186,10 +186,10 @@ class RoundRestControllerTest {
         }
 
         private Tournament createTournament() {
-            Tournament newTournament = new Tournament();
-            newTournament.setId(UUID.randomUUID());
-            newTournament.setStatus(Status.ONGOING);
-            return newTournament;
+            Tournament tournament = new Tournament();
+            tournament.setId(UUID.randomUUID());
+            tournament.setStatus(Status.ONGOING);
+            return tournament;
         }
 
         private Round createRound(Tournament tournament, Status status, String name) {
