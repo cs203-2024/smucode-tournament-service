@@ -234,9 +234,8 @@ public class TournamentServiceImpl implements TournamentService {
         // Publish ROUND_END notification
         eventService.handleRoundEndedEvent(
                 currRound,
-                String.format("Round %s for Tournament %s has ended!",
-                        currRound.getName(),
-                        parentTournament.getId())
+                String.format("\"%s\" has ended!",
+                        currRound.getName())
         );
 
         // Check if it's the final round
@@ -248,7 +247,7 @@ public class TournamentServiceImpl implements TournamentService {
             // Publish TOURNAMENT_END notification
             eventService.handleTournamentEndedEvent(
                     parentTournament,
-                    String.format("Tournament %s has ended!", parentTournament.getName())
+                    String.format("Tournament \"%s\" has ended!", parentTournament.getName())
             );
             return parentTournament;
         }
