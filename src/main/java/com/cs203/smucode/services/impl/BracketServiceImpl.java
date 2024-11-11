@@ -139,9 +139,8 @@ public class BracketServiceImpl implements BracketService {
         // Publish BRACKET_COMPLETED notification
         eventService.handleBracketCompletedEvent(
                 bracket,
-                String.format("Bracket in Round %s Tournament %s has ended!",
-                        bracket.getRound().getName(),
-                        bracket.getTournament().getName())
+                String.format("Bracket in \"%s\" has ended!",
+                        bracket.getRound().getName())
         );
 
         return bracketServiceRepository.save(bracket);
