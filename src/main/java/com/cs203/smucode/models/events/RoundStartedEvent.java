@@ -13,12 +13,12 @@ import java.util.UUID;
  * Event triggered when a round starts in a tournament.
  * This event sends a notification to all participants of the tournament to inform them about the start of a new round.
  */
-public class RoundStartEvent extends Event {
-    public RoundStartEvent(UUID tournamentId,
-                           String tournamentName,
-                           String message,
-                           NotificationType type,
-                           NotificationCategory category) {
+public class RoundStartedEvent extends Event {
+    public RoundStartedEvent(UUID tournamentId,
+                             String tournamentName,
+                             String message,
+                             NotificationType type,
+                             NotificationCategory category) {
         super(tournamentId, tournamentName, message, type, category);
     }
 

@@ -78,6 +78,18 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
+     * Handles the BracketCompleted event by creating and publishing it.
+     *
+     * @param tournamentId The ID of the tournament.
+     * @param tournamentName The name of the tournament.
+     * @param message The message to include in the event.
+     */
+    public void handleBracketCompletedEvent(UUID tournamentId, String tournamentName, String message) {
+        Event event = eventFactory.createBracketCompletedEvent(tournamentId, tournamentName, message);
+        publishEvent(event);
+    }
+
+    /**
      * Handles the RoundStarted event by creating and publishing it.
      *
      * @param tournamentId The ID of the tournament.
@@ -122,18 +134,6 @@ public class EventServiceImpl implements EventService {
      */
     public void handleTournamentEndedEvent(UUID tournamentId, String tournamentName, String message) {
         Event event = eventFactory.createTournamentEndedEvent(tournamentId, tournamentName, message);
-        publishEvent(event);
-    }
-
-    /**
-     * Handles the BracketCompleted event by creating and publishing it.
-     *
-     * @param tournamentId The ID of the tournament.
-     * @param tournamentName The name of the tournament.
-     * @param message The message to include in the event.
-     */
-    public void handleBracketCompletedEvent(UUID tournamentId, String tournamentName, String message) {
-        Event event = eventFactory.createBracketCompletedEvent(tournamentId, tournamentName, message);
         publishEvent(event);
     }
 

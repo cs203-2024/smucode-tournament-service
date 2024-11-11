@@ -17,10 +17,10 @@ public interface EventService {
 
     void handleRegistrationRejectedEvent(UUID tournamentId, String tournamentName, String message);
 
+    void handleBracketCompletedEvent(UUID tournamentId, String tournamentName, String message);
+
     void handleRoundEndedEvent(UUID tournamentId, String tournamentName, String message);
 
     void handleTournamentEndedEvent(UUID tournamentId, String tournamentName, String message);
-
-    void handleBracketCompletedEvent(UUID tournamentId, String tournamentName, String message);
 
 }

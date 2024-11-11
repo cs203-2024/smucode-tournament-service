@@ -2,10 +2,7 @@ package com.cs203.smucode.factories;
 
 import com.cs203.smucode.constants.NotificationCategory;
 import com.cs203.smucode.constants.NotificationType;
-import com.cs203.smucode.models.events.Event;
-import com.cs203.smucode.models.events.RegistrationAcceptedEvent;
-import com.cs203.smucode.models.events.RegistrationRejectedEvent;
-import com.cs203.smucode.models.events.SignupClosedEvent;
+import com.cs203.smucode.models.events.*;
 import com.cs203.smucode.services.TournamentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,7 +101,7 @@ public class EventFactory {
      * @return A RoundStartedEvent with set recipients and notification type.
      */
     public Event createRoundStartedEvent(UUID tournamentId, String tournamentName, String message) {
-        RegistrationRejectedEvent event = new RegistrationRejectedEvent(
+        RoundStartedEvent event = new RoundStartedEvent(
                 tournamentId,
                 tournamentName,
                 message,
@@ -125,7 +122,7 @@ public class EventFactory {
      * @return A RoundEndedEvent with set recipients and notification type.
      */
     public Event createRoundEndedEvent(UUID tournamentId, String tournamentName, String message) {
-        RegistrationRejectedEvent event = new RegistrationRejectedEvent(
+        RoundEndedEvent event = new RoundEndedEvent(
                 tournamentId,
                 tournamentName,
                 message,
@@ -146,7 +143,7 @@ public class EventFactory {
      * @return A SignupClosedEvent with set recipients and notification type.
      */
     public Event createTournamentStartedEvent(UUID tournamentId, String tournamentName, String message) {
-        RegistrationRejectedEvent event = new RegistrationRejectedEvent(
+        TournamentStartedEvent event = new TournamentStartedEvent(
                 tournamentId,
                 tournamentName,
                 message,
@@ -167,7 +164,7 @@ public class EventFactory {
      * @return A TournamentEndedEvent with set recipients and notification type.
      */
     public Event createTournamentEndedEvent(UUID tournamentId, String tournamentName, String message) {
-        RegistrationRejectedEvent event = new RegistrationRejectedEvent(
+        TournamentEndedEvent event = new TournamentEndedEvent(
                 tournamentId,
                 tournamentName,
                 message,
@@ -188,7 +185,7 @@ public class EventFactory {
      * @return A BracketCompletedEvent with set recipients and notification type.
      */
     public Event createBracketCompletedEvent(UUID tournamentId, String tournamentName, String message) {
-        RegistrationRejectedEvent event = new RegistrationRejectedEvent(
+        BracketCompletedEvent event = new BracketCompletedEvent(
                 tournamentId,
                 tournamentName,
                 message,

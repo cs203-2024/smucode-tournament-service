@@ -14,12 +14,12 @@ import java.util.UUID;
  * This event sends a notification to both the tournament organizer and the participants.
  */
 
-public class TournamentEndEvent extends Event {
-    public TournamentEndEvent(UUID tournamentId,
-                              String tournamentName,
-                              String message,
-                              NotificationType type,
-                              NotificationCategory category) {
+public class TournamentEndedEvent extends Event {
+    public TournamentEndedEvent(UUID tournamentId,
+                                String tournamentName,
+                                String message,
+                                NotificationType type,
+                                NotificationCategory category) {
         super(tournamentId, tournamentName, message, type, category);
     }
 

@@ -13,12 +13,12 @@ import java.util.UUID;
  * Event triggered when a round ends in a tournament.
  * This event sends a notification to all participants of the tournament to inform them about the round's completion.
  */
-public class RoundEndEvent extends Event {
-    public RoundEndEvent(UUID tournamentId,
-                         String tournamentName,
-                         String message,
-                         NotificationType type,
-                         NotificationCategory category) {
+public class RoundEndedEvent extends Event {
+    public RoundEndedEvent(UUID tournamentId,
+                           String tournamentName,
+                           String message,
+                           NotificationType type,
+                           NotificationCategory category) {
         super(tournamentId, tournamentName, message, type, category);
     }
 
