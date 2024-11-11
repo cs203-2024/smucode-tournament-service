@@ -22,7 +22,6 @@ public class TournamentEndedEvent extends Event {
         this.tournament = tournament;
     }
 
-
     /**
      * Sets the recipients for this event to be the tournament organiser and participants.
      *
@@ -32,12 +31,12 @@ public class TournamentEndedEvent extends Event {
     public void setRecipients() {
         String organiser = tournament.getOrganiser();
 
-        if (organiser == null || organiser.isEmpty()) {
-            throw new IllegalArgumentException("Tournament " + tournament.getId() + " does not have an organiser");
-        }
+//        if (organiser == null || organiser.isEmpty()) {
+//            throw new IllegalArgumentException("Tournament " + tournament.getId() + " does not have an organiser");
+//        }
 
         List<String> eventRecipients = new ArrayList<>();
-        eventRecipients.add(tournament.getOrganiser());
+//        eventRecipients.add(tournament.getOrganiser());
         eventRecipients.addAll(tournament.getParticipants());
         recipients = eventRecipients;
     }
