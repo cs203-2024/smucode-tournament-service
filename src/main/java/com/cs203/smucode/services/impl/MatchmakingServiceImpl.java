@@ -73,12 +73,14 @@ public class MatchmakingServiceImpl implements MatchmakingService {
         eventService.handleRegistrationAcceptedEvent(
                 tournament.getId(),
                 tournament.getName(),
-                String.format("Tournament `%s` has started!", tournament.getId())
+                String.format("Prepare to brawl in tournament `%s`!", tournament.getName())
         );
         eventService.handleRegistrationRejectedEvent(
                 tournament.getId(),
                 tournament.getName(),
-                String.format("Tournament `%s` has started!", tournament.getId())
+                String.format("For your application to tournament %s, " +
+                        "we have decided to proceed with other more suitable candidates at this time",
+                        tournament.getId())
         );
 
         //Pair the selected players into brackets (order of brackets matters)
