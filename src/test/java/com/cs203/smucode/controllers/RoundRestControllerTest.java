@@ -198,34 +198,34 @@ class RoundRestControllerTest {
         }
 
         private Tournament createTournament() {
-            Tournament tournament = new Tournament();
-            tournament.setName("Test Tournament");
-            tournament.setDescription("Test tournament for integration testing");
-            tournament.setStartDate(LocalDateTime.now().plusDays(7)); // 7 days from now
-            tournament.setEndDate(LocalDateTime.now().plusDays(14));  // 14 days from now
-            tournament.setFormat("single-elimination");
-            tournament.setCapacity(16); // Common tournament size
-            tournament.setIcon("/default-tournament-icon.jpg");
-            tournament.setOrganiser("test-admin");
+            Tournament newTournament = new Tournament();
+            newTournament.setName("Test Tournament");
+            newTournament.setDescription("Test tournament for integration testing");
+            newTournament.setStartDate(LocalDateTime.now().plusDays(7)); // 7 days from now
+            newTournament.setEndDate(LocalDateTime.now().plusDays(14));  // 14 days from now
+            newTournament.setFormat("single-elimination");
+            newTournament.setCapacity(16); // Common tournament size
+            newTournament.setIcon("/default-tournament-icon.jpg");
+            newTournament.setOrganiser("test-admin");
 
             // Weights should sum to 100
-            tournament.setTimeWeight(40);
-            tournament.setMemWeight(30);
-            tournament.setTestCaseWeight(30);
+            newTournament.setTimeWeight(40);
+            newTournament.setMemWeight(30);
+            newTournament.setTestCaseWeight(30);
 
-            tournament.setStatus(Status.ONGOING);
-            tournament.setSignupStartDate(LocalDateTime.now());
-            tournament.setSignupEndDate(LocalDateTime.now().plusDays(5));
-            tournament.setBand(Band.MIDDLE);
-            tournament.setCurrentRound("Round of 16");
+            newTournament.setStatus(Status.ONGOING);
+            newTournament.setSignupStartDate(LocalDateTime.now());
+            newTournament.setSignupEndDate(LocalDateTime.now().plusDays(5));
+            newTournament.setBand(Band.MIDDLE);
+            newTournament.setCurrentRound("Round of 16");
 
             // Initialize collections
-            tournament.setRounds(new ArrayList<>());
-            tournament.setBrackets(new ArrayList<>());
-            tournament.setSignups(new HashSet<>());
-            tournament.setParticipants(new HashSet<>());
+            newTournament.setRounds(new ArrayList<>());
+            newTournament.setBrackets(new ArrayList<>());
+            newTournament.setSignups(new HashSet<>());
+            newTournament.setParticipants(new HashSet<>());
 
-            return tournament;
+            return newTournament;
         }
 
         private Round createRound(Tournament tournament, Status status, String name) {
