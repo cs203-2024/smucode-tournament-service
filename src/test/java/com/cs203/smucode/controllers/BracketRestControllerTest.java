@@ -1,5 +1,6 @@
 package com.cs203.smucode.controllers;
 
+import com.cs203.smucode.configs.TestSecurityConfig;
 import com.cs203.smucode.constants.Status;
 import com.cs203.smucode.consumers.UserServiceConsumer;
 import com.cs203.smucode.dtos.brackets.*;
@@ -17,10 +18,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
@@ -28,12 +27,19 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-@WebMvcTest(BracketRestController.class)
-@DisplayName("BracketController Integration Tests")
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 class BracketRestControllerTest {
 
     @Autowired
@@ -51,6 +57,9 @@ class BracketRestControllerTest {
     @MockBean
     private UserServiceConsumer userServiceConsumer;
 
+    @Value("${feign.access.token}")
+    private String testJWT;
+
     private TestData testData;
 
     @BeforeEach
@@ -62,21 +71,22 @@ class BracketRestControllerTest {
     private void setupMocks() {
         when(bracketService.findBracketById(testData.bracketId))
                 .thenReturn(testData.bracket);
-        when(bracketMapper.bracketToBracketDTO(any(Bracket.class), any(UserServiceConsumer.class)))
+        when(bracketMapper.bracketToBracketDTO(any(Bracket.class), eq(userServiceConsumer)))
                 .thenReturn(testData.bracketDTO);
         when(bracketMapper.updateBracketScoreDTOToBracket(any()))
                 .thenReturn(testData.bracket);
     }
 
     @Nested
-    @DisplayName("GET /tournaments/brackets/{bracketId}")
-    class GetBracketTests {
+    @DisplayName("Bracket Retrieval Operations")
+    class BracketRetrievalOperations {
 
         @Test
-        @WithMockUser
-        @DisplayName("Should successfully retrieve bracket")
-        void getBracket_Success() throws Exception {
-            mockMvc.perform(get("/tournaments/brackets/{bracketId}", testData.bracketId))
+        @DisplayName("Should get bracket successfully")
+        void getBracket_ValidId_Success() throws Exception {
+            mockMvc.perform(get("/tournaments/brackets/{bracketId}", testData.bracketId)
+                            .header("Authorization", "Bearer " + testJWT))
+                    .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.id").value(testData.bracketId.toString()))
@@ -87,55 +97,68 @@ class BracketRestControllerTest {
         }
 
         @Test
-        @WithMockUser
-        @DisplayName("Should return 404 when bracket not found")
-        void getBracket_NotFound() throws Exception {
-            when(bracketService.findBracketById(testData.bracketId))
+        @DisplayName("Should handle non-existent bracket")
+        void getBracket_InvalidId_ReturnsNotFound() throws Exception {
+            when(bracketService.findBracketById(any()))
                     .thenThrow(new BracketNotFoundException("Bracket not found"));
 
-            mockMvc.perform(get("/tournaments/brackets/{bracketId}", testData.bracketId))
+            mockMvc.perform(get("/tournaments/brackets/{bracketId}", UUID.randomUUID())
+                            .header("Authorization", "Bearer " + testJWT))
+                    .andDo(print())
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.message").value("Bracket not found"));
         }
     }
 
     @Nested
-    @DisplayName("PUT /tournaments/brackets/{bracketId}")
-    class UpdateBracketScoreTests {
+    @DisplayName("Bracket Score Update Operations")
+    class BracketScoreUpdateOperations {
 
         @Test
-        @WithMockUser
-        @DisplayName("Should successfully update bracket score")
-        void updateBracketScore_Success() throws Exception {
+        @DisplayName("Should update bracket score successfully")
+        void updateBracketScore_ValidData_Success() throws Exception {
             when(bracketService.updateBracketScore(eq(testData.bracketId), any(Bracket.class)))
                     .thenReturn(testData.bracket);
 
+            when(bracketMapper.bracketToBracketDTO(any(Bracket.class), eq(userServiceConsumer)))
+                    .thenReturn(testData.bracketDTO);
+
             mockMvc.perform(put("/tournaments/brackets/{bracketId}", testData.bracketId)
+                            .header("Authorization", "Bearer " + testJWT)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(testData.updateScoreDTO))
-                            .with(csrf()))
+                            .content(objectMapper.writeValueAsString(testData.updateScoreDTO)))
+                    .andDo(print())
                     .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.id").value(testData.bracketId.toString()))
+                    .andExpect(jsonPath("$.seqId").value(1))
+                    .andExpect(jsonPath("$.status").value("ongoing"))
+                    .andExpect(jsonPath("$.player1.username").value(testData.player1Username))
                     .andExpect(jsonPath("$.player1.score").value(testData.player1Score))
+                    .andExpect(jsonPath("$.player2.username").value(testData.player2Username))
                     .andExpect(jsonPath("$.player2.score").value(testData.player2Score));
 
+            // Verify the correct service method was called
             verify(bracketService).updateBracketScore(eq(testData.bracketId), any(Bracket.class));
+            verify(bracketMapper).bracketToBracketDTO(any(Bracket.class), eq(userServiceConsumer));
         }
     }
 
     @Nested
-    @DisplayName("PUT /tournaments/brackets/{bracketId}/end")
-    class EndBracketTests {
+    @DisplayName("Bracket Completion Operations")
+    class BracketCompletionOperations {
+
         @Test
-        @WithMockUser
-        @DisplayName("Should successfully end bracket")
-        void endBracket_Success() throws Exception {
+        @DisplayName("Should end bracket successfully")
+        void endBracket_ValidId_Success() throws Exception {
             when(bracketService.endBracket(testData.bracketId))
                     .thenReturn(testData.completedBracket);
             when(bracketMapper.bracketToBracketDTO(testData.completedBracket, userServiceConsumer))
                     .thenReturn(testData.completedBracketDTO);
 
             mockMvc.perform(put("/tournaments/brackets/{bracketId}/end", testData.bracketId)
-                            .with(csrf()))
+                            .header("Authorization", "Bearer " + testJWT))
+                    .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status").value("completed"))
                     .andExpect(jsonPath("$.winner").value(testData.player1Username));
@@ -144,24 +167,49 @@ class BracketRestControllerTest {
         }
 
         @Test
-        @WithMockUser
-        @DisplayName("Should return 404 when bracket not found")
-        void endBracket_NotFound() throws Exception {
-            when(bracketService.endBracket(testData.bracketId))
+        @DisplayName("Should handle non-existent bracket when ending")
+        void endBracket_InvalidId_ReturnsNotFound() throws Exception {
+            when(bracketService.endBracket(any()))
                     .thenThrow(new BracketNotFoundException("Bracket not found"));
 
-            mockMvc.perform(put("/tournaments/brackets/{bracketId}/end", testData.bracketId)
-                            .with(csrf()))  // Add CSRF token
+            mockMvc.perform(put("/tournaments/brackets/{bracketId}/end", UUID.randomUUID())
+                            .header("Authorization", "Bearer " + testJWT))
+                    .andDo(print())
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.message").value("Bracket not found"));
         }
     }
 
-    @Test
-    @DisplayName("Should return 401 when user is not authenticated")
-    void whenNotAuthenticated_Unauthorized() throws Exception {
-        mockMvc.perform(get("/tournaments/brackets/{bracketId}", testData.bracketId))
-                .andExpect(status().isUnauthorized());
+    @Nested
+    @DisplayName("Error Handling")
+    class ErrorHandling {
+
+        @Test
+        @DisplayName("Should handle unauthorized access")
+        void anyEndpoint_NoToken_ReturnsUnauthorized() throws Exception {
+            mockMvc.perform(get("/tournaments/brackets/{bracketId}", testData.bracketId))
+                    .andDo(print())
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("Should handle missing content type")
+        void updateBracketScore_MissingContentType_ReturnsUnsupportedMediaType() throws Exception {
+            mockMvc.perform(put("/tournaments/brackets/{bracketId}", testData.bracketId)
+                            .header("Authorization", "Bearer " + testJWT)
+                            .content(objectMapper.writeValueAsString(testData.updateScoreDTO)))
+                    .andDo(print())
+                    .andExpect(status().isUnsupportedMediaType());
+        }
+
+        @Test
+        @DisplayName("Should handle invalid token format")
+        void anyEndpoint_InvalidTokenFormat_ReturnsUnauthorized() throws Exception {
+            mockMvc.perform(get("/tournaments/brackets/{bracketId}", testData.bracketId)
+                            .header("Authorization", "Invalid-Format"))
+                    .andDo(print())
+                    .andExpect(status().isUnauthorized());
+        }
     }
 
     private static class TestData {
@@ -233,10 +281,14 @@ class BracketRestControllerTest {
             BracketUserDTO player1 = new BracketUserDTO();
             player1.setUsername(player1Username);
             player1.setScore(player1Score);
+            player1.setImage("/default-image.jpg");  // Add default image
+            player1.setWinProbability(0.5);  // Add default win probability
 
             BracketUserDTO player2 = new BracketUserDTO();
             player2.setUsername(player2Username);
             player2.setScore(player2Score);
+            player2.setImage("/default-image.jpg");  // Add default image
+            player2.setWinProbability(0.5);  // Add default win probability
 
             dto.setPlayer1(player1);
             dto.setPlayer2(player2);
