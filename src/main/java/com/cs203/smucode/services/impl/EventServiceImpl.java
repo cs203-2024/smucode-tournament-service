@@ -131,6 +131,17 @@ public class EventServiceImpl implements EventService {
         publishEvent(event);
     }
 
+    /**
+     * Handles the TournamentEnded event by creating and publishing it.
+     *
+     * @param bracket Which has suspicious activity.
+     * @param message The message to include in the event.
+     */
+    public void handleSuspiciousActivityEvent(Bracket bracket, String message) {
+        Event event = eventFactory.createSuspiciousActivityEvent(bracket, message);
+        publishEvent(event);
+    }
+
 //    Helper Methods
     /**
      * Publishes the event by sending notifications to the recipients.

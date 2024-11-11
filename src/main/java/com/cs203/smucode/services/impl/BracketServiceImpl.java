@@ -188,6 +188,18 @@ public class BracketServiceImpl implements BracketService {
                     ? bracket.getPlayer1()
                     : bracket.getPlayer2();
             bracket.setWinner(winner);
+
+            // Check for SUSPICIOUS_ACTIVITY - defined as winning with <= 15% probability
+            if ((bracket.getPlayer1().equals(winner) && bracket.getPlayer1WinProbability() <= 0.15) ||
+                    (bracket.getPlayer2().equals(winner) && bracket.getPlayer2WinProbability() <= 0.15)) {
+
+                // Publish SUSPICIOUS_ACTIVITY notification if detected
+                eventService.handleSuspiciousActivityEvent(bracket,
+                        String.format(
+                                "Bracket with players: %s and %s flagged for suspicious activity",
+                                bracket.getPlayer1(), bracket.getPlayer2())
+                );
+            }
         }
     }
 
