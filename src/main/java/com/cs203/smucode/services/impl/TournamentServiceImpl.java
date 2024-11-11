@@ -244,11 +244,11 @@ public class TournamentServiceImpl implements TournamentService {
             parentTournament.setStatus(Status.COMPLETED); // Mark the tournament as completed
             updateTournament(parentTournament.getId(), parentTournament);
 
-            // Publish TOURNAMENT_END notification
-            eventService.handleTournamentEndedEvent(
-                    parentTournament,
-                    String.format("Tournament \"%s\" has ended!", parentTournament.getName())
-            );
+//            // Publish TOURNAMENT_END notification
+//            eventService.handleTournamentEndedEvent(
+//                    parentTournament,
+//                    String.format("Tournament \"%s\" has ended!", parentTournament.getName())
+//            );
             return parentTournament;
         }
 
