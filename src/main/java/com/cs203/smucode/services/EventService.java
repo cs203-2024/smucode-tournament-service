@@ -1,8 +1,9 @@
 package com.cs203.smucode.services;
 
+import com.cs203.smucode.models.Bracket;
+import com.cs203.smucode.models.Round;
+import com.cs203.smucode.models.Tournament;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 /**
  * Service interface for handling tournament-related events.
@@ -11,16 +12,15 @@ import java.util.UUID;
  */
 @Service
 public interface EventService {
-    void handleSignupClosedEvent(UUID tournamentId, String tournamentName, String message);
 
-    void handleRegistrationAcceptedEvent(UUID tournamentId, String tournamentName, String message);
+    void handleRegistrationAcceptedEvent(Tournament tournament, String message);
 
-    void handleRegistrationRejectedEvent(UUID tournamentId, String tournamentName, String message);
+    void handleRegistrationRejectedEvent(Tournament tournament, String message);
 
-    void handleBracketCompletedEvent(UUID tournamentId, String tournamentName, String message);
+    void handleBracketCompletedEvent(Bracket bracket, String message);
 
-    void handleRoundEndedEvent(UUID tournamentId, String tournamentName, String message);
+    void handleRoundEndedEvent(Round round, String message);
 
-    void handleTournamentEndedEvent(UUID tournamentId, String tournamentName, String message);
+    void handleTournamentEndedEvent(Tournament tournament, String message);
 
 }

@@ -3,6 +3,9 @@ package com.cs203.smucode.services.impl;
 import com.cs203.smucode.consumers.NotificationServiceConsumer;
 import com.cs203.smucode.factories.EventFactory;
 import com.cs203.smucode.mappers.NotificationMapper;
+import com.cs203.smucode.models.Bracket;
+import com.cs203.smucode.models.Round;
+import com.cs203.smucode.models.Tournament;
 import com.cs203.smucode.models.events.Event;
 import com.cs203.smucode.services.EventService;
 import org.slf4j.Logger;
@@ -10,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
 
 /**
  * Implementation of the EventService interface.
@@ -44,96 +46,88 @@ public class EventServiceImpl implements EventService {
     /**
      * Handles the SignupClosed event by creating and publishing it.
      *
-     * @param tournamentId The ID of the tournament.
-     * @param tournamentName The name of the tournament.
+     * @param tournament The tournament which signup has closed.
      * @param message The message to include in the event.
      */
-    public void handleSignupClosedEvent(UUID tournamentId, String tournamentName, String message) {
-        Event event = eventFactory.createSignupClosedEvent(tournamentId, tournamentName, message);
+    public void handleSignupClosedEvent(Tournament tournament, String message) {
+        Event event = eventFactory.createSignupClosedEvent(tournament, message);
         publishEvent(event);
     }
 
     /**
      * Handles the RegistrationAccepted event by creating and publishing it.
      *
-     * @param tournamentId The ID of the tournament.
-     * @param tournamentName The name of the tournament.
+     * @param tournament The registered tournament;
      * @param message The message to include in the event.
      */
-    public void handleRegistrationAcceptedEvent(UUID tournamentId, String tournamentName, String message) {
-        Event event = eventFactory.createRegistrationAcceptedEvent(tournamentId, tournamentName, message);
+    public void handleRegistrationAcceptedEvent(Tournament tournament, String message) {
+        Event event = eventFactory.createRegistrationAcceptedEvent(tournament, message);
         publishEvent(event);
     }
 
     /**
      * Handles the RegistrationRejected event by creating and publishing it.
      *
-     * @param tournamentId The ID of the tournament.
-     * @param tournamentName The name of the tournament.
+     * @param tournament The registered tournament.
      * @param message The message to include in the event.
      */
-    public void handleRegistrationRejectedEvent(UUID tournamentId, String tournamentName, String message) {
-        Event event = eventFactory.createRegistrationRejectedEvent(tournamentId, tournamentName, message);
+    public void handleRegistrationRejectedEvent(Tournament tournament, String message) {
+        Event event = eventFactory.createRegistrationRejectedEvent(tournament, message);
         publishEvent(event);
     }
 
     /**
      * Handles the BracketCompleted event by creating and publishing it.
      *
-     * @param tournamentId The ID of the tournament.
-     * @param tournamentName The name of the tournament.
+     * @param bracket The bracket which has completed.
      * @param message The message to include in the event.
      */
-    public void handleBracketCompletedEvent(UUID tournamentId, String tournamentName, String message) {
-        Event event = eventFactory.createBracketCompletedEvent(tournamentId, tournamentName, message);
+    public void handleBracketCompletedEvent(Bracket bracket, String message) {
+        Event event = eventFactory.createBracketCompletedEvent(bracket, message);
         publishEvent(event);
     }
 
     /**
      * Handles the RoundStarted event by creating and publishing it.
      *
-     * @param tournamentId The ID of the tournament.
-     * @param tournamentName The name of the tournament.
+     * @param round The round which has started.
      * @param message The message to include in the event.
      */
-    public void handleRoundStartedEvent(UUID tournamentId, String tournamentName, String message) {
-        Event event = eventFactory.createRoundStartedEvent(tournamentId, tournamentName, message);
+    public void handleRoundStartedEvent(Round round, String message) {
+        Event event = eventFactory.createRoundStartedEvent(round, message);
         publishEvent(event);
     }
 
     /**
      * Handles the RoundEnded event by creating and publishing it.
      *
-     * @param tournamentId The ID of the tournament.
-     * @param tournamentName The name of the tournament.
+     * @param round The round which has ended.
      * @param message The message to include in the event.
      */
-    public void handleRoundEndedEvent(UUID tournamentId, String tournamentName, String message) {
-        Event event = eventFactory.createRoundEndedEvent(tournamentId, tournamentName, message);
+    public void handleRoundEndedEvent(Round round, String message) {
+        Event event = eventFactory.createRoundEndedEvent(round, message);
         publishEvent(event);
     }
 
     /**
      * Handles the TournamentStarted event by creating and publishing it.
      *
-     * @param tournamentId The ID of the tournament.
-     * @param tournamentName The name of the tournament.
+     * @param tournament The tournament which has started.
      * @param message The message to include in the event.
      */
-    public void handleTournamentStartedEvent(UUID tournamentId, String tournamentName, String message) {
-        Event event = eventFactory.createTournamentStartedEvent(tournamentId, tournamentName, message);
+    public void handleTournamentStartedEvent(Tournament tournament, String message) {
+        Event event = eventFactory.createTournamentStartedEvent(tournament, message);
         publishEvent(event);
     }
 
     /**
      * Handles the TournamentEnded event by creating and publishing it.
      *
-     * @param tournamentId The ID of the tournament.
-     * @param tournamentName The name of the tournament.
+     * @param tournament The tournament which has ended.
      * @param message The message to include in the event.
      */
-    public void handleTournamentEndedEvent(UUID tournamentId, String tournamentName, String message) {
-        Event event = eventFactory.createTournamentEndedEvent(tournamentId, tournamentName, message);
+    public void handleTournamentEndedEvent(Tournament tournament, String message) {
+        Event event = eventFactory.createTournamentEndedEvent(tournament, message);
         publishEvent(event);
     }
 
